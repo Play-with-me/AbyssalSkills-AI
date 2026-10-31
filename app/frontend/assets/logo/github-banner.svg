@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Abyssal Void Background -->
+    <radialGradient id="banner-bg" cx="28%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#0B1933" />
+      <stop offset="55%" stop-color="#071021" />
+      <stop offset="100%" stop-color="#040914" />
+    </radialGradient>
+
+    <!-- Electric Ocean Cyan -> Aqua Gradient -->
+    <linearGradient id="banner-ocean" x1="15%" y1="15%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#00B4D8" />
+      <stop offset="55%" stop-color="#04B0D8" />
+      <stop offset="100%" stop-color="#06D6A0" />
+    </linearGradient>
+
+    <!-- Celestial Aurora Violet Gradient -->
+    <linearGradient id="banner-sky" x1="15%" y1="85%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#7C3AED" />
+      <stop offset="60%" stop-color="#843EF8" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+
+    <!-- Subtle Horizon Grid Pattern -->
+    <pattern id="banner-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#38BDF8" stroke-width="0.6" stroke-opacity="0.06" />
+    </pattern>
+  </defs>
+
+  <!-- 1. Background Canvas -->
+  <rect width="1280" height="640" fill="url(#banner-bg)" />
+  <rect width="1280" height="640" fill="url(#banner-grid)" />
+
+  <!-- Subtle Horizon Ambient Glows -->
+  <circle cx="310" cy="320" r="240" fill="#04B0D8" fill-opacity="0.08" />
+  <circle cx="370" cy="270" r="210" fill="#843EF8" fill-opacity="0.09" />
+
+  <!-- 2. Left Emblem: Ocean & Sky with Negative-Space Emergent Fox (Scaled around 320, 320) -->
+  <g transform="translate(80, 80) scale(0.92)">
+    <!-- Outer Golden-Ratio Construction Ring -->
+    <circle cx="256" cy="256" r="228" stroke="#38BDF8" stroke-opacity="0.14" stroke-width="1.2" stroke-dasharray="6 8" />
+
+    <!-- Shape 1: Celestial Sky Wing (Upper-Right) with Negative-Space Fox Ears & Right Cheek Carved Out -->
+    <path d="M 272 80
+             L 428 80
+             C 426 128, 396 156, 344 170
+             L 400 170
+             C 394 216, 366 242, 318 264
+             C 286 282, 268 304, 267 326
+             C 258 316, 258 296, 266 276
+             C 278 260, 304 242, 306 232
+             C 308 206, 302 180, 290 160
+             C 274 180, 258 208, 247 209
+             C 236 208, 220 180, 204 160
+             C 192 180, 185 206, 178 232
+             C 162 222, 158 196, 166 168
+             C 180 116, 222 82, 272 80 Z"
+          fill="url(#banner-sky)" />
+
+    <!-- Shape 2: Abyssal Ocean Wave Crescent (Lower-Left) with Negative-Space Fox Jaw & Left Muzzle -->
+    <path d="M 198 90
+             C 118 122, 82 188, 82 258
+             C 82 358, 162 426, 256 426
+             C 326 426, 376 384, 410 330
+             C 416 320, 402 308, 390 316
+             C 356 344, 318 358, 286 352
+             C 256 346, 246 314, 232 272
+             C 212 264, 184 256, 166 244
+             C 146 226, 144 188, 158 150
+             C 168 120, 184 100, 198 90 Z"
+          fill="url(#banner-ocean)" />
+
+    <!-- Shape 3 & 4: Subtle Horizon-Glint Fox Eyes inside the Negative Space -->
+    <path d="M 209 234
+             C 220 234, 231 240, 235 248
+             C 223 247, 213 242, 209 234 Z"
+          fill="#04B0D8" />
+    <path d="M 282 234
+             C 271 234, 260 240, 256 248
+             C 268 247, 278 242, 282 234 Z"
+          fill="#843EF8" />
+  </g>
+
+  <!-- 3. Right Typography Lockup -->
+  <g transform="translate(575, 0)">
+    <!-- Eyebrow Pill -->
+    <rect x="0" y="198" width="420" height="32" rx="16" fill="#0B1933" stroke="#38BDF8" stroke-opacity="0.3" stroke-width="1" />
+    <circle cx="18" cy="214" r="4" fill="#04B0D8" />
+    <circle cx="30" cy="214" r="4" fill="#843EF8" />
+    <text x="46" y="219" fill="#94A3B8" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="12" font-weight="600" letter-spacing="2.2">OCEAN &amp; SKY // NEGATIVE-SPACE FOX</text>
+
+    <!-- Primary Brand Handle -->
+    <text x="0" y="340" fill="#F8FAFC" font-family="'Syne', 'Space Grotesk', 'Inter', sans-serif" font-size="112" font-weight="800" letter-spacing="-4">kyuu<tspan fill="url(#banner-ocean)">4</tspan></text>
+
+    <!-- Subtitle -->
+    <text x="4" y="395" fill="#94A3B8" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-size="22" font-weight="500" letter-spacing="0.4">Biển Sâu &amp; Bầu Trời Cực Quang • Tâm Điểm Cáo Ẩn Hiện</text>
+
+    <!-- Semantic Color Token Pills -->
+    <g transform="translate(4, 432)">
+      <rect x="0" y="0" width="136" height="34" rx="8" fill="#071021" stroke="#1E293B" stroke-width="1.2" />
+      <circle cx="18" cy="17" r="6" fill="#050C1A" stroke="#475569" stroke-width="1" />
+      <text x="34" y="22" fill="#E2E8F0" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">#050C1A</text>
+
+      <rect x="150" y="0" width="136" height="34" rx="8" fill="#071021" stroke="#04B0D8" stroke-opacity="0.4" stroke-width="1.2" />
+      <circle cx="168" cy="17" r="6" fill="#00B4D8" />
+      <text x="184" y="22" fill="#E2E8F0" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">#00B4D8</text>
+
+      <rect x="300" y="0" width="136" height="34" rx="8" fill="#071021" stroke="#843EF8" stroke-opacity="0.4" stroke-width="1.2" />
+      <circle cx="318" cy="17" r="6" fill="#7C3AED" />
+      <text x="334" y="22" fill="#E2E8F0" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">#7C3AED</text>
+    </g>
+  </g>
+</svg>

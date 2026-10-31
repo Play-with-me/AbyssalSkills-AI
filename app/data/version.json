@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "app_name": "AbyssalSkillsD",
+  "channel": "stable",
+  "release_date": "2026-10-31",
+  "repository": "https://github.com/kyuu4/abyssalskillsd",
+  "skills_repo": "https://github.com/addyosmani/agent-skills",
+  "changelog": {
+    "version": "1.0.0",
+    "title": "AbyssalSkillsD — Phiên Bản Ra Mắt Chính Thức (Official Debut)",
+    "highlights": [
+      "Thương hiệu độc quyền 100% AbyssalSkillsD với bản quyền an toàn tuyệt đối.",
+      "Bộ nhận diện hình học Abyssal Sky v2.0 chuẩn Linear/Vercel với lưới Blueprint Grid.",
+      "Tích hợp biểu tượng Windows Taskbar độc lập và Windows AppUserModelID.",
+      "Hệ thống tự động nạp quy tắc vào Cursor, Windsurf, Claude Code, GitHub Copilot, Google Antigravity.",
+      "Hỗ trợ chỉ định thư mục dự án riêng (Workspace Path) cho từng lập trình viên.",
+      "Tích hợp 29 kỹ năng và chuyên gia AI từ Addy Osmani (Google) với 100% trích dẫn minh bạch.",
+      "Trung tâm thông báo thông minh (Notification Center) và cơ chế tự động cập nhật 2 tầng."
+    ]
+  }
+}

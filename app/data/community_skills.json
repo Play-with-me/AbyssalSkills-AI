@@ -1,0 +1,92 @@
+[
+  {
+    "id": "enterprise-microservice-chassis",
+    "name": "Enterprise Microservice Chassis",
+    "display_title": "Enterprise Microservice Chassis",
+    "author": "gate23_tester",
+    "category": "Backend & API",
+    "rating": 5.0,
+    "downloads": 1,
+    "description": "Standardized chassis for Golang/Python microservices with OpenTelemetry, gRPC, and health checks.",
+    "version": "1.0.0",
+    "tags": [
+      "Backend & API",
+      "Community",
+      "Custom"
+    ],
+    "content": "---\nname: enterprise-microservice-chassis\ndescription: Microservice chassis\n---\n# Enterprise Chassis\nStandardized service chassis.",
+    "updated_at": "win32"
+  },
+  {
+    "id": "docker-k8s-devops-autopilot",
+    "name": "Docker & Kubernetes DevOps Autopilot",
+    "display_title": "Docker & Kubernetes DevOps Autopilot",
+    "author": "alex_cloud",
+    "category": "DevOps & Cloud",
+    "rating": 4.9,
+    "downloads": 152,
+    "description": "Tự động phân tích ứng dụng đa ngôn ngữ, sinh Dockerfile đa tầng tối ưu dung lượng và bộ Helm chart/K8s manifests chuẩn Production.",
+    "version": "1.0.0",
+    "tags": [
+      "Docker",
+      "Kubernetes",
+      "DevOps",
+      "CI/CD"
+    ],
+    "content": "---\nname: docker-k8s-devops-autopilot\ndescription: Use when containerizing applications, writing Dockerfile, or crafting Kubernetes manifests.\n---\n# Docker & K8s Autopilot\nLuôn sử dụng multi-stage build để giảm kích thước image. Thiết lập non-root user và cấu hình health checks (liveness/readiness probes)."
+  },
+  {
+    "id": "fastapi-async-architecture",
+    "name": "FastAPI Async Enterprise Master",
+    "display_title": "FastAPI Async Enterprise Master",
+    "author": "minh_engineer",
+    "category": "Backend & API",
+    "rating": 4.8,
+    "downloads": 118,
+    "description": "Quy chuẩn kiến trúc FastAPI bất đồng bộ, Pydantic v2 schemas, SQLAlchemy 2.0 AsyncSession và tự động sinh OpenAPI spec chuẩn enterprise.",
+    "version": "1.1.0",
+    "tags": [
+      "FastAPI",
+      "Python",
+      "AsyncIO",
+      "Pydantic"
+    ],
+    "content": "---\nname: fastapi-async-architecture\ndescription: Use when developing async Python APIs with FastAPI, Pydantic, and SQLAlchemy.\n---\n# FastAPI Async Master\nTuân thủ async def, tách biệt Routers/Services/Repositories, xử lý ngoại lệ toàn cục qua custom exception handlers."
+  },
+  {
+    "id": "cloudflare-workers-edge-master",
+    "name": "Cloudflare Workers & Hono Edge Master",
+    "display_title": "Cloudflare Workers & Hono Edge Master",
+    "author": "sarah_edge",
+    "category": "Edge & Serverless",
+    "rating": 4.9,
+    "downloads": 96,
+    "description": "Xây dựng microservices siêu nhẹ trên Cloudflare Workers kết hợp Hono.js, KV storage, D1 SQL và Durable Objects với độ trễ sub-10ms toàn cầu.",
+    "version": "1.0.0",
+    "tags": [
+      "Cloudflare",
+      "Hono",
+      "Edge",
+      "TypeScript"
+    ],
+    "content": "---\nname: cloudflare-workers-edge-master\ndescription: Use when building serverless APIs on Cloudflare Workers and Hono.js.\n---\n# Cloudflare Workers Master\nSử dụng Hono.js cho routing siêu nhẹ, tận dụng KV caching và D1 database cho dữ liệu biên."
+  },
+  {
+    "id": "pytorch-model-evaluator",
+    "name": "PyTorch ML Model Evaluator & Benchmark",
+    "display_title": "PyTorch ML Model Evaluator & Benchmark",
+    "author": "deep_researcher",
+    "category": "AI & Data Science",
+    "rating": 4.7,
+    "downloads": 84,
+    "description": "Bộ quy chuẩn kiểm thử mô hình Deep Learning: ma trận đánh giá F1/Precision/Recall, kiểm tra độ trễ GPU TensorRT và phát hiện data leakage.",
+    "version": "1.0.2",
+    "tags": [
+      "PyTorch",
+      "Machine Learning",
+      "Benchmark",
+      "CUDA"
+    ],
+    "content": "---\nname: pytorch-model-evaluator\ndescription: Use when training, benchmarking, and evaluating PyTorch machine learning models.\n---\n# PyTorch Evaluator\nĐo lường FLOPs, độ trễ suy luận P99, và tự động vẽ confusion matrix và biểu đồ PR-curve."
+  }
+]

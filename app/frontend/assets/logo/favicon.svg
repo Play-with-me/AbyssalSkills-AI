@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="favOceanV4" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0096C7" />
+      <stop offset="100%" stop-color="#06D6A0" />
+    </linearGradient>
+    <linearGradient id="favSkyV4" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6D28D9" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="#050C1A" />
+
+  <!-- Sky Prism Wing -->
+  <path d="M 17,31 C 18,21 26,14 49,7 C 53,6 56,9 54,13 C 46,35 40,43 31,44 C 24,45 17,38 17,31 Z"
+        fill="url(#favSkyV4)" />
+
+  <!-- Negative-space separation channel -->
+  <path d="M 12,30.5 L 23,31 M 31.5,42 L 36.5,47.5"
+        fill="none"
+        stroke="#050C1A"
+        stroke-width="3.5"
+        stroke-linecap="round" />
+
+  <!-- Ocean Wave Crest -->
+  <path d="M 8,33 C 8,29 12,27 17,27 C 24,27 29,31 31,38 C 34,45 40,48 47,45 C 51,43 54,40 56,38 C 57,36 60,38 58,41 C 54,51 44,58 32,58 C 18,58 8,47 8,33 Z"
+        fill="url(#favOceanV4)" />
+
+  <!-- Negative-Space Emergent Fox Silhouette at Center (#050C1A) -->
+  <path d="M 24,18.5
+           C 26.8,20.5 29.2,23 31.5,24.5
+           C 33.8,23 36.2,20.5 39,18.5
+           C 40.2,22.8 41,27 40.8,31
+           C 38.2,35.2 34.8,39 31.5,42.2
+           C 28.2,39 24.8,35.2 22.2,31
+           C 22,27 22.8,22.8 24,18.5 Z"
+        fill="#050C1A" />
+</svg>

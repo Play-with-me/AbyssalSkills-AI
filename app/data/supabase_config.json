@@ -1,0 +1,6 @@
+{
+  "supabase_url": "https://custom-project.supabase.co",
+  "anon_key": "custom_anon_jwt_token_sample",
+  "service_secret_key": "custom_service_secret_key_123",
+  "project_name": "Kyuu449977's Project"
+}

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="oceanDarkV4" x1="10%" y1="90%" x2="90%" y2="30%">
+      <stop offset="0%" stop-color="#005B94" />
+      <stop offset="45%" stop-color="#00B4D8" />
+      <stop offset="100%" stop-color="#06D6A0" />
+    </linearGradient>
+
+    <linearGradient id="skyDarkV4" x1="20%" y1="85%" x2="88%" y2="12%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+
+    <linearGradient id="rimDarkV4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Solid Uniform Abyssal Navy Background (#050C1A) -->
+  <rect width="512" height="512" rx="108" fill="#050C1A" />
+  <rect x="2" y="2" width="508" height="508" rx="106" fill="none" stroke="#1E2D4A" stroke-width="2" opacity="0.65" />
+
+  <!-- 1. CELESTIAL SKY PRISM WING -->
+  <path d="M 136,248
+           C 146,168 208,118 392,56
+           C 420,46 442,68 432,96
+           C 370,280 320,342 248,352
+           C 192,358 136,304 136,248 Z"
+        fill="url(#skyDarkV4)" />
+  <path d="M 136,248
+           C 146,168 208,118 392,56
+           C 420,46 442,68 432,96
+           C 370,280 320,342 248,352
+           C 192,358 136,304 136,248 Z"
+        fill="none"
+        stroke="url(#rimDarkV4)"
+        stroke-width="3" />
+
+  <!-- Horizon Separation Channels in Solid #050C1A -->
+  <path d="M 96,244 Q 142,240 182,248"
+        fill="none"
+        stroke="#050C1A"
+        stroke-width="26"
+        stroke-linecap="round" />
+  <path d="M 252,334 Q 266,362 292,382"
+        fill="none"
+        stroke="#050C1A"
+        stroke-width="26"
+        stroke-linecap="round" />
+
+  <!-- 2. ABYSSAL OCEAN WAVE CREST -->
+  <path d="M 68,262
+           C 68,238 92,222 132,222
+           C 188,222 228,248 248,308
+           C 268,366 322,386 378,362
+           C 406,350 426,328 438,312
+           C 448,298 468,308 460,328
+           C 432,404 352,460 254,460
+           C 142,460 68,374 68,262 Z"
+        fill="url(#oceanDarkV4)" />
+  <path d="M 68,262
+           C 68,238 92,222 132,222
+           C 188,222 228,248 248,308
+           C 268,366 322,386 378,362
+           C 406,350 426,328 438,312
+           C 448,298 468,308 460,328
+           C 432,404 352,460 254,460
+           C 142,460 68,374 68,262 Z"
+        fill="none"
+        stroke="url(#rimDarkV4)"
+        stroke-width="3" />
+
+  <!-- 3. NEGATIVE-SPACE EMERGENT FOX SILHOUETTE AT THE HORIZON CENTER (#050C1A) -->
+  <path d="M 192,148
+           C 214,164 234,184 252,196
+           C 270,184 290,164 312,148
+           C 322,182 328,216 326,248
+           C 306,282 278,312 252,338
+           C 226,312 198,282 178,248
+           C 176,216 182,182 192,148 Z"
+        fill="#050C1A"
+        stroke="#050C1A"
+        stroke-width="8"
+        stroke-linejoin="round" />
+
+  <!-- Whisper-Subtle Horizon Eye Slits ("Ẩn Hiện") -->
+  <path d="M 202,244 Q 220,248 236,260 Q 214,258 202,244 Z" fill="#00B4D8" opacity="0.9" />
+  <path d="M 302,244 Q 284,248 268,260 Q 290,258 302,244 Z" fill="#A855F7" opacity="0.9" />
+</svg>

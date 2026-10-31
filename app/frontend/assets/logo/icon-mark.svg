@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!--
+    BRAND: kyuu4 // ABYSSAL SKY v4.0 (Ocean & Sky with Emergent Negative-Space Fox)
+    CONCEPT:
+      1. Macro View (Dominant 86% Canvas): Two bold interlocking elemental masses —
+         the sweeping Electric Cyan Ocean Wave below and the soaring Aurora Violet Sky Prism above.
+      2. Focal Center ("Con Cáo Ẩn Hiện"): Where Ocean and Sky meet at the horizon center,
+         their inner contours carve out a sleek NEGATIVE-SPACE FOX SILHOUETTE (ears rising into
+         the sky, muzzle dipping into the ocean) with two subtle glimmering horizon eye slits.
+      3. Strictly zero Gemini stars or ostentatious cartoon elements.
+  -->
+  <defs>
+    <!-- Primary Ocean Mass Gradient: Deep Azure -> Electric Cyan -> Horizon Aqua -->
+    <linearGradient id="oceanMassV4" x1="10%" y1="90%" x2="90%" y2="30%">
+      <stop offset="0%" stop-color="#005B94" />
+      <stop offset="45%" stop-color="#00B4D8" />
+      <stop offset="100%" stop-color="#06D6A0" />
+    </linearGradient>
+
+    <!-- Secondary Celestial Sky Mass Gradient: Indigo -> Aurora Violet -> Cosmic Lavender -->
+    <linearGradient id="skyMassV4" x1="20%" y1="85%" x2="88%" y2="12%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+
+    <!-- Subtle Satin Rim Light -->
+    <linearGradient id="satinRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Negative-Space Mask: Carves the Emergent Fox Silhouette + Horizon Channels out of Ocean & Sky -->
+    <mask id="emergentFoxMask">
+      <rect width="512" height="512" fill="white" />
+
+      <!-- Horizon Separation Channels (Connecting the Negative-Space Fox Cheekbones to the Outer Horizon) -->
+      <path d="M 96,244 Q 142,240 182,248"
+            fill="none"
+            stroke="black"
+            stroke-width="24"
+            stroke-linecap="round" />
+      <path d="M 252,334 Q 266,362 292,382"
+            fill="none"
+            stroke="black"
+            stroke-width="24"
+            stroke-linecap="round" />
+
+      <!-- THE NEGATIVE-SPACE FOX SILHOUETTE AT THE CENTER OF OCEAN & SKY -->
+      <!-- Two sharp alert Fox Ears carved upward into the Sky Prism + Tapered Fox Cheek & Muzzle carved downward into the Ocean Wave -->
+      <path d="M 192,148
+               C 214,164 234,184 252,196
+               C 270,184 290,164 312,148
+               C 322,182 328,216 326,248
+               C 306,282 278,312 252,338
+               C 226,312 198,282 178,248
+               C 176,216 182,182 192,148 Z"
+            fill="black"
+            stroke="black"
+            stroke-width="8"
+            stroke-linejoin="round" />
+    </mask>
+  </defs>
+
+  <!-- 1. OUTER INTERLOCKING OCEAN & SKY MASSES (Masked by the Negative-Space Fox) -->
+  <g id="ocean-sky-masses" mask="url(#emergentFoxMask)">
+    <!-- Upper Mass: Celestial Sky Prism Wing (Soaring 120°/45° Blunt-Rounded Apex) -->
+    <path d="M 136,248
+             C 146,168 208,118 392,56
+             C 420,46 442,68 432,96
+             C 370,280 320,342 248,352
+             C 192,358 136,304 136,248 Z"
+          fill="url(#skyMassV4)" />
+
+    <path d="M 136,248
+             C 146,168 208,118 392,56
+             C 420,46 442,68 432,96
+             C 370,280 320,342 248,352
+             C 192,358 136,304 136,248 Z"
+          fill="none"
+          stroke="url(#satinRim)"
+          stroke-width="4" />
+
+    <!-- Lower Mass: Abyssal Ocean Wave Crest (Sweeping Hydro-Crescent) -->
+    <path d="M 68,262
+             C 68,238 92,222 132,222
+             C 188,222 228,248 248,308
+             C 268,366 322,386 378,362
+             C 406,350 426,328 438,312
+             C 448,298 468,308 460,328
+             C 432,404 352,460 254,460
+             C 142,460 68,374 68,262 Z"
+          fill="url(#oceanMassV4)" />
+
+    <path d="M 68,262
+             C 68,238 92,222 132,222
+             C 188,222 228,248 248,308
+             C 268,366 322,386 378,362
+             C 406,350 426,328 438,312
+             C 448,298 468,308 460,328
+             C 432,404 352,460 254,460
+             C 142,460 68,374 68,262 Z"
+          fill="none"
+          stroke="url(#satinRim)"
+          stroke-width="4" />
+  </g>
+
+  <!-- 2. WHISPER-SUBTLE HORIZON EYE SLITS ("Ẩn Hiện" inside the Negative-Space Fox Shadow) -->
+  <g id="subtle-fox-glint" opacity="0.88">
+    <!-- Left Horizon Slit (Bioluminescent Cyan) -->
+    <path d="M 202,244 Q 220,248 236,260 Q 214,258 202,244 Z" fill="#00B4D8" />
+    <!-- Right Horizon Slit (Aurora Violet-Cyan) -->
+    <path d="M 302,244 Q 284,248 268,260 Q 290,258 302,244 Z" fill="#A855F7" />
+  </g>
+</svg>

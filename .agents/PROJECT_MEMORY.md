@@ -1,0 +1,91 @@
+# AbyssalSkillsD — Project Memory Anchor (`.agents/PROJECT_MEMORY.md`)
+
+## 1. Product Summary & Active UX Rules
+- **Product:** AbyssalSkillsD — Standalone Windows Desktop Application for AI Skill Management & Marketplace.
+- **Brand Identity:** Renamed from SkillForge to **`AbyssalSkillsD`** (100% collision-free globally across GitHub, PyPI, and trademarks).
+- **Official Release Strategy:**
+  - Initial public edition reset to clean **`v1.0.0`**.
+  - GitHub Repository slug: `https://github.com/kyuu4/abyssalskillsd`.
+- **Packaging & Distribution:**
+  - Standalone Windows 64-bit distribution (`dist/AbyssalSkillsD/AbyssalSkillsD.exe`, 5.44 MB). Requires zero Python, Node.js, or Git installed on client computers.
+  - Portable Release ZIP: `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (18.27 MB, SHA256: `2b5b58e9...`).
+  - Professional Inno Setup Script: `installer/abyssalskillsd.iss` for building single-file `AbyssalSkillsD-Setup-v1.0.0.exe`.
+  - Windows Shortcuts: `AbyssalSkillsD AI.lnk` deployed to workspace and user Desktop.
+- **Brand Identity & Motifs:** Abyssal Sky v2.0 (`kyuu4-abyssal-sky-design-system` via `ip-as-logo` & `voltagent-awesome-design-md`).
+  - Palette: `#050C1A` (Abyssal Void), `#00B4D8` (Electric Ocean Cyan), `#7C3AED` (Celestial Aurora Violet), `#1E2D4A` (Hairline).
+  - Background Canvas: Fixed non-intrusive Sacred Geometry & Blueprint grid vector backdrop (`#geometric-background-canvas`, `pointer-events: none`).
+  - Native Windows Icon: Multi-resolution Windows Icon `app-icon.ico` embedded in Windows Taskbar, WinForms `Form.Icon`, Edge WebView2 favicon, and Desktop shortcuts.
+- **Smart Notification Center & Minor Update UX:**
+  - Dismissible Banner: Automatically detects new skills and displays banner.
+  - Anti-Annoyance Memory: Saved dismiss signatures to `localStorage` (`abyssalskillsd-dismissed-banner-sig`) and mute toggle (`abyssalskillsd-mute-minor-banners`).
+  - TopBar Notification Bell: Centralized notification dropdown with 1-click sync.
+- **Neural Stream Activation & Live Verification Proof Engine (v1.1):**
+  - **Hoạt ảnh Sóng hạt Vi mạch (Neural Stream Stage):** Khi bấm kích hoạt/cài đặt, hiển thị luồng dữ liệu truyền tải hình học chuyển động mượt mà (sub-250ms) từ Logo kỹ năng sang lõi AI Core qua 3 bước tiến trình thực tế.
+  - **Bằng chứng Thư mục Thực tế (Windows Explorer):** Tích hợp nút `[📁 Mở thư mục trên máy]` gọi trực tiếp `DesktopBridge.openSkillFolder()` để người dùng tận mắt kiểm tra tệp `SKILL.md` trên ổ cứng.
+  - **Khay Kiểm Chứng AI Tức Thì:** Hộp thoại `[🧪 Kiểm Chứng AI]` cung cấp câu lệnh mẫu (1-click copy) cùng giải thích dấu hiệu nhận biết AI phản hồi chuẩn `[MODE: DISCOVERY]` / `[MODE: BLUEPRINT]`.
+  - **Huy hiệu Đã vào AI:** Thẻ kỹ năng hiển thị đèn vi mạch phát sáng nhịp thở `● Đã vào AI` kèm danh sách trợ lý AI đang được bảo vệ.
+- **Aggregated Suites (36 Items Total):**
+  1. Skill-AI Nucleus Suite (7 Master Skills).
+  2. Addy Osmani Production Engineering Suite (29 Items: 25 Skills + 4 Personas).
+- **Universal Multi-Tool Ecosystem:** Cursor AI, Windsurf, GitHub Copilot, Aider, Google Antigravity, and Claude Code.
+- **External Asset Integrity Law:** `C:\Logo` remains 100% read-only and untouched.
+- **Desktop Runtime:** Python 3.15 + PyWebView (Native Edge WebView2).
+
+## 2. Architecture & God Nodes (Graphify AST Audit)
+- Core Abstractions:
+  - `RuntimePathResolver` (`app/backend/paths.py`): Seamless frozen PyInstaller vs. dev mode path resolution with APPDATA fallback.
+  - `UpdateEngine` (`app/backend/updater.py`): SemVer comparison, GitHub Releases API, and Git sync coordinator.
+  - `DesktopAPI`: JS-to-Python IPC bridge.
+  - `SkillStorage`: Registry persistence & dual-suite seeder.
+  - `SkillInstaller`: Multi-target deployment engine.
+  - `DesktopBridge`: Frontend asynchronous bridge.
+  - `UIComponents`: Notification bell, Notification tray, Dismissible banner, and Update modal.
+
+## 3. Recent Completed Changes
+- [x] Global Rebranding: Transformed entire project identity from SkillForge to **`AbyssalSkillsD`** across Python backend, HTML, JS, CSS, config files, and tests.
+- [x] Version Reset: Initial public release version set to **`1.0.0`** across `version.json`, `pyproject.toml`, updater, and packaging scripts.
+- [x] Standalone PyInstaller Packaging: Built onedir Windows distribution with bundled Edge WebView2, WinForms, data files, and custom app icon.
+- [x] Portable ZIP Archive: Created `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (18.61 MB) ready for instant deployment.
+- [x] Inno Setup Script: Created `installer/abyssalskillsd.iss` for automated `.exe` installer compilation.
+- [x] Windows Shortcuts: Created `AbyssalSkillsD AI.lnk` on Desktop and workspace pointing to `app-icon.ico`.
+- [x] Neural Stream & Live Verification: Integrated interactive neural data stream animation and 1-click Windows Explorer/prompt verification proof.
+- [x] Logo Typography & Brand Lockup Restoration: Faithfully matched the official brand layout (`Abyssal` cyan-purple gradient + `Skills` bold white + `[D]` glowing squircle badge + `AI SKILL ENGINEERING STUDIO`), replacing the flat uppercase plain text with crisp, GPU-accelerated 60fps typography.
+- [x] Dynamic Active Workspace Project Selector (Phase 1): Added toolbar project pill (`.workspace-project-bar`) and folder picker dialog so developers can target any project folder on disk without polluting Desktop.
+- [x] Clean Teardown & Uninstall Engine (Phase 1): Added selective multi-AI uninstall modal (`renderUninstallConfirmModal`) with complete directory cleanup.
+- [x] Safe Backup (.bak) Engine (Phase 1): Created automatic snapshot backups before overwriting existing skills on disk.
+- [x] Logo v4.0 Update ("Biển Trời Giao Hòa • Tâm Điểm Cáo Ẩn Hiện"): Đã đồng bộ 100% bản thiết kế Logo v4.0 mới nhất từ `C:\Logo` sang ứng dụng (thay thế ngôi sao 4 cánh bằng hình tượng Con Cáo Âm Bản Gestalt ẩn hiện tại đường chân trời giữa Sóng Biển `#00B4D8` và Lăng Kính Bầu Trời `#7C3AED`, đi kèm 2 khe mắt chân trời phát quang).
+- [x] Multi-Resolution Windows Icons: Tái sinh tệp `app-icon.ico` và `favicon.ico` đa độ phân giải (16px đến 256px) phục vụ Windows Taskbar, shortcut và Edge WebView2.
+- [x] Phase 2 (P1 Multi-AI Sync & Workflow Acceleration):
+  - [x] 1-Click Multi-AI Global Sync Engine (`DesktopAPI.sync_all_ais()`, `#btn-sync-all-ais`, `renderSyncAllModal`): Triển khai toàn bộ 36 kỹ năng đồng loạt vào Google Antigravity, Claude Code, GitHub Copilot, Cursor AI, Windsurf và Thư mục dự án.
+  - [x] Instant Rule Scaffolding Generator (`DesktopAPI.generate_project_rules()`, `#btn-generate-project-rules`, `renderGenerateRulesModal`): Tự động sinh trọn bộ giàn giáo quy tắc `.cursorrules`, `.windsurfrules`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.agents/rules/always-on-autopilot.md`.
+  - [x] 1-Click Studio Customizer (`.btn-card-customize`, `.btn-inspector-customize`, `handleCustomizeInStudio()`): Nạp tức thì mọi kỹ năng vào Studio để chỉnh sửa và lưu thành phiên bản riêng.
+- [x] Clean Graphify UI Decoupling & Automated AI Watchdog:
+  - [x] Bóc tách 100% giao diện Graphify khỏi ứng dụng người dùng (loại bỏ Sidebar tab, container Lab, Command Palette item, và không nạp 9.8MB `graph.json` khi mở app), giúp app khởi động tức thì và tiết kiệm ~20MB RAM.
+  - [x] Duy trì `graphify-out/` làm Neo Bộ Nhớ Trực Hệ Thứ 2 cho AI trong workspace, tự động kích hoạt `uv run graphify update .` sau mỗi lần sửa đổi mã nguồn (đạt 11,140 nodes, 11,183 edges, 651 communities).
+- [x] Phase 3 (P2 Enterprise Community, Diagnostic Logger & Complete Setup Ecosystem):
+  - [x] Live Community Skill Cloud: Nâng cấp Chợ Cộng Đồng với thẻ kỹ năng động, phân loại chủ đề, đánh giá sao, lượt tải, modal chi tiết và cài đặt 1-click vào dự án.
+  - [x] Studio 1-Click Cloud Publish: Bổ sung nút `[☁️ Đăng Lên Chợ Cloud]` trong Studio cho phép lập trình viên đóng gói và lan tỏa kỹ năng tự chế lên kho cộng đồng.
+  - [x] Diagnostic Logger & Health Center: Tự động ghi nhật ký xoay vòng chuẩn Windows tại `%LOCALAPPDATA%\AbyssalSkillsD\logs\app.log` kết hợp nút `[🩺 Chẩn Đoán]` trên toolbar và xuất báo cáo chẩn đoán ZIP 1-click.
+  - [x] Inno Setup Windows Installer: Hoàn thiện kịch bản `installer/abyssalskillsd.iss` tích hợp đầy đủ thông tin bản quyền doanh nghiệp, icon thương hiệu và trình gỡ cài đặt (Uninstaller) trong Windows Settings.
+- [x] Phase 4 (Zero-Trust Security, Anti-Spam Telemetry & Error Deduplication Engine):
+  - [x] Ring 1 & 2 AppSec Defense: Tích hợp hàm làm sạch dữ liệu nhạy cảm `sanitize_sensitive_data()` loại bỏ 100% tên tài khoản Windows (`C:\Users\<user>\...`), mã thông báo phiên JWT (`[REDACTED_JWT_TOKEN]`), GitHub PATs (`[REDACTED_GITHUB_TOKEN]`), và các mật khẩu/khóa API trước khi xuất log hoặc gửi telemetry.
+  - [x] Chống Path Traversal & Bảo vệ Thư mục Hệ thống: Thắt chặt `assert_safe_workspace_path()` ngăn chặn tuyệt đối chọn nhầm ổ đĩa gốc, thư mục hệ điều hành Windows (`C:\Windows`, `System32`), thư mục không tồn tại hoặc tấn công chèn Null Byte.
+  - [x] Chống Spam Báo Lỗi & Gom Nhóm Lỗi Trùng Lặp (Deduplication Engine): 
+    - Phía Backend: Tự động băm mã lỗi mã hóa SHA-256 (`fingerprint`) dựa trên `error_type + module + line_number`. Khi người dùng gặp cùng 1 lỗi nhiều lần, hệ thống chỉ tăng bộ đếm tần suất (`occurrences: +1`) thay vì tạo rác bản ghi.
+    - Phía Frontend: Tích hợp bộ đếm Cooldown 180 giây (`localStorage`) vô hiệu hóa spam click hoặc rage-clicking.
+  - [x] Supabase Cloud Schema An Toàn: Bổ sung bảng `public.system_error_reports` kèm ràng buộc UNIQUE `(fingerprint, app_version)`, chỉ số Index tốc độ cao và phân quyền RLS chuẩn Zero-Trust (Client ẩn danh chỉ được INSERT, chỉ Admin mới có quyền SELECT xem chi tiết lỗi).
+  - [x] Giao diện Chẩn đoán An Toàn: Tích hợp dải biểu ngữ khiên bảo mật thông tin và nút `[🚀 Gửi Báo Cáo Lên Cloud]` trong hộp thoại Chẩn đoán.
+- [x] Phase 5 (Sửa Lỗi Tràn Nút Thẻ & Tách Biệt 2 Luồng Kích Hoạt Nhanh Thông Minh):
+  - [x] Sửa triệt để lỗi tràn nút (Anti-Overflow CSS): Bổ sung `overflow: hidden;` cho `.bento-card` và `.bento-card-clean`, tái cấu trúc `.card-action-group` với `flex-wrap: wrap;` và tách 2 nhóm `.card-action-left` / `.card-action-right`. Nút Pro Settings rút gọn thành `⚙️ Cài Đặt ▾`.
+  - [x] Tách Biệt 2 Luồng Kích Hoạt Thông Minh (Zero Silent Overwrites):
+    - Luồng Kỹ Năng Mới: Nút `[⚡ Kích Hoạt N Kỹ Năng Mới (1-Click)]` chỉ cài đặt đúng các kỹ năng chưa từng nạp vào máy, không chạm đến kỹ năng đã có.
+    - Luồng Kỹ Năng Cập Nhật: Khi tệp trên máy khác nội dung với kho (ví dụ người dùng đã sửa hoặc kho có bản mới), hệ thống hiển thị huy hiệu `[🔄 Có cập nhật]` và pill `[🔄 Có K Kỹ Năng Cần Cập Nhật]`. Bấm vào mở Popup So Sánh 2 Cột (Side-by-Side Diff) gồm Cột Trái (Bản Local trên máy) và Cột Phải (Bản Mới từ kho) chờ người dùng duyệt (`[Giữ Lại Bản Cũ]` hoặc `[Đồng Ý Cập Nhật]` với cơ chế sao lưu `.bak` tự động).
+    - Luồng Hoàn Tất: Khi 36/36 kỹ năng đã kích hoạt và không có bản cập nhật, nút chính chuyển sang màu xanh ngọc hoàn tất `[✓ Đã Kích Hoạt Đầy Đủ (36/36)]`.
+- [x] Rebuilt Portable Package: Cập nhật tệp `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (22.33 MB, SHA256: `496a415c8eff...`).
+- [x] Phase 6 (Supabase Cloud Live Handshake & Inno Setup Single-File Installer Compilation):
+  - [x] Live Supabase Cloud Connection: Kết nối chính thức dự án đám mây `https://ldzgwlvhbomjmonxutyc.supabase.co` với cấu hình `anon_key` hợp lệ. Hoàn tất cấu trúc bảng `profiles`, `skills`, `skill_references`, và `system_error_reports` kèm RLS an toàn.
+  - [x] Live Error Telemetry Sync: Bổ sung luồng đẩy telemetry nền sang Supabase Cloud khi có sự cố mới. Đã kiểm thử bắt tay thực tế (Live Handshake HTTP 201 Created).
+  - [x] Single-File Windows Installer: Biên dịch thành công tệp cài đặt chính thức `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (16.95 MB, SHA256: `3E0C650DF7E4CA4890D2EFE46ED7C4AA0850EA14BD4E3606DA9D6C95754E93BB`) qua Inno Setup 6, tích hợp Desktop shortcut, Start Menu shortcut và Uninstaller chuẩn Windows.
+  - [x] Portable Package: Cập nhật `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (22.33 MB, SHA256: `90434965fc9e2e5395ac484d74dedb4d41e65f6f8670430f1bfb537877f4a003`).
+- [x] Passed 100% Verification: All 25/25 automated test gates passed (`tests/test_verification.py`).
+- [x] Knowledge Graph: Updated Graphify AST (11,384 nodes, 11,508 edges, 659 communities).

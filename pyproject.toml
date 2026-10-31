@@ -1,0 +1,20 @@
+[project]
+name = "abyssalskillsd"
+version = "1.0.0"
+description = "AbyssalSkillsD - Standalone Desktop Application for AI Skill Management & Marketplace"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pywebview>=5.0.0",
+    "pyyaml>=6.0.0",
+    "networkx>=3.0",
+    "pillow>=13.0.0",
+    "pyinstaller>=6.22.3",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

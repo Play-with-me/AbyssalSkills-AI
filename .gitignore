@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Build artifacts & temp folders
+build/
+dist/AbyssalSkillsD/
+app/data/repos/
+app/data/test_addy_ws/
+app/data/test_batch_ws/
+app/data/test_workspace/
+app/data/auth_session.json
+graphify-out/cache/
+
+# Local diagnostic logs
+*.log
+app/data/system_error_reports.json
+
+# Operating System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
