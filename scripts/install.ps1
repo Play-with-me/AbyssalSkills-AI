@@ -17,7 +17,7 @@ $branch = "main"
 
 Write-Host ""
 Write-Host "  ================================================================" -ForegroundColor Cyan
-Write-Host "   🌌 AbyssalSkillsD — Enterprise AI Skill Studio Installer       " -ForegroundColor Magenta
+Write-Host "   AbyssalSkillsD -- Enterprise AI Skill Studio Installer         " -ForegroundColor Magenta
 Write-Host "  ================================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -33,7 +33,7 @@ if ($Portable) {
     $extractDir = Join-Path $env:USERPROFILE "AbyssalSkillsD"
     Write-Host "[*] Extracting to $extractDir..." -ForegroundColor Yellow
     Expand-Archive -Path $destPath -DestinationPath $extractDir -Force
-    Write-Host "[✓] AbyssalSkillsD Portable installed successfully to: $extractDir" -ForegroundColor Green
+    Write-Host "[OK] AbyssalSkillsD Portable installed successfully to: $extractDir" -ForegroundColor Green
     
     $exePath = Join-Path $extractDir "AbyssalSkillsD.exe"
     if (Test-Path $exePath) {
@@ -47,6 +47,6 @@ if ($Portable) {
     Write-Host "[*] Downloading Windows Setup Installer ($fileName)..." -ForegroundColor Yellow
     Invoke-WebRequest -Uri $targetUrl -OutFile $destPath -UseBasicParsing
     
-    Write-Host "[✓] Download complete. Launching setup wizard..." -ForegroundColor Green
+    Write-Host "[OK] Download complete. Launching setup wizard..." -ForegroundColor Green
     Start-Process -FilePath $destPath
 }
