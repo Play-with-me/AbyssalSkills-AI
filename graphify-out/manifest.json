@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "app/frontend/js/components.js": {
-    "mtime": 1793420951.8893425,
-    "seen": 1793421083.9065142,
-    "ast_hash": "aace9aed13460d022c6f463a0e76648a",
+    "mtime": 1793422428.8793664,
+    "seen": 1793422486.6603613,
+    "ast_hash": "943b63bf62790f4db33c3247ec57f3b9",
     "semantic_hash": ""
   },
   "main.py": {
@@ -114,8 +114,8 @@
     "semantic_hash": ""
   },
   "app/data/supabase_config.json": {
-    "mtime": 1793421021.8497944,
-    "seen": 1793421083.906393,
+    "mtime": 1793422464.3340201,
+    "seen": 1793422486.660082,
     "ast_hash": "cb6bedc8b5e7285e6ce674e0019ca13a",
     "semantic_hash": ""
   },
@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "app/data/community_skills.json": {
-    "mtime": 1793421026.831537,
-    "seen": 1793421083.9063902,
-    "ast_hash": "5b4750013ebdebfd7040b315894c44c7",
+    "mtime": 1793422469.8417618,
+    "seen": 1793422486.660078,
+    "ast_hash": "dc018717b08a338b49b0446ff9d0177b",
     "semantic_hash": ""
   },
   ".github/workflows/build-release.yml": {
