@@ -1,17 +1,17 @@
 # Graph Report - Manager Skills  (2026-10-31)
 
 ## Corpus Check
-- 30 files · ~404,125 words
+- 30 files · ~404,749 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .ico 3, (none) 1, .lnk 1)
 
 ## Summary
-- 497 nodes · 1059 edges · 26 communities (8 shown, 18 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 45 edges (avg confidence: 0.94)
+- 499 nodes · 1062 edges · 31 communities (8 shown, 23 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 46 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `92bfd9ac`
+- Built from commit: `7c74ca54`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -59,14 +59,14 @@
 ## Import Cycles
 - None detected.
 
-## Communities (26 total, 18 thin omitted)
+## Communities (31 total, 23 thin omitted)
 
 ### Community 0 - "api.py"
-Cohesion: 0.05
+Cohesion: 0.06
 Nodes (19): GitSyncEngine, export_diagnostic_zip(), get_recent_logs(), init_logger(), sanitize_sensitive_data(), InstallResult, ReferenceDoc, RuleDoc (+11 more)
 
 ### Community 1 - "SkillItem"
-Cohesion: 0.18
+Cohesion: 0.14
 Nodes (3): SkillInstaller, InstallRequest, SkillItem
 
 ### Community 3 - "with"
@@ -74,16 +74,16 @@ Cohesion: 0.06
 Nodes (43): name, runs-on, steps, name, runs-on, steps, name, runs-on (+35 more)
 
 ### Community 4 - "README.vi.md"
-Cohesion: 0.09
-Nodes (22): 1. Kích Hoạt Nhanh Thông Minh & Trình So Sánh Diff Trực Quan, 🖥️ 1. Windows (Lệnh PowerShell hoặc File Cài Đặt), 2. Ma Trận Tương Thích Đa Nền Tảng (Universal Multi-Target Matrix), 🍎 2. macOS (Apple Silicon M-Series & Intel), 3. Kết Nối Đám Mây Supabase Cloud & Zero-Trust Telemetry, 🐧 3. Linux (Ubuntu, Debian, Fedora, Arch), 🛠️ 4. Chạy Từ Mã Nguồn (Dành Cho Lập Trình Viên Đa Hệ), 📄 BẢN QUYỀN & GIẤY PHÉP (LICENSE & CREDITS) (+14 more)
+Cohesion: 0.08
+Nodes (23): 1. Kích Hoạt Nhanh Thông Minh & Trình So Sánh Diff Trực Quan, 🖥️ 1. Windows (Lệnh PowerShell hoặc File Cài Đặt), 2. Ma Trận Tương Thích Đa Nền Tảng (Universal Multi-Target Matrix), 🍎 2. macOS (Apple Silicon M-Series & Intel), 3. Kết Nối Đám Mây Supabase Cloud & Zero-Trust Telemetry, 🐧 3. Linux (Ubuntu, Debian, Fedora, Arch), 🛠️ 4. Chạy Từ Mã Nguồn (Dành Cho Lập Trình Viên Đa Hệ), 📄 BẢN QUYỀN & GIẤY PHÉP (LICENSE & CREDITS) (+15 more)
 
 ### Community 5 - "SkillForge AI Design System (`DESIGN.md`)"
 Cohesion: 0.12
 Nodes (15): 1. Brand Essence & Aesthetic Philosophy, 2. Geometric Logo & Background Blueprint Specification (Abyssal Sky v4.0), 3. Dual-Theme Palette & Semantic Tokens, 4. Typography, 5. Interactive Component Protocols, A. Command Palette (`Ctrl+K` / `Cmd+K`), A. Dark Mode Tokens (Abyssal Void — Default), A. The 4-Shape Complexity Budget (`ip-as-logo` & `C:\Logo\DESIGN.md`) (+7 more)
 
 ### Community 9 - "README.md"
-Cohesion: 0.09
-Nodes (22): 1. Smart 2-Flow Activation & Interactive Side-by-Side Diff, 🖥️ 1. Windows (PowerShell or 1-Click GUI), 🍎 2. macOS (Apple Silicon M-Series & Intel), 2. Universal Multi-Target Matrix, 🐧 3. Linux (Ubuntu, Debian, Fedora, Arch), 3. Supabase Cloud Backend & Zero-Trust Telemetry, 🛠️ 4. Run from Source (Cross-Platform Developer Mode), 🧪 AUTOMATED VERIFICATION SUITE (25 QUALITY GATES) (+14 more)
+Cohesion: 0.08
+Nodes (23): 1. Smart 2-Flow Activation & Interactive Side-by-Side Diff, 🖥️ 1. Windows (PowerShell or 1-Click GUI), 🍎 2. macOS (Apple Silicon M-Series & Intel), 2. Universal Multi-Target Matrix, 🐧 3. Linux (Ubuntu, Debian, Fedora, Arch), 3. Supabase Cloud Backend & Zero-Trust Telemetry, 🛠️ 4. Run from Source (Cross-Platform Developer Mode), 🧪 AUTOMATED VERIFICATION SUITE (25 QUALITY GATES) (+15 more)
 
 ### Community 13 - "UIComponents"
 Cohesion: 0.08
@@ -96,22 +96,22 @@ Nodes (6): _push_cloud(), AuthEngine, OAuthServerManager, _timeout(), get_logger
 ## Knowledge Gaps
 - **1 isolated node(s):** `abyssalskillsd`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 208 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `DesktopAPI` connect `DesktopAPI` to `api.py`, `SkillItem`, `.sync_all_ais`, `SkillStorage`, `.get_skills`, `.community_get_skills`, `.run_graphify`, `UIComponents`, `.save_skill`, `.updater_sync_skills`, `.import_from_github`, `AuthEngine`, `.get_skill`, `.install_skill`?**
-  _High betweenness centrality (0.241) - this node is a cross-community bridge._
+- **Why does `DesktopAPI` connect `DesktopAPI` to `api.py`, `SkillItem`, `SkillStorage`, `.get_skills`, `.auth_sign_up`, `.install_all_skills`, `UIComponents`, `.save_skill`, `.updater_sync_skills`, `.auth_update_profile`, `.delete_skill`, `.generate_project_rules`, `AuthEngine`, `.import_from_github`, `Any`, `.open_folder`, `.pick_folder_dialog`, `.get_system_info`, `.set_active_workspace`?**
+  _High betweenness centrality (0.239) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `DesktopAPI` (e.g. with `2. Architecture & God Nodes (Graphify AST Audit)` and `AuthEngine`) actually correct?**
   _`DesktopAPI` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `abyssalskillsd` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `api.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.05112347969490827 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05903866248693835 - nodes in this community are weakly interconnected._
 - **Why does `2. Architecture & God Nodes (Graphify AST Audit)` connect `UIComponents` to `api.py`, `SkillItem`, `SkillStorage`, `DesktopBridge`, `DesktopAPI`?**
-  _High betweenness centrality (0.220) - this node is a cross-community bridge._
+  _High betweenness centrality (0.217) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `SkillItem` (e.g. with `DesktopAPI` and `GitSyncEngine`) actually correct?**
   _`SkillItem` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Should `with` be split into smaller, more focused modules?**
-  _Cohesion score 0.05708245243128964 - nodes in this community are weakly interconnected._
+- **Should `SkillItem` be split into smaller, more focused modules?**
+  _Cohesion score 0.14112903225806453 - nodes in this community are weakly interconnected._

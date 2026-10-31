@@ -94,8 +94,8 @@ def main():
         "   - Windows 10 hoặc Windows 11 (64-bit).\n"
         "   - Microsoft Edge WebView2 Runtime (đã tích hợp sẵn trên Win 10/11).\n\n"
         "3. Hỗ trợ & Cập nhật:\n"
-        "   - GitHub: https://github.com/kyuu4/abyssalskillsd\n"
-        "   - Báo lỗi: https://github.com/kyuu4/abyssalskillsd/issues\n",
+        "   - GitHub: https://github.com/Play-with-me/AbyssalSkills-AI\n"
+        "   - Báo lỗi: https://github.com/Play-with-me/AbyssalSkills-AI/issues\n",
         encoding="utf-8"
     )
 
@@ -121,6 +121,7 @@ def main():
     # 5. Check for Inno Setup compiler (ISCC)
     iscc_paths = [
         shutil.which("iscc"),
+        str(Path.home() / "AppData" / "Local" / "Programs" / "Inno Setup 6" / "ISCC.exe"),
         r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
         r"C:\Program Files\Inno Setup 6\ISCC.exe",
     ]

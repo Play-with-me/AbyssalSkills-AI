@@ -6,7 +6,7 @@
 #define MyAppName "AbyssalSkillsD"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Kyuu4"
-#define MyAppURL "https://github.com/kyuu4/abyssalskillsd"
+#define MyAppURL "https://github.com/Play-with-me/AbyssalSkills-AI"
 #define MyAppExeName "AbyssalSkillsD.exe"
 
 [Setup]
@@ -49,8 +49,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "..\dist\AbyssalSkillsD\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent

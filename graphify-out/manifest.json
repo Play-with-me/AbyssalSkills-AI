@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   ".agents/PROJECT_MEMORY.md": {
-    "mtime": 1793421058.4250693,
-    "seen": 1793421083.9069557,
-    "ast_hash": "d9e8b56ba6c0601ef0959948883fe77f",
+    "mtime": 1793423465.8650038,
+    "seen": 1793424218.821831,
+    "ast_hash": "81b9dcb2a756ed9dff25d508cf6d7e7d",
     "semantic_hash": ""
   },
   "DESIGN.md": {
@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793417985.8222642,
-    "seen": 1793418044.8380756,
-    "ast_hash": "74d0c21fb4d78afd65d47063f8a90dde",
+    "mtime": 1793424139.0754416,
+    "seen": 1793424218.8219087,
+    "ast_hash": "0a8e1ae48ffd3527a6c3bad2dfec3908",
     "semantic_hash": ""
   },
   "app/frontend/js/app.js": {
@@ -114,8 +114,8 @@
     "semantic_hash": ""
   },
   "app/data/supabase_config.json": {
-    "mtime": 1793423341.0707028,
-    "seen": 1793423356.108949,
+    "mtime": 1793424199.3814359,
+    "seen": 1793424218.821151,
     "ast_hash": "cb6bedc8b5e7285e6ce674e0019ca13a",
     "semantic_hash": ""
   },
@@ -180,9 +180,9 @@
     "semantic_hash": ""
   },
   "scripts/build_distribution.py": {
-    "mtime": 1793401660.5928223,
-    "seen": 1793401741.700209,
-    "ast_hash": "1bb6dcaf4de0d36da85fc8b703a74a48",
+    "mtime": 1793424075.5304284,
+    "seen": 1793424218.8216507,
+    "ast_hash": "8ea86ae5f5d01c0bb74742f2fe3a843a",
     "semantic_hash": ""
   },
   "app/frontend/assets/logo/avatar-kyuu4.png": {
@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "app/data/community_skills.json": {
-    "mtime": 1793423345.6645255,
-    "seen": 1793423356.1089418,
-    "ast_hash": "c11d8aeb6fd68fd0ed709fe624287b18",
+    "mtime": 1793424203.904974,
+    "seen": 1793424218.8211484,
+    "ast_hash": "f1c5cc8a50883d2e0df575b137c70cea",
     "semantic_hash": ""
   },
   ".github/workflows/build-release.yml": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "scripts/install.ps1": {
-    "mtime": 1793417214.189673,
-    "seen": 1793418044.837886,
-    "ast_hash": "e18e383c12d98eeb7aa910464944bcb7",
+    "mtime": 1793424121.9996316,
+    "seen": 1793424218.821653,
+    "ast_hash": "509b7b54ffee215cf1f1c227170ed38f",
     "semantic_hash": ""
   },
   "scripts/install.sh": {
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "README.vi.md": {
-    "mtime": 1793418009.669717,
-    "seen": 1793418044.8380768,
-    "ast_hash": "b7d3131009af5b31409cead286b05a17",
+    "mtime": 1793424157.352745,
+    "seen": 1793424218.8219106,
+    "ast_hash": "3c559f04a96e4d5d6ab31952b7731907",
     "semantic_hash": ""
   }
 }

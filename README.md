@@ -44,14 +44,31 @@ Zero runtime setup required. Pick your operating system below:
 
 **Terminal 1-Liner (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
+# Auto-install Windows Setup Wizard:
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex"
+
+# Or install Portable Edition directly:
+powershell -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1))) -Portable"
 ```
 
 **Direct GUI Downloads:**
 | Release Package | Size | Highlights | Direct Download |
 | :--- | :---: | :--- | :---: |
-| **Windows Setup (.exe)**<br>*(Recommended)* | **16.95 MB** | • 1-Click auto-install with Desktop & Start Menu shortcuts<br>• Clean uninstaller in Windows Settings<br>• Zero Python, Git, or Node.js required (Bundled WebView2) | [⬇️ **DOWNLOAD SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
-| **Portable Package (.zip)** | **22.33 MB** | • No Administrator privileges required<br>• Extract and run immediately via `AbyssalSkillsD.exe`<br>• Ideal for USB drives or enterprise laptops | [📦 **DOWNLOAD PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
+| **Windows Setup (.exe)**<br>*(Recommended)* | **16.99 MB** | • 1-Click auto-install with Desktop & Start Menu shortcuts<br>• Clean uninstaller in Windows Settings<br>• Zero Python, Git, or Node.js required (Bundled WebView2) | [⬇️ **DOWNLOAD SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe) |
+| **Portable Package (.zip)** | **22.41 MB** | • No Administrator privileges required<br>• Extract and run immediately via `AbyssalSkillsD.exe`<br>• Ideal for USB drives or enterprise laptops | [📦 **DOWNLOAD PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip) |
+
+#### 📖 Detailed Installation Instructions:
+
+- **Method A: Windows Setup Installer (.exe) — Recommended**
+  1. Click [**DOWNLOAD SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe) above to download the installer directly.
+  2. Double-click `AbyssalSkillsD-Setup-v1.0.0.exe` to run the setup wizard.
+  3. Click **Next** -> **Install**. The installer automatically configures the application and creates an `AbyssalSkillsD` shortcut on your Desktop and Start Menu.
+  4. Launch the app from the Desktop icon or Start Menu.
+
+- **Method B: Portable ZIP Package (.zip) — No Installation Required**
+  1. Click [**DOWNLOAD PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip) above to download the portable archive.
+  2. Right-click the downloaded `.zip` file -> Select **Extract All...** to any location (e.g. `Desktop`, `D:\Apps`, or a USB flash drive).
+  3. Open the extracted folder and double-click `AbyssalSkillsD.exe` to run immediately without admin rights.
 
 ---
 

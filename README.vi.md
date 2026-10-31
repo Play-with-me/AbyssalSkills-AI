@@ -44,14 +44,31 @@ Không cần cấu hình môi trường phức tạp. Chọn hệ điều hành 
 
 **Cài đặt 1 dòng lệnh siêu tốc (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
+# Cài đặt tự động bản Windows Setup Wizard:
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex"
+
+# Hoặc cài đặt tự động Bản Di Động Portable:
+powershell -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1))) -Portable"
 ```
 
 **Hoặc tải tệp cài đặt trực tiếp:**
 | Bản Phát Hành | Dung Lượng | Điểm Nổi Bật | Tải Về Trực Tiếp |
 | :--- | :---: | :--- | :---: |
-| **Windows Setup (.exe)**<br>*(Khuyên dùng)* | **16.95 MB** | • 1-Click cài đặt tự động vào Windows<br>• Tự tạo biểu tượng trên Desktop & Start Menu<br>• Tích hợp trình gỡ cài đặt (Uninstaller) trong Settings<br>• Không cần cài Python, Git hay Node.js | [⬇️ **TẢI SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
-| **Bản Di Động Portable (.zip)** | **22.33 MB** | • Không cần quyền Administrator<br>• Giải nén và chạy ngay qua `AbyssalSkillsD.exe`<br>• Lý tưởng cho USB hoặc máy công ty | [📦 **TẢI PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
+| **Windows Setup (.exe)**<br>*(Khuyên dùng)* | **16.99 MB** | • 1-Click cài đặt tự động vào Windows<br>• Tự tạo biểu tượng trên Desktop & Start Menu<br>• Tích hợp trình gỡ cài đặt (Uninstaller) trong Settings<br>• Không cần cài Python, Git hay Node.js | [⬇️ **TẢI SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe) |
+| **Bản Di Động Portable (.zip)** | **22.41 MB** | • Không cần quyền Administrator<br>• Giải nén và chạy ngay qua `AbyssalSkillsD.exe`<br>• Lý tưởng cho USB hoặc máy công ty | [📦 **TẢI PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip) |
+
+#### 📖 Hướng Dẫn Cài Đặt Chi Tiết Từng Bước:
+
+- **Cách 1: Trình Cài Đặt Tự Động (Windows Setup .exe) — Khuyên Dùng**
+  1. Bấm vào nút [**TẢI SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe) ở bảng trên để tải trực tiếp tệp cài đặt về máy.
+  2. Nhấp đúp vào tệp `AbyssalSkillsD-Setup-v1.0.0.exe` để mở trình cài đặt -> Bấm **Next** -> Bấm **Install**.
+  3. Trình cài đặt tự động thiết lập và tạo biểu tượng **AbyssalSkillsD** trên Desktop và Start Menu.
+  4. Khởi chạy ứng dụng từ biểu tượng ngoài Desktop.
+
+- **Cách 2: Bản Di Động Dùng Ngay (Portable .zip) — Không Cần Cài Đặt**
+  1. Bấm vào nút [**TẢI PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip) ở bảng trên để tải tệp nén di động.
+  2. Chuột phải vào tệp `.zip` vừa tải -> Chọn **Extract All...** (Giải nén toàn bộ) vào thư mục bất kỳ (ví dụ: `Desktop`, `D:\Apps`, hoặc USB).
+  3. Mở thư mục vừa giải nén -> Nhấp đúp vào `AbyssalSkillsD.exe` để mở ngay ứng dụng (không cần quyền Admin).
 
 ---
 
