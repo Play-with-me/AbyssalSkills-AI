@@ -87,6 +87,6 @@
   - [x] Live Error Telemetry Sync: Bổ sung luồng đẩy telemetry nền sang Supabase Cloud khi có sự cố mới. Đã kiểm thử bắt tay thực tế (Live Handshake HTTP 201 Created).
   - [x] Single-File Windows Installer: Biên dịch thành công tệp cài đặt chính thức `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (16.95 MB, SHA256: `3E0C650DF7E4CA4890D2EFE46ED7C4AA0850EA14BD4E3606DA9D6C95754E93BB`) qua Inno Setup 6, tích hợp Desktop shortcut, Start Menu shortcut và Uninstaller chuẩn Windows.
   - [x] Portable Package: Cập nhật `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (22.33 MB, SHA256: `90434965fc9e2e5395ac484d74dedb4d41e65f6f8670430f1bfb537877f4a003`).
-  - [x] Enterprise README.md: Đã cập nhật giao diện tài liệu chuẩn Vercel/Linear với banner biểu trưng SVG, huy hiệu Shields.io, 3 tùy chọn cài đặt 1-Click (Setup.exe, Portable.zip, PowerShell 1-liner), sơ đồ kiến trúc Mermaid và bảng 36 kỹ năng tinh hoa.
+  - [x] Enterprise Bilingual Documentation: Đã thiết lập tài liệu song ngữ chuyên nghiệp chuẩn quốc tế gồm `README.md` (English) và `README.vi.md` (Tiếng Việt) với nút chuyển đổi ngôn ngữ 2 chiều, kịch bản cài đặt tự động `scripts/install.ps1`, sơ đồ kiến trúc Mermaid, ma trận so sánh và cẩm nang 36 kỹ năng.
 - [x] Passed 100% Verification: All 25/25 automated test gates passed (`tests/test_verification.py`).
 - [x] Knowledge Graph: Updated Graphify AST (11,384 nodes, 11,508 edges, 659 communities).
