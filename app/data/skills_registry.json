@@ -70,8 +70,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9559324,
-    "updated_at": 1793422469.9559326
+    "created_at": 1793423345.7634864,
+    "updated_at": 1793423345.7634866
   },
   {
     "id": "playwright-web-tester",
@@ -144,8 +144,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9570465,
-    "updated_at": 1793422469.9570467
+    "created_at": 1793423345.7644644,
+    "updated_at": 1793423345.7644646
   },
   {
     "id": "shadcn-tailwind-artisan",
@@ -218,8 +218,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9580328,
-    "updated_at": 1793422469.9580328
+    "created_at": 1793423345.7653933,
+    "updated_at": 1793423345.7653935
   },
   {
     "id": "strict-architect-coder",
@@ -322,8 +322,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9596434,
-    "updated_at": 1793422469.9596436
+    "created_at": 1793423345.7669044,
+    "updated_at": 1793423345.7669044
   },
   {
     "id": "ui-ux-design-master",
@@ -461,8 +461,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.961775,
-    "updated_at": 1793422469.961775
+    "created_at": 1793423345.7688558,
+    "updated_at": 1793423345.768856
   },
   {
     "id": "supabase-backend-architect",
@@ -535,8 +535,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9626245,
-    "updated_at": 1793422469.9626245
+    "created_at": 1793423345.7696433,
+    "updated_at": 1793423345.7696433
   },
   {
     "id": "web-assets-creative-vault",
@@ -616,8 +616,8 @@
     "source_group": "skill_ai",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9657645,
-    "updated_at": 1793422469.9657648
+    "created_at": 1793423345.7725835,
+    "updated_at": 1793423345.7725837
   },
   {
     "id": "api-and-interface-design",
@@ -719,8 +719,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9676256,
-    "updated_at": 1793422469.967626
+    "created_at": 1793423345.7743418,
+    "updated_at": 1793423345.774342
   },
   {
     "id": "browser-testing-with-devtools",
@@ -822,8 +822,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9692016,
-    "updated_at": 1793422469.9692018
+    "created_at": 1793423345.7757666,
+    "updated_at": 1793423345.7757668
   },
   {
     "id": "ci-cd-and-automation",
@@ -925,8 +925,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9706604,
-    "updated_at": 1793422469.9706607
+    "created_at": 1793423345.7772164,
+    "updated_at": 1793423345.7772167
   },
   {
     "id": "code-review-and-quality",
@@ -1028,8 +1028,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9721837,
-    "updated_at": 1793422469.9721844
+    "created_at": 1793423345.778653,
+    "updated_at": 1793423345.7786531
   },
   {
     "id": "code-simplification",
@@ -1131,8 +1131,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.973697,
-    "updated_at": 1793422469.9736972
+    "created_at": 1793423345.7800472,
+    "updated_at": 1793423345.7800474
   },
   {
     "id": "constraint-driven-development",
@@ -1241,8 +1241,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9756074,
-    "updated_at": 1793422469.9756076
+    "created_at": 1793423345.7819183,
+    "updated_at": 1793423345.7819185
   },
   {
     "id": "context-engineering",
@@ -1344,8 +1344,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9771516,
-    "updated_at": 1793422469.977152
+    "created_at": 1793423345.7832987,
+    "updated_at": 1793423345.7832987
   },
   {
     "id": "debugging-and-error-recovery",
@@ -1447,8 +1447,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9786963,
-    "updated_at": 1793422469.9786968
+    "created_at": 1793423345.784643,
+    "updated_at": 1793423345.7846432
   },
   {
     "id": "deprecation-and-migration",
@@ -1550,8 +1550,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9802058,
-    "updated_at": 1793422469.980206
+    "created_at": 1793423345.7860172,
+    "updated_at": 1793423345.7860174
   },
   {
     "id": "documentation-and-adrs",
@@ -1653,8 +1653,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9816878,
-    "updated_at": 1793422469.981688
+    "created_at": 1793423345.7874098,
+    "updated_at": 1793423345.7874098
   },
   {
     "id": "doubt-driven-development",
@@ -1756,8 +1756,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9832392,
-    "updated_at": 1793422469.9832394
+    "created_at": 1793423345.788843,
+    "updated_at": 1793423345.7888432
   },
   {
     "id": "frontend-ui-engineering",
@@ -1859,8 +1859,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9847274,
-    "updated_at": 1793422469.9847274
+    "created_at": 1793423345.7902365,
+    "updated_at": 1793423345.7902367
   },
   {
     "id": "git-workflow-and-versioning",
@@ -1962,8 +1962,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9862034,
-    "updated_at": 1793422469.9862034
+    "created_at": 1793423345.7918227,
+    "updated_at": 1793423345.7918227
   },
   {
     "id": "idea-refine",
@@ -2065,8 +2065,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9876606,
-    "updated_at": 1793422469.987661
+    "created_at": 1793423345.7933433,
+    "updated_at": 1793423345.7933435
   },
   {
     "id": "incremental-implementation",
@@ -2168,8 +2168,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9891894,
-    "updated_at": 1793422469.9891896
+    "created_at": 1793423345.7947342,
+    "updated_at": 1793423345.7947345
   },
   {
     "id": "interview-me",
@@ -2271,8 +2271,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9907193,
-    "updated_at": 1793422469.9907193
+    "created_at": 1793423345.7962072,
+    "updated_at": 1793423345.7962074
   },
   {
     "id": "observability-and-instrumentation",
@@ -2374,8 +2374,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9922037,
-    "updated_at": 1793422469.9922037
+    "created_at": 1793423345.7976155,
+    "updated_at": 1793423345.7976155
   },
   {
     "id": "performance-optimization",
@@ -2484,8 +2484,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9939876,
-    "updated_at": 1793422469.9939876
+    "created_at": 1793423345.799305,
+    "updated_at": 1793423345.7993052
   },
   {
     "id": "planning-and-task-breakdown",
@@ -2587,8 +2587,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9953833,
-    "updated_at": 1793422469.9953835
+    "created_at": 1793423345.8006806,
+    "updated_at": 1793423345.8006806
   },
   {
     "id": "security-and-hardening",
@@ -2697,8 +2697,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9972024,
-    "updated_at": 1793422469.9972026
+    "created_at": 1793423345.8023863,
+    "updated_at": 1793423345.8023865
   },
   {
     "id": "shipping-and-launch",
@@ -2800,8 +2800,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422469.9987078,
-    "updated_at": 1793422469.9987078
+    "created_at": 1793423345.8037264,
+    "updated_at": 1793423345.8037267
   },
   {
     "id": "source-driven-development",
@@ -2903,8 +2903,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422470.000141,
-    "updated_at": 1793422470.0001411
+    "created_at": 1793423345.8050568,
+    "updated_at": 1793423345.805057
   },
   {
     "id": "spec-driven-development",
@@ -3006,8 +3006,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422470.0016844,
-    "updated_at": 1793422470.0016847
+    "created_at": 1793423345.806525,
+    "updated_at": 1793423345.8065252
   },
   {
     "id": "test-driven-development",
@@ -3109,8 +3109,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422470.0033047,
-    "updated_at": 1793422470.0033047
+    "created_at": 1793423345.8081949,
+    "updated_at": 1793423345.8081956
   },
   {
     "id": "using-agent-skills",
@@ -3212,8 +3212,8 @@
     "source_group": "addy_osmani",
     "is_persona": false,
     "license": "MIT",
-    "created_at": 1793422470.0047605,
-    "updated_at": 1793422470.0047605
+    "created_at": 1793423345.8097718,
+    "updated_at": 1793423345.809772
   },
   {
     "id": "code-reviewer",
@@ -3316,8 +3316,8 @@
     "source_group": "addy_osmani",
     "is_persona": true,
     "license": "MIT",
-    "created_at": 1793422470.0059547,
-    "updated_at": 1793422470.005955
+    "created_at": 1793423345.811062,
+    "updated_at": 1793423345.8110623
   },
   {
     "id": "security-auditor",
@@ -3420,8 +3420,8 @@
     "source_group": "addy_osmani",
     "is_persona": true,
     "license": "MIT",
-    "created_at": 1793422470.0069835,
-    "updated_at": 1793422470.0069835
+    "created_at": 1793423345.8120642,
+    "updated_at": 1793423345.812065
   },
   {
     "id": "test-engineer",
@@ -3524,8 +3524,8 @@
     "source_group": "addy_osmani",
     "is_persona": true,
     "license": "MIT",
-    "created_at": 1793422470.0080078,
-    "updated_at": 1793422470.0080078
+    "created_at": 1793423345.8130963,
+    "updated_at": 1793423345.8130968
   },
   {
     "id": "web-performance-auditor",
@@ -3628,7 +3628,7 @@
     "source_group": "addy_osmani",
     "is_persona": true,
     "license": "MIT",
-    "created_at": 1793422470.0090706,
-    "updated_at": 1793422470.0090709
+    "created_at": 1793423345.8140857,
+    "updated_at": 1793423345.814086
   }
 ]

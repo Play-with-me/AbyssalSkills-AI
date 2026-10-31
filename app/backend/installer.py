@@ -81,6 +81,16 @@ class SkillInstaller:
                         r_paths = cls._install_aider_rules(skill, ws)
                         rules_paths.extend(r_paths)
 
+                elif target == "codex":
+                    ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
+                    base_dir = home / ".codex" / "skills" / skill.id
+                    res_path = cls._write_skill_to_dir(skill, base_dir)
+                    installed_paths.append(str(res_path))
+
+                    if req.enable_always_on:
+                        r_paths = cls._install_codex_rules(skill, home, ws)
+                        rules_paths.extend(r_paths)
+
                 elif target == "workspace":
                     ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
                     base_dir = ws / ".agents" / "skills" / skill.id
@@ -149,6 +159,10 @@ class SkillInstaller:
             ],
             "aider": [
                 active_ws / ".aider" / "skills" / skill_id
+            ],
+            "codex": [
+                home / ".codex" / "skills" / skill_id,
+                active_ws / ".codex" / "skills" / skill_id
             ],
             "workspace": [
                 active_ws / ".agents" / "skills" / skill_id
@@ -307,6 +321,17 @@ class SkillInstaller:
                 aider_file.write_text(rule.content, encoding="utf-8")
                 installed.append(str(aider_file))
 
+                # 6. OpenAI Codex (CODEX.md & .codex/rules/always-on-autopilot.md)
+                codex_file = ws / "CODEX.md"
+                codex_file.write_text(rule.content, encoding="utf-8")
+                installed.append(str(codex_file))
+
+                codex_md_dir = ws / ".codex" / "rules"
+                codex_md_dir.mkdir(parents=True, exist_ok=True)
+                codex_rule = codex_md_dir / "always-on-autopilot.md"
+                codex_rule.write_text(rule.content, encoding="utf-8")
+                installed.append(str(codex_rule))
+
             elif "GEMINI" in rule.filename:
                 t1 = ws / "GEMINI.md"
                 t2 = ws / "AGENTS.md"
@@ -352,6 +377,34 @@ class SkillInstaller:
         return installed
 
     @staticmethod
+    def _install_codex_rules(skill: SkillItem, home: Path, ws: Path) -> List[str]:
+        installed = []
+        # 1. Global ~/.codex/rules/
+        global_codex_rules = home / ".codex" / "rules"
+        global_codex_rules.mkdir(parents=True, exist_ok=True)
+        # 2. Workspace .codex/rules/
+        ws_codex_rules = ws / ".codex" / "rules"
+        ws_codex_rules.mkdir(parents=True, exist_ok=True)
+
+        for rule in skill.rules:
+            if "always-on" in rule.filename:
+                # Global always-on rule
+                g_target = global_codex_rules / "always-on-autopilot.md"
+                g_target.write_text(rule.content, encoding="utf-8")
+                installed.append(str(g_target))
+
+                # Workspace root CODEX.md instructions
+                w_target = ws / "CODEX.md"
+                w_target.write_text(rule.content, encoding="utf-8")
+                installed.append(str(w_target))
+
+                # Workspace .codex/rules/
+                w_rule = ws_codex_rules / "always-on-autopilot.md"
+                w_rule.write_text(rule.content, encoding="utf-8")
+                installed.append(str(w_rule))
+        return installed
+
+    @staticmethod
     def _run_graphify_integration(req: InstallRequest) -> str:
         """Runs Graphify integration commands."""
         target_path = req.workspace_path if req.workspace_path else "."
@@ -376,10 +429,10 @@ class SkillInstaller:
     ) -> Dict[str, Any]:
         """
         Đồng bộ toàn bộ kho kỹ năng cho tất cả các công cụ AI được chỉ định.
-        Mặc định: antigravity, claude, copilot, cursor, windsurf, workspace.
+        Mặc định: antigravity, claude, copilot, cursor, windsurf, codex, workspace.
         """
         if not targets:
-            targets = ["antigravity", "claude", "copilot", "cursor", "windsurf", "workspace"]
+            targets = ["antigravity", "claude", "copilot", "cursor", "windsurf", "codex", "workspace"]
 
         active_ws = Path(workspace_path) if workspace_path else Path.cwd()
         target_counts = {t: 0 for t in targets}
@@ -409,6 +462,8 @@ class SkillInstaller:
                         target_counts["cursor"] = target_counts.get("cursor", 0) + 1
                     elif ".codeium" in p_lower or "windsurf" in p_lower:
                         target_counts["windsurf"] = target_counts.get("windsurf", 0) + 1
+                    elif ".codex" in p_lower or "codex" in p_lower:
+                        target_counts["codex"] = target_counts.get("codex", 0) + 1
                     elif ".agents" in p_lower:
                         target_counts["workspace"] = target_counts.get("workspace", 0) + 1
             if res.errors:
@@ -433,14 +488,14 @@ class SkillInstaller:
         skills: Optional[List[SkillItem]] = None
     ) -> Dict[str, Any]:
         """
-        Tự động sinh giàn giáo tệp quy tắc cho dự án (Cursor, Windsurf, Claude, Copilot, Antigravity).
+        Tự động sinh giàn giáo tệp quy tắc cho dự án (Cursor, Windsurf, Claude, Copilot, Antigravity, Codex).
         """
         active_ws = Path(workspace_path) if workspace_path else Path.cwd()
         if not active_ws.exists():
             active_ws.mkdir(parents=True, exist_ok=True)
 
         if not rule_types:
-            rule_types = ["cursorrules", "windsurfrules", "claude", "copilot", "agent_rules"]
+            rule_types = ["cursorrules", "windsurfrules", "claude", "copilot", "agent_rules", "codex"]
 
         created_files = []
         errors = []
@@ -497,6 +552,17 @@ class SkillInstaller:
                 ar_file = ag_dir / "always-on-autopilot.md"
                 ar_file.write_text(rule_content, encoding="utf-8")
                 created_files.append(str(ar_file))
+
+            if "codex" in rule_types:
+                cx_file = active_ws / "CODEX.md"
+                cx_file.write_text(rule_content, encoding="utf-8")
+                created_files.append(str(cx_file))
+
+                cx_dir = active_ws / ".codex" / "rules"
+                cx_dir.mkdir(parents=True, exist_ok=True)
+                cx_rule = cx_dir / "always-on-autopilot.md"
+                cx_rule.write_text(rule_content, encoding="utf-8")
+                created_files.append(str(cx_rule))
         except Exception as e:
             errors.append(str(e))
 

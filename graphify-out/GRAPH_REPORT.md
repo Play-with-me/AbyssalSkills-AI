@@ -1,17 +1,17 @@
 # Graph Report - Manager Skills  (2026-10-31)
 
 ## Corpus Check
-- 30 files · ~403,208 words
+- 30 files · ~404,125 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .ico 3, (none) 1, .lnk 1)
 
 ## Summary
-- 496 nodes · 1049 edges · 24 communities (8 shown, 16 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.94)
+- 497 nodes · 1059 edges · 26 communities (8 shown, 18 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 45 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a2b4c695`
+- Built from commit: `92bfd9ac`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,7 +23,6 @@
 - README.vi.md
 - SkillForge AI Design System (`DESIGN.md`)
 - SkillStorage
-- UpdateEngine
 - DesktopBridge
 - README.md
 - OAuthCallbackHandler
@@ -36,11 +35,11 @@
 ## God Nodes (most connected - your core abstractions)
 1. `DesktopAPI` - 60 edges
 2. `DesktopBridge` - 49 edges
-3. `SkillItem` - 36 edges
-4. `UIComponents` - 34 edges
-5. `test_all()` - 30 edges
-6. `SkillScanner` - 24 edges
-7. `SkillInstaller` - 23 edges
+3. `SkillItem` - 37 edges
+4. `test_all()` - 35 edges
+5. `UIComponents` - 34 edges
+6. `SkillInstaller` - 26 edges
+7. `SkillScanner` - 24 edges
 8. `AuthEngine` - 21 edges
 9. `SkillStorage` - 19 edges
 10. `get_logger()` - 18 edges
@@ -60,14 +59,14 @@
 ## Import Cycles
 - None detected.
 
-## Communities (24 total, 16 thin omitted)
+## Communities (26 total, 18 thin omitted)
 
 ### Community 0 - "api.py"
-Cohesion: 0.06
-Nodes (18): GitSyncEngine, export_diagnostic_zip(), get_recent_logs(), init_logger(), sanitize_sensitive_data(), InstallResult, ReferenceDoc, RuleDoc (+10 more)
+Cohesion: 0.05
+Nodes (19): GitSyncEngine, export_diagnostic_zip(), get_recent_logs(), init_logger(), sanitize_sensitive_data(), InstallResult, ReferenceDoc, RuleDoc (+11 more)
 
 ### Community 1 - "SkillItem"
-Cohesion: 0.15
+Cohesion: 0.18
 Nodes (3): SkillInstaller, InstallRequest, SkillItem
 
 ### Community 3 - "with"
@@ -91,28 +90,28 @@ Cohesion: 0.08
 Nodes (7): 1. Product Summary & Active UX Rules, 2. Architecture & God Nodes (Graphify AST Audit), 3. Recent Completed Changes, AbyssalSkillsD — Project Memory Anchor (`.agents/PROJECT_MEMORY.md`), Icons, MarkdownRenderer, UIComponents
 
 ### Community 22 - "AuthEngine"
-Cohesion: 0.10
+Cohesion: 0.08
 Nodes (6): _push_cloud(), AuthEngine, OAuthServerManager, _timeout(), get_logger(), test_all()
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `abyssalskillsd`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 208 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `DesktopAPI` connect `DesktopAPI` to `api.py`, `SkillItem`, `.sync_all_ais`, `SkillStorage`, `UpdateEngine`, `.community_get_skills`, `UIComponents`, `.delete_skill`, `.import_from_github`, `AuthEngine`, `.get_skill`, `.install_skill`?**
-  _High betweenness centrality (0.247) - this node is a cross-community bridge._
+- **Why does `DesktopAPI` connect `DesktopAPI` to `api.py`, `SkillItem`, `.sync_all_ais`, `SkillStorage`, `.get_skills`, `.community_get_skills`, `.run_graphify`, `UIComponents`, `.save_skill`, `.updater_sync_skills`, `.import_from_github`, `AuthEngine`, `.get_skill`, `.install_skill`?**
+  _High betweenness centrality (0.241) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `DesktopAPI` (e.g. with `2. Architecture & God Nodes (Graphify AST Audit)` and `AuthEngine`) actually correct?**
   _`DesktopAPI` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `abyssalskillsd` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `api.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.056679151061173536 - nodes in this community are weakly interconnected._
-- **Why does `2. Architecture & God Nodes (Graphify AST Audit)` connect `UIComponents` to `SkillItem`, `SkillStorage`, `UpdateEngine`, `DesktopBridge`, `DesktopAPI`?**
+  _Cohesion score 0.05112347969490827 - nodes in this community are weakly interconnected._
+- **Why does `2. Architecture & God Nodes (Graphify AST Audit)` connect `UIComponents` to `api.py`, `SkillItem`, `SkillStorage`, `DesktopBridge`, `DesktopAPI`?**
   _High betweenness centrality (0.220) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `SkillItem` (e.g. with `DesktopAPI` and `GitSyncEngine`) actually correct?**
   _`SkillItem` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Should `SkillItem` be split into smaller, more focused modules?**
-  _Cohesion score 0.14942528735632185 - nodes in this community are weakly interconnected._
+- **Should `with` be split into smaller, more focused modules?**
+  _Cohesion score 0.05708245243128964 - nodes in this community are weakly interconnected._

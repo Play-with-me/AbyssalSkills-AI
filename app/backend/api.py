@@ -595,6 +595,11 @@ class DesktopAPI:
             ])
         elif target == "claude":
             candidate_paths.append(home / ".claude" / "skills" / skill_id)
+        elif target == "codex":
+            candidate_paths.extend([
+                home / ".codex" / "skills" / skill_id,
+                Path.cwd() / ".codex" / "skills" / skill_id,
+            ])
         elif target in ("cursor", "windsurf", "workspace"):
             candidate_paths.extend([
                 Path.cwd() / ".agents" / "skills" / skill_id,
@@ -685,12 +690,26 @@ class DesktopAPI:
                 "status": "active"
             })
 
+        # 3b. OpenAI Codex Global (~/.codex/skills)
+        codex_path = home / ".codex" / "skills" / skill_id
+        if codex_path.exists() and (codex_path / "SKILL.md").exists():
+            verified_targets.append({
+                "target": "codex",
+                "label": "OpenAI Codex",
+                "path": str(codex_path),
+                "skill_file": str(codex_path / "SKILL.md"),
+                "status": "active"
+            })
+
         # 4. Rules files
         rules_found = []
         rule_candidates = [
             (home / ".gemini" / "config" / "rules" / "always-on-autopilot.md", "Antigravity Autopilot"),
             (Path.cwd() / ".cursorrules", "Cursor AI Rule"),
             (Path.cwd() / ".windsurfrules", "Windsurf Rule"),
+            (Path.cwd() / "CLAUDE.md", "Claude Code Rules"),
+            (Path.cwd() / "CODEX.md", "OpenAI Codex Instructions"),
+            (Path.cwd() / ".codex" / "rules" / "always-on-autopilot.md", "OpenAI Codex Autopilot"),
             (Path.cwd() / ".agents" / "rules" / "always-on-autopilot.md", "Workspace Autopilot"),
         ]
         for rp, rlabel in rule_candidates:

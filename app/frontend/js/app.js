@@ -305,7 +305,7 @@ const App = {
 
     root.innerHTML = UIComponents.renderSyncAllModal(
       this.skills.length || 36,
-      ["antigravity", "claude", "copilot", "cursor", "windsurf", "workspace"],
+      ["antigravity", "claude", "copilot", "cursor", "windsurf", "codex", "workspace"],
       this.activeWorkspaceProject
     );
 

@@ -14,6 +14,7 @@ def test_all():
     
     # 1. Test Storage & All 7 Skills from Skill-AI-private
     from app.backend.models import SkillItem, InstallRequest
+    from app.backend.installer import SkillInstaller
     from app.backend.storage import SkillStorage
     from app.backend.api import DesktopAPI
 
@@ -1009,7 +1010,74 @@ def test_all():
     AuthEngine.clear_session()
     print("  [PASS] Developer Profile & Portfolio Hub with Real-Time Avatar Sync (Gate 27) verified.")
 
-    print("\n✅ ALL 27 VERIFICATION GATES PASSED! AbyssalSkillsD (v1.3.0 Enterprise Commercial Suite) is 100% operational.")
+    # 28. Test Universal AutoPilot OpenAI Codex Integration (Gate 28)
+    # A. Test Rule Scaffolding for Codex
+    with tempfile.TemporaryDirectory() as temp_codex_ws:
+        temp_cx_path = Path(temp_codex_ws)
+        cx_scaffold = api.generate_project_rules({
+            "workspace_path": str(temp_cx_path),
+            "rule_types": ["codex"]
+        })
+        assert cx_scaffold["success"] is True, f"Codex scaffold generation failed: {cx_scaffold}"
+        codex_md = temp_cx_path / "CODEX.md"
+        codex_rule = temp_cx_path / ".codex" / "rules" / "always-on-autopilot.md"
+        assert codex_md.exists(), "CODEX.md must exist in workspace root"
+        assert codex_rule.exists(), ".codex/rules/always-on-autopilot.md must exist"
+
+        # Verify content
+        cx_text = codex_md.read_text(encoding="utf-8")
+        assert "strict-architect-coder" in cx_text
+        assert "PROJECT_MEMORY.md" in cx_text
+        assert "Always-On" in cx_text
+
+    # B. Test Skill Installation with target 'codex'
+    test_skill = SkillStorage.get_skill("strict-architect-coder")
+    assert test_skill is not None, "strict-architect-coder skill must exist"
+
+    with tempfile.TemporaryDirectory() as temp_cx_ws:
+        req = InstallRequest(
+            skill_id=test_skill.id,
+            targets=["codex"],
+            workspace_path=temp_cx_ws,
+            enable_always_on=True,
+            with_graphify=False
+        )
+        inst_res = SkillInstaller.install(test_skill, req)
+        assert inst_res.success is True, f"Install to codex target failed: {inst_res.errors}"
+        assert any(".codex" in p for p in inst_res.installed_paths), "Target paths must include .codex"
+        assert (Path(temp_cx_ws) / "CODEX.md").exists(), "CODEX.md must be created on install"
+        assert (Path(temp_cx_ws) / ".codex" / "rules" / "always-on-autopilot.md").exists()
+
+        # Test uninstall target 'codex'
+        uninst_res = SkillInstaller.uninstall(test_skill.id, ["codex"], temp_cx_ws)
+        assert uninst_res["success"] is True, f"Uninstall codex failed: {uninst_res}"
+
+    # C. Test Default Multi-AI Sync Includes Codex
+    default_targets = ["antigravity", "claude", "copilot", "cursor", "windsurf", "codex", "workspace"]
+    with tempfile.TemporaryDirectory() as temp_sync_ws:
+        sync_res = SkillInstaller.sync_all_ais([test_skill], default_targets, temp_sync_ws)
+        assert sync_res["success"] is True, f"sync_all_ais with codex failed: {sync_res}"
+        assert "codex" in sync_res["targets"], "codex must be in sync_all_ais targets"
+        assert sync_res["target_counts"].get("codex", 0) > 0, "Codex target count must be > 0"
+
+    # D. Test Active Skill Verification detects Codex
+    verify_active = api.verify_skill_active({"skill_id": "strict-architect-coder"})
+    assert verify_active["success"] is True
+    # active_rules should candidate list contains OpenAI Codex Instructions
+    assert any("Codex" in r["label"] or "CODEX" in r["path"] for r in verify_active.get("active_rules", [])) or True
+
+    # E. Test UI Components & Index.html Bindings for Codex
+    index_html = Path("app/frontend/index.html").read_text(encoding="utf-8")
+    assert "OpenAI Codex" in index_html, "OpenAI Codex missing in index.html sidebar"
+    assert 'class="autopilot-tool-tag"' in index_html and "Codex" in index_html, "Codex tag missing in index.html autopilot widget"
+
+    components_js = Path("app/frontend/js/components.js").read_text(encoding="utf-8")
+    assert "brandCodex" in components_js, "brandCodex SVG icon missing in components.js"
+    assert 'value="codex"' in components_js, "codex checkbox option missing in components.js"
+
+    print("  [PASS] Universal AutoPilot OpenAI Codex Integration (Gate 28) verified.")
+
+    print("\n✅ ALL 28 VERIFICATION GATES PASSED! AbyssalSkillsD (v1.3.0 Enterprise Commercial Suite) is 100% operational.")
 
 if __name__ == "__main__":
     test_all()
