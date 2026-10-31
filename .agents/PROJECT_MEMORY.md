@@ -5,7 +5,7 @@
 - **Brand Identity:** Renamed from SkillForge to **`AbyssalSkillsD`** (100% collision-free globally across GitHub, PyPI, and trademarks).
 - **Official Release Strategy:**
   - Initial public edition reset to clean **`v1.0.0`**.
-  - GitHub Repository slug: `https://github.com/kyuu4/abyssalskillsd`.
+  - GitHub Repository slug: `https://github.com/Play-with-me/AbyssalSkills-AI.git` (Private Repository).
 - **Packaging & Distribution:**
   - Standalone Windows 64-bit distribution (`dist/AbyssalSkillsD/AbyssalSkillsD.exe`, 5.44 MB). Requires zero Python, Node.js, or Git installed on client computers.
   - Portable Release ZIP: `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (18.27 MB, SHA256: `2b5b58e9...`).
