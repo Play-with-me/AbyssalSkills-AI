@@ -1,188 +1,290 @@
 <p align="center">
-  <img src="app/frontend/assets/logo/github-banner.svg" alt="AbyssalSkillsD Hero Banner" width="100%">
+  <img src="app/frontend/assets/logo/github-banner.svg" alt="AbyssalSkillsD Banner" width="100%">
 </p>
 
+<h1 align="center">🌌 AbyssalSkillsD</h1>
+
 <p align="center">
-  <strong>Hệ Thống Quản Trị Kỹ Năng AI Tự Động & Chợ Tri Thức Chuyên Sâu Chuẩn Doanh Nghiệp</strong><br>
-  <em>Tương thích toàn diện với Cursor AI, Windsurf, Claude Code, GitHub Copilot, Google Antigravity và Aider</em>
+  <strong>The Definitive Local-First AI Skill Manager & Engineering Studio for Modern Software Teams</strong><br>
+  <em>One unified engine to author, version, test, and deploy 36+ production-grade AI skills across Cursor AI, Windsurf, Claude Code, GitHub Copilot, Google Antigravity, and Aider.</em>
 </p>
 
 <p align="center">
   <a href="dist/AbyssalSkillsD-Setup-v1.0.0.exe"><img src="https://img.shields.io/badge/Windows_Setup-v1.0.0-00B4D8?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Setup"></a>
   <a href="dist/AbyssalSkillsD-v1.0.0-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.0-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
-  <img src="https://img.shields.io/badge/Quality_Gates-25%2F25_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates">
-  <img src="https://img.shields.io/badge/Supabase-Live_Cloud-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Cloud">
+  <a href="#-bộ-kiểm-thử-tự-động-25-cổng-chất-lượng"><img src="https://img.shields.io/badge/Quality_Gates-25%2F25_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates"></a>
+  <a href="#-kết-nối-đám-mây-supabase-cloud--zero-trust-telemetry"><img src="https://img.shields.io/badge/Supabase-Live_Cloud-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Cloud"></a>
   <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Architecture-Graphify_AST-F59E0B?style=for-the-badge" alt="Graphify AST">
+</p>
+
+<p align="center">
+  <a href="#-cài-đặt-ngay-trong-30-giây">Cài Đặt Nhanh</a> •
+  <a href="#-vấn-đề-nhức-nhối--giải-pháp-đột-phá">Vấn Đề & Giải Pháp</a> •
+  <a href="#-tính-năng-cốt-lõi">Tính Năng Cốt Lõi</a> •
+  <a href="#-danh-mục-36-kỹ-năng-tinh-hoa">Danh Mục 36 Kỹ Năng</a> •
+  <a href="#-bảng-so-sánh-tính-năng">So Sánh Tính Năng</a> •
+  <a href="#-hướng-dẫn-phát-triển-developer-guide">Dành Cho Devs</a> •
+  <a href="#-lộ-trình-phát-triển-roadmap">Lộ Trình</a>
 </p>
 
 ---
 
-## ⚡ CÀI ĐẶT NHANH (1-CLICK INSTALLATION)
+## ⚡ CÀI ĐẶT NGAY TRONG 30 GIÂY
 
-Bạn có thể tải về và cài đặt trực tiếp **AbyssalSkillsD** ngay từ tài liệu này qua các cách sau:
+Không cần cấu hình môi trường phức tạp. Chọn phương thức phù hợp nhất với phong cách làm việc của bạn:
 
-### 🌟 Cách 1: Tải Bản Cài Đặt Tự Động (Khuyên Dùng Cho Người Dùng Cuối)
-
-| Phương thức tải | Dung lượng | Tác vụ tự động | Liên kết tải trực tiếp |
-| :--- | :---: | :--- | :---: |
-| **Windows Setup (.exe)** | **16.95 MB** | • Cài đặt 1-Click vào máy tính<br>• Tự tạo icon trên Desktop & Start Menu<br>• Tích hợp Uninstaller trong Windows Settings<br>• Tích hợp sẵn WebView2 (Zero Python/Git required) | [⬇️ **TẢI SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
-| **Portable Package (.zip)** | **22.33 MB** | • Không cần quyền Admin<br>• Giải nén và chạy ngay qua `AbyssalSkillsD.exe`<br>• Thích hợp lưu trữ trên USB hoặc máy công ty | [📦 **TẢI PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
-
----
-
-### 💻 Cách 2: Cài Đặt Tức Thì Bằng 1 Dòng Lệnh PowerShell (Dành Cho Lập Trình Viên)
-
-Mở **PowerShell** trên Windows và dán dòng lệnh bên dưới:
+### 🚀 Cách 1: 1 Dòng Lệnh Terminal (Dành Cho Lập Trình Viên)
+Mở **PowerShell** trên Windows và chạy lệnh tự động:
 
 ```powershell
-# Tải và khởi động trình cài đặt AbyssalSkillsD tự động (1-Liner PowerShell):
-Invoke-WebRequest -Uri "https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe" -OutFile "$env:TEMP\AbyssalSkillsD-Setup-v1.0.0.exe"; Start-Process "$env:TEMP\AbyssalSkillsD-Setup-v1.0.0.exe"
+irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
 ```
+*Lệnh trên sẽ tự động tải bản phát hành chính thức mới nhất, giải nén và mở trình cài đặt tự động trong vài giây.*
 
 ---
 
-### 🛠️ Cách 3: Khởi Chạy Trực Tiếp Từ Mã Nguồn (Dành Cho Đóng Góp Mã Nguồn)
+### 📦 Cách 2: Tải Trực Tiếp Bộ Cài Đặt (GUI Setup)
 
-Yêu cầu máy đã cài **Python 3.12+** và công cụ quản lý gói **`uv`**:
+| Bản Phát Hành | Dung Lượng | Điểm Nổi Bật | Tải Về Trực Tiếp |
+| :--- | :---: | :--- | :---: |
+| **Windows Setup (.exe)**<br>*(Khuyên dùng)* | **16.95 MB** | • 1-Click cài đặt tự động vào Windows<br>• Tự tạo biểu tượng trên Desktop & Start Menu<br>• Tích hợp trình gỡ cài đặt (Uninstaller) trong Settings<br>• Không cần cài Python, Git hay Node.js | [⬇️ **TẢI SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
+| **Bản Di Động Portable (.zip)** | **22.33 MB** | • Không cần quyền Administrator<br>• Giải nén và chạy ngay qua `AbyssalSkillsD.exe`<br>• Lý tưởng cho USB hoặc môi trường doanh nghiệp bảo mật | [📦 **TẢI PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
+
+---
+
+### 🛠️ Cách 3: Chạy Từ Mã Nguồn (Developer & Contributor Mode)
+Dành cho lập trình viên muốn tinh chỉnh mã nguồn, kiểm thử hoặc mở rộng chức năng:
 
 ```powershell
-# 1. Clone kho lưu trữ về máy
+# 1. Clone repository
 git clone https://github.com/Play-with-me/AbyssalSkills-AI.git
 cd AbyssalSkills-AI
 
-# 2. Cài đặt toàn bộ thư viện cần thiết
+# 2. Cài đặt toàn bộ dependencies tự động với uv
 uv sync
 
-# 3. Khởi chạy ứng dụng Desktop
+# 3. Khởi chạy ứng dụng Studio
 uv run main.py
 ```
 
 ---
 
-## 🌌 TỔNG QUAN KIẾN TRÚC & ĐẶC TÍNH NỔI BẬT
+## 🎯 VẤN ĐỀ NHỨC NHỐI & GIẢI PHÁP ĐỘT PHÁ
+
+### Nỗi Đau Của Lập Trình Viên AI Hiện Nay:
+1. **Phân Mảnh Đa Môi Trường:** Mỗi IDE/Agent dùng một định dạng quy tắc khác nhau (`.cursorrules`, `.windsurfrules`, `CLAUDE.md`, `.github/copilot-instructions.md`, `always-on-autopilot.md`). Việc copy-paste thủ công giữa các dự án gây sai sót và mất hàng giờ đồng bộ.
+2. **Thảm Họa Ghi Đè Âm Thầm (Silent Overwrites):** Bạn đã dày công sửa một kỹ năng để phù hợp với quy chuẩn dự án của công ty. Một bản cập nhật mới từ kho xuất hiện; nếu bấm update hoặc pull code, toàn bộ tùy biến của bạn sẽ **bị xóa sạch mà không có cảnh báo**.
+3. **Mã Lỗi Tràn Lan & Rò Rỉ Bí Mật (PII Leakage):** Việc chia sẻ prompt hay báo lỗi thường vô tình đính kèm đường dẫn thư mục nhạy cảm (`C:\Users\username\...`), khóa API hoặc JWT token của cá nhân.
+
+### Giải Pháp Từ AbyssalSkillsD:
+- ✅ **Centralized Multi-AI Deployment:** 1 lần bấm, kích hoạt đồng loạt vào toàn bộ 6 môi trường AI lớn nhất thế giới.
+- ✅ **Zero Silent Overwrites:** Tách biệt luồng kỹ năng mới và kỹ năng cập nhật. Cung cấp **Popup So Sánh 2 Bảng (Side-by-Side Diff)** trước khi ghi đè, kèm cơ chế tự động tạo bản sao lưu snapshot (`.bak`).
+- ✅ **Ring-1 AppSec Defense:** Tự động thanh lọc 100% PII, tên tài khoản Windows, tokens trước khi đẩy dữ liệu hoặc xuất báo cáo.
+- ✅ **Đám Mây Supabase PostgreSQL:** Kết nối Chợ Cộng Đồng thực tế và trung tâm Telemetry chống trùng lặp mã lỗi bằng băm mật mã SHA-256 (`fingerprint`).
+
+---
+
+## 🌌 TÍNH NĂNG CỐT LÕI (CORE CAPABILITIES)
 
 ```mermaid
-flowchart LR
-    subgraph Client["🖥️ AbyssalSkillsD Desktop Studio"]
-        UI["🎨 Dark Glassmorphic UI\n(Sub-250ms Physics Motion)"]
-        Bridge["⚡ DesktopBridge IPC\n(PyWebView Native Engine)"]
-        Diff["🔄 Side-by-Side Diff Engine\n(Zero Silent Overwrites)"]
-        Studio["🛠️ 1-Click Studio Customizer\n(Author & Publish Skills)"]
+flowchart TD
+    User["👨‍💻 Lập Trình Viên"] --> DesktopApp["🖥️ AbyssalSkillsD Studio (PyWebView Native 60fps)"]
+    
+    subgraph Engine["Lõi Xử Lý Độc Quyền (Core Engine)"]
+        Scanner["🔍 SkillScanner & Hash Engine\n(Phát hiện sai khác nội dung tệp disk vs registry)"]
+        DiffEngine["🔄 Side-by-Side Diff Engine\n(Popup so sánh 2 cột trực quan)"]
+        SafeBackup["🛡️ Safe Backup (.bak)\n(Tự động bảo toàn tệp tùy biến)"]
+        AppSec["🔒 Ring-1 AppSec Sanitizer\n(Lọc PII, Path Traversal Guard)"]
     end
 
-    subgraph AITargets["🤖 Hệ Sinh Thái AI Đích (Multi-Target Sync)"]
-        Cursor["Cursor AI (.cursorrules)"]
-        Windsurf["Windsurf (.windsurfrules)"]
-        Claude["Claude Code (CLAUDE.md)"]
-        Copilot["GitHub Copilot (.github/)"]
-        Antigravity["Google Antigravity (always-on-autopilot.md)"]
+    subgraph Targets["Hạ Tầng AI Đích (Universal Targets)"]
+        T1["Cursor AI (.cursorrules, .cursor/rules/)"]
+        T2["Windsurf Cascade (.windsurfrules)"]
+        T3["Claude Code (CLAUDE.md)"]
+        T4["GitHub Copilot (.github/)"]
+        T5["Google Antigravity (always-on-autopilot.md)"]
+        T6["Aider & Custom Workspaces (CONVENTIONS.md)"]
     end
 
-    subgraph Cloud["☁️ Supabase Cloud Architecture"]
-        DB[("PostgreSQL Database\n(RLS Zero-Trust Policies)")]
-        Community["Chợ Kỹ Năng Cộng Đồng"]
-        Telemetry["Telemetry Báo Lỗi Tự Động\n(SHA-256 Deduplication)"]
+    subgraph CloudInfra["Hạ Tầng Đám Mây (Supabase Managed Cloud)"]
+        SupaDB[("PostgreSQL Database\n(Row Level Security Zero-Trust)")]
+        Community["Chợ Kỹ Năng Cộng Đồng (Live Catalog)"]
+        Telemetry["Telemetry Chống Spam Báo Lỗi (Deduplication)"]
     end
 
-    UI --> Bridge
-    Bridge --> Diff
-    Bridge --> Studio
-    Bridge --> AITargets
-    Bridge <--> Cloud
+    DesktopApp --> Scanner
+    Scanner --> DiffEngine
+    DiffEngine --> SafeBackup
+    SafeBackup --> Targets
+    DesktopApp <--> AppSec
+    AppSec <--> CloudInfra
 ```
 
 ---
 
-## ✨ 5 TRỤ CỘT ĐỘT PHÁ CỦA ABYSSALSKILLSD
+### 1. Kích Hoạt Nhanh Thông Minh & Trình So Sánh Diff Trực Quan
+Không còn việc ghi đè mù quáng. Giao diện tự động thích ứng theo 3 trạng thái:
 
-### 1. Kích Hoạt Nhanh Thông Minh (Zero Silent Overwrites)
-- **Tách biệt 2 luồng độc lập:**
-  - `⚡ Kích Hoạt N Kỹ Năng Mới`: Chỉ cài đặt các kỹ năng chưa từng nạp vào máy, không chạm vào kỹ năng đã có.
-  - `🔄 Có K Kỹ Năng Cần Cập Nhật`: Hiển thị Popup So Sánh 2 Cột (Side-by-Side Diff).
-- **Quyền tự quyết của lập trình viên:** Bạn có toàn quyền chọn **`[Giữ Lại Bản Cũ Của Tôi]`** để bảo vệ công sức chỉnh sửa cá nhân, hoặc **`[Đồng Ý Cập Nhật]`** với cơ chế tự động tạo tệp sao lưu an toàn (`SKILL.md.bak`).
-- **Trạng thái sẵn sàng hoàn mỹ:** Khi toàn bộ 36 kỹ năng đã đồng bộ, nút kích hoạt chuyển sang màu xanh ngọc bích **`✓ Đã Kích Hoạt Đầy Đủ (36/36)`**.
+```text
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ [⚡ Kích Hoạt 7 Kỹ Năng Mới]  │  [🔄 Có 2 Kỹ Năng Cần Cập Nhật]  │  [✓ Đã Đầy Đủ] │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
 
-### 2. Bộ 36 Kỹ Năng Tinh Hoa Tích Hợp Sẵn (100% Attribution)
-- **Skill-AI Nucleus Suite (7 Kỹ Năng Nền Tảng):**
-  1. `strict-architect-coder`: Lập kế hoạch 2 lớp (Client + AI Spec), chống ảo giác kỹ thuật.
-  2. `ui-ux-design-master`: Thiết kế giao diện đỉnh cao, 118 quy tắc Anti-Slop, chống tràn CSS.
-  3. `shadcn-tailwind-artisan`: Chế tác linh kiện Shadcn/ui và Tailwind CSS v4 chuẩn mực.
-  4. `web-assets-creative-vault`: Kho vector SVG Lucide, Simple Icons và minh họa unDraw.
-  5. `nextjs-fullstack-master`: Kiến trúc Next.js App Router, Server Actions và triệt tiêu Waterfall.
-  6. `supabase-backend-architect`: Thiết kế cơ sở dữ liệu PostgreSQL, phân quyền RLS an toàn tuyệt đối.
-  7. `playwright-web-tester`: Bộ kiểm thử tự động End-to-End, chống lỗi hồi quy giao diện.
-- **Addy Osmani Production Engineering Suite (29 Kỹ Năng & Chuyên Gia Persona):**
-  - Bao gồm `frontend-ui-engineering`, `security-and-hardening`, `test-driven-development`, `performance-optimization`, `code-reviewer`, `api-and-interface-design`, `doubt-driven-development`, `context-engineering`... được trích dẫn nguồn minh bạch.
+Khi bấm vào nút cập nhật, Popup **Side-by-Side Diff** sẽ mở ra:
+```text
+┌──────────────────────────────────────┬──────────────────────────────────────┐
+│  BẢN TRÊN MÁY BẠN (LOCAL DISK)       │  BẢN MỚI TỪ KHO (UPSTREAM REGISTRY)  │
+├──────────────────────────────────────┼──────────────────────────────────────┤
+│  # Strict Architect Coder            │  # Strict Architect Coder            │
+│  - Team Convention: Use pnpm         │  - New Feature: Added Gate 25 Tests  │
+│  - Custom rule: Always add JSDoc     │  - Upstream fix: Anti-Overflow CSS   │
+├──────────────────────────────────────┴──────────────────────────────────────┤
+│  [ 🛡️ Giữ Lại Bản Cũ Của Tôi ]               [ ⚡ Đồng Ý Cập Nhật (.bak) ] │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-### 3. Đồng Bộ Đa Trợ Lý AI Trong 1 Click (Universal Multi-AI Sync)
-- Tự động sinh trọn bộ tệp cấu hình chuyên dụng cho từng môi trường:
-  - `.cursorrules` & `.cursor/rules/always-on-autopilot.mdc` cho **Cursor AI**.
-  - `.windsurfrules` cho **Windsurf Cascade**.
-  - `CLAUDE.md` cho **Claude Code**.
-  - `.github/copilot-instructions.md` cho **GitHub Copilot**.
-  - `always-on-autopilot.md` cho **Google Antigravity**.
+---
 
-### 4. Đám Mây Supabase Cloud & Telemetry Tự Động Báo Lỗi
-- **Kết nối cơ sở dữ liệu PostgreSQL trực tiếp:** Tra cứu, đánh giá sao, và cài đặt các kỹ năng chia sẻ từ cộng đồng lập trình viên toàn cầu.
-- **Chẩn đoán & Thu thập lỗi an toàn (Zero-Trust):** 
-  - Tự động làm sạch dữ liệu nhạy cảm (`sanitize_sensitive_data`), xóa sổ tên tài khoản Windows, khóa API và JWT token trước khi gửi đi.
-  - Thuật toán băm mã lỗi SHA-256 (`fingerprint`) gom nhóm các lỗi trùng lặp, chống spam click và hỗ trợ đội ngũ phát triển khắc phục sự cố tức thì.
+### 2. Ma Trận Tương Thích Đa Nền Tảng (Universal Multi-Target Matrix)
 
-### 5. Nhận Diện Thương Hiệu Độc Quyền Abyssal Sky v2.0
-- **Hình tượng nghệ thuật:** *Biển Trời Giao Hòa • Tâm Điểm Cáo Ẩn Hiện* (Kỹ thuật không gian âm Gestalt Negative-Space).
-- **Bảng màu cảm hứng:** `#050C1A` (Vực Thẳm Vũ Trụ), `#00B4D8` (Sóng Biển Điện Tử), `#7C3AED` (Cực Quang Thiên Hà).
-- **Trải nghiệm xúc giác:** Hoạt ảnh dòng hạt vi mạch (Neural Stream Stage), nút mở thư mục thực tế trên ổ cứng (`[📁 Mở Thư Mục]`), và khay câu lệnh mẫu kiểm chứng AI tức thì (`[🧪 Kiểm Chứng AI]`).
+| Môi Trường AI | Tệp Quy Tắc Tự Động Sinh | Chuẩn Cấu Hình Tương Thích |
+| :--- | :--- | :--- |
+| **Cursor AI** | `.cursorrules`<br>`.cursor/rules/always-on-autopilot.mdc` | Semantic XML Tags, Frontmatter Matchers, Cursor Tab Autopilot |
+| **Windsurf Cascade** | `.windsurfrules` | Cascade Flow Orchestration, Non-Interactive Safe Mode |
+| **Claude Code** | `CLAUDE.md` | Single-File Universal Project Constitution & Subagent Delegation |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | Workspace Context Grounding, Coding Conventions |
+| **Google Antigravity** | `always-on-autopilot.md`<br>`GEMINI.md` | Strict Dual-Layer Planning, Graphify AST Watchdog, Sub-Agents |
+| **Aider & Custom IDE** | `CONVENTIONS.md`<br>`AGENTS.md` | Markdown Standards, Red-Green-Refactor Loops |
+
+---
+
+### 3. Kết Nối Đám Mây Supabase Cloud & Zero-Trust Telemetry
+AbyssalSkillsD được xây dựng sẵn kết nối cơ sở dữ liệu **Supabase PostgreSQL** trên nền tảng bảo mật cấp doanh nghiệp:
+- **Zero-Trust Row Level Security (RLS):** Người dùng ẩn danh chỉ được phép gửi báo cáo lỗi (`INSERT`), tuyệt đối không thể đọc (`SELECT`) dữ liệu báo lỗi của người khác.
+- **Anti-Spam Error Deduplication:** Tự động tạo mã băm mật mã SHA-256 (`fingerprint`) dựa trên `error_type + module + line_number`. Khi một lỗi xảy ra nhiều lần, hệ thống chỉ tăng bộ đếm tần suất (`occurrences: +1`), tiết kiệm tài nguyên mạng và triệt tiêu tình trạng spam log.
+- **Làm Sạch Thông Tin Nhạy Cảm (Ring-1 AppSec):** Tự động loại bỏ tên người dùng hệ thống (`C:\Users\admin\...` -> `C:\Users\[REDACTED_USER]\...`), token JWT và secret keys trước khi dữ liệu rời khỏi máy bạn.
+
+---
+
+## 📚 DANH MỤC 36 KỸ NĂNG TINH HOA (CURATED SUITE)
+
+Mọi kỹ năng đều được tuyển chọn kỹ lưỡng, tối ưu hóa cấu trúc Markdown và đính kèm cẩm nang thực hành (Playbooks) chuyên sâu:
+
+### Nhóm 1: Skill-AI Nucleus (7 Kỹ Năng Nền Tảng Trực Hệ)
+| Tên Kỹ Năng | Chức Năng Cốt Lõi | Khi Nào Sử Dụng? |
+| :--- | :--- | :--- |
+| **`strict-architect-coder`** | Lập kế hoạch 2 lớp (Client + AI Spec), điều phối Graphify AST, triệt tiêu ảo giác code. | Khi lập kế hoạch tính năng mới, refactor module phức tạp, debug gốc rễ. |
+| **`ui-ux-design-master`** | 16-in-1 Design Master, 118 quy tắc Anti-Slop, chuyển động vật lý sub-250ms, chống tràn CSS. | Khi thiết kế giao diện, chỉnh sửa layout, tạo component mới. |
+| **`shadcn-tailwind-artisan`** | Chế tác linh kiện Shadcn/ui, Tailwind CSS v4, Radix Primitives chuẩn WAI-ARIA. | Khi dựng form, dialog, bento-grid, navigation bar. |
+| **`web-assets-creative-vault`** | Thư viện mã vector Lucide, Simple Icons (Google, Supabase...), hình minh họa unDraw. | Khi cần biểu tượng SVG chuẩn hãng, minh họa giao diện. |
+| **`nextjs-fullstack-master`** | Kiến trúc Next.js App Router, React 19 RSC, Server Actions, triệt tiêu Waterfall. | Khi xây dựng ứng dụng full-stack hiện đại với Next.js & React. |
+| **`supabase-backend-architect`** | Thiết kế lược đồ PostgreSQL, phân quyền Row Level Security (RLS), xác thực SSR an toàn. | Khi thiết kế database, viết migration, cấu hình auth & storage. |
+| **`playwright-web-tester`** | Thiết kế kiểm thử tự động E2E, chống lỗi hồi quy giao diện, kiểm tra đa màn hình. | Khi viết kịch bản test trình duyệt, xác thực luồng người dùng. |
+
+### Nhóm 2: Addy Osmani Production Engineering Suite (29 Kỹ Năng & Personas)
+Bao gồm trọn bộ 25 kỹ năng kỹ thuật và 4 persona chuyên gia từ Addy Osmani (Google Lead):
+- **Phát triển & Kiến trúc:** `api-and-interface-design`, `spec-driven-development`, `context-engineering`, `idea-refine`, `planning-and-task-breakdown`, `source-driven-development`, `deprecation-and-migration`.
+- **Kiểm định & Đảm bảo chất lượng:** `autonomous-task-verifier`, `test-driven-development`, `code-review-and-quality`, `code-reviewer`, `test-engineer`, `code-simplification`, `doubt-driven-development`.
+- **Bảo mật, Hiệu năng & Vận hành:** `security-and-hardening`, `security-auditor`, `web-performance-auditor`, `performance-optimization`, `observability-and-instrumentation`, `ci-cd-and-automation`, `shipping-and-launch`.
+
+---
+
+## 📊 BẢNG SO SÁNH TÍNH NĂNG
+
+| Tiêu Chí Đánh Giá | Quản Lý Prompt Thủ Công | Script Bash/PowerShell Rời | **AbyssalSkillsD v1.0.0** |
+| :--- | :---: | :---: | :---: |
+| **Giao Diện Trực Quan (Desktop GUI)** | ❌ Không | ❌ Không | **✅ Có (Dark Glassmorphic 60fps)** |
+| **Hỗ Trợ Đa Công Cụ Cùng Lúc** | ❌ Phải sửa từng file | ⚠️ Giới hạn 1-2 tool | **✅ 6 Nền Tảng Lớn Nhất** |
+| **Phát Hiện Xung Đột Nội Dung** | ❌ Không | ❌ Không | **✅ Băm MD5/SHA-256 Từng File** |
+| **Xem So Sánh 2 Bảng (Side-by-Side Diff)** | ❌ Bị ghi đè mất code | ❌ Ghi đè mù quáng | **✅ Popup So Sánh Trực Quan** |
+| **Tự Động Sao Lưu Snapshot (.bak)** | ❌ Phụ thuộc vào trí nhớ | ❌ Không | **✅ Tự Động 100%** |
+| **Xóa Sạch Dữ Liệu Nhạy Cảm (PII Scrubbing)** | ❌ Thường xuyên rò rỉ | ❌ Không | **✅ Ring-1 AppSec Sanitizer** |
+| **Chợ Kỹ Năng Đám Mây (Community Hub)** | ❌ Không | ❌ Không | **✅ Supabase Cloud PostgreSQL** |
+| **Tự Động Báo Lỗi Chống Spam (Anti-Flood)** | ❌ Không | ❌ Không | **✅ SHA-256 Deduplication** |
+| **Không Cần Cài Đặt Môi Trường (Zero-Dep)** | ❌ Phải có Node/Python | ⚠️ Phải cài runtime | **✅ Bundled Native Windows (.exe)** |
 
 ---
 
 ## 🧪 BỘ KIỂM THỬ TỰ ĐỘNG (25 CỔNG CHẤT LƯỢNG)
 
-Để đảm bảo chất lượng phần mềm không bao giờ bị suy giảm (Zero-Regression), dự án được bảo vệ bởi bộ 25 cổng kiểm định tự động:
+Mỗi thay đổi mã nguồn trong AbyssalSkillsD đều phải vượt qua 25 cổng kiểm định tự động nghiêm ngặt:
 
 ```powershell
-# Chạy bộ kiểm thử toàn diện:
 uv run python tests/test_verification.py
 ```
 
-```text
-▶ Running AbyssalSkillsD Comprehensive Verification Suite (25 Gates)...
-  [PASS] Verified 7 Skill-AI Nucleus Master Skills & Playbooks.
-  [PASS] Verified 29 Addy Osmani Production Engineering Suite Items.
-  [PASS] Batch installation & Multi-Target Rules Deployment (.cursor, windsurf, copilot).
-  [PASS] Supabase Community Schema verified with RLS & GIN Index.
-  [PASS] Graphify AST analysis verified as internal AI watchdog.
-  [PASS] Neural Stream Activation Animation & Live Verification Proof Engine.
-  [PASS] Clean Teardown / Uninstall Engine & Automatic Snapshot Backup (.bak).
-  [PASS] Anti-Spam Telemetry Deduplication & PII Scrubbing.
-  [PASS] Anti-Overflow Layout Safety & Side-by-Side Diff Engine.
-✅ ALL 25 VERIFICATION GATES PASSED!
-```
+<details>
+<summary><strong>Bấm để xem danh sách 25 Cổng Kiểm Định Tự Động (All Green)</strong></summary>
+
+- `Gate 1 -> 7`: Xác thực tính toàn vẹn và playbooks của 7 Kỹ Năng Skill-AI Nucleus.
+- `Gate 8`: Kiểm tra 237 tài liệu tham khảo kỹ thuật chuyên sâu.
+- `Gate 9`: Cài đặt hàng loạt và tự động sinh giàn giáo quy tắc đa nền tảng.
+- `Gate 10`: Lược đồ cơ sở dữ liệu Supabase Community Cloud & Phân quyền RLS.
+- `Gate 11`: Đồ thị tri thức mã nguồn Graphify AST (AI Watchdog nội bộ).
+- `Gate 12`: Bộ token màu kép và testid trợ năng (Accessibility standards).
+- `Gate 13`: 3 Neo bộ nhớ dự án chống mất ngữ cảnh (`PROJECT_MEMORY.md`, `GRAPH_REPORT.md`, `DESIGN.md`).
+- `Gate 14`: Biểu ngữ hướng dẫn 3 bước cho người mới và câu lệnh mẫu tiếng Việt.
+- `Gate 15`: Đăng nhập 1-click Google & GitHub và bàn làm việc tiến bộ (Progressive Disclosure).
+- `Gate 16`: Bộ 29 kỹ năng Addy Osmani và lọc nguồn minh bạch.
+- `Gate 17`: Khởi động Cinematic Assembly và hoạt ảnh zoom mượt mà.
+- `Gate 18`: Studio chế tác kỹ năng chuẩn Addy Osmani.
+- `Gate 19`: Tính toàn vẹn của gói phân phối độc lập Standalone PyInstaller.
+- `Gate 20`: Hoạt ảnh dòng hạt vi mạch (Neural Stream Stage) & Bằng chứng xác thực AI.
+- `Gate 21`: Trình gỡ cài đặt sạch sẽ, cơ chế sao lưu `.bak` và Workspace động.
+- `Gate 22`: Đồng bộ toàn cầu 1-Click Multi-AI Sync & Bộ sinh Rule Scaffolding.
+- `Gate 23`: Chợ Kỹ Năng Đám Mây, Trung tâm Nhật Ký Chẩn Đoán `%LOCALAPPDATA%`.
+- `Gate 24`: Bảo mật Zero-Trust, Lọc dữ liệu nhạy cảm PII và Thuật toán gom nhóm lỗi trùng lặp.
+- `Gate 25`: An toàn bố cục Anti-Overflow CSS, Kích hoạt nhanh 2 luồng & Bộ so sánh Diff.
+
+</details>
 
 ---
 
-## 📦 QUY TRÌNH ĐÓNG GÓI XUẤT XƯỞNG (BUILD PIPELINE)
+## 🛠️ HƯỚNG DẪN PHÁT TRIỂN (DEVELOPER GUIDE)
 
-Nếu bạn muốn tự tay biên dịch bộ cài đặt từ mã nguồn:
+### Cấu Trúc Thư Mục Dự Án:
+```text
+AbyssalSkills-AI/
+├── app/
+│   ├── backend/           # Lõi xử lý Python (API, Auth, Scanner, Storage, Installer)
+│   ├── data/              # Kho kỹ năng Registry, SQL Schema, Cấu hình đám mây
+│   └── frontend/          # Giao diện HTML5, Tailwind-inspired CSS & Vanilla JS
+├── dist/                  # Tệp xuất xưởng (AbyssalSkillsD-Setup.exe, Portable.zip)
+├── graphify-out/          # Đồ thị tri thức mã nguồn AST (11,000+ nodes)
+├── installer/             # Kịch bản Inno Setup 6 (.iss)
+├── scripts/               # Bộ công cụ build tự động và script cài đặt 1-line
+└── tests/                 # Bộ kiểm thử 25 Cổng Chất Lượng
+```
 
+### Quy Trình Đóng Gói Xuất Bản (Build Pipeline):
 ```powershell
-# Bước 1: Đóng gói Standalone Onedir và tệp Portable ZIP
+# 1. Đóng gói Standalone Onedir và Portable ZIP
 uv run python scripts/build_distribution.py
 
-# Bước 2: Biên dịch tệp Setup Installer duy nhất qua Inno Setup 6
-& "C:\Users\kyuu4\AppData\Local\Programs\Inno Setup 6\ISCC.exe" "installer\abyssalskillsd.iss"
+# 2. Biên dịch trình cài đặt duy nhất Inno Setup (.exe)
+& "C:\Users\<user>\AppData\Local\Programs\Inno Setup 6\ISCC.exe" "installer\abyssalskillsd.iss"
 ```
-Kết quả xuất xưởng sẽ nằm gọn trong thư mục `dist/`:
-- `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (Bộ cài đặt Windows)
-- `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (Bản nén di động)
 
 ---
 
-## 👥 TÁC GIẢ & BẢN QUYỀN
+## 🗺️ LỘ TRÌNH PHÁT TRIỂN (ROADMAP)
 
-- **Kiến trúc sư trưởng:** [Kyuu4](https://github.com/kyuu4) & Đội ngũ Sáng tạo AbyssalSkills.
-- **Bản quyền thương hiệu:** Sở hữu độc quyền hình tượng biểu trưng *Abyssal Sky v2.0* và mã nguồn ứng dụng *AbyssalSkillsD*.
-- **Giấy phép tri thức:** Các kỹ năng đóng góp từ Addy Osmani và cộng đồng mã nguồn mở tuân thủ giấy phép phân phối mở tương ứng với 100% trích dẫn minh bạch.
+- [x] **v1.0.0 (Hiện tại):** Bản phát hành chính thức cho Windows, 36 kỹ năng tinh hoa, 2 luồng kích hoạt thông minh, Side-by-Side Diff, Supabase Cloud, Inno Setup Installer.
+- [ ] **v1.1.0:** Hỗ trợ đa nền tảng macOS & Linux thông qua Webview native.
+- [ ] **v1.2.0:** VS Code Extension tích hợp trực tiếp vào thanh bên (Sidebar).
+- [ ] **v1.3.0:** AbyssalSkills CLI (`abyssal install <skill-name>`).
+- [ ] **v2.0.0:** Đồng bộ hóa cấu hình kỹ năng thời gian thực theo nhóm doanh nghiệp (Team Sync).
+
+---
+
+## 📄 BẢN QUYỀN & GIẤY PHÉP (LICENSE & CREDITS)
+
+- **Tác quyền & Kiến trúc hệ thống:** Phát triển bởi **[Kyuu4](https://github.com/kyuu4)**.
+- **Thương hiệu & Thiết kế:** Bản quyền nhận diện hình học *Abyssal Sky v2.0* thuộc về dự án AbyssalSkills.
+- **Lời cảm ơn tri thức:** Xin gửi lời tri ân sâu sắc tới **Addy Osmani** và cộng đồng kỹ sư mã nguồn mở vì những đóng góp vô giá cho nền tảng kỹ thuật AI Agent toàn cầu.
 
 <p align="center">
-  <sub>Được phát triển với niềm đam mê dành cho cộng đồng kỹ sư phần mềm AI.</sub>
+  <sub>Xây dựng với tâm huyết dành cho kỷ nguyên lập trình cùng AI Agents. Nếu bạn thấy dự án hữu ích, hãy tặng một ⭐️ Star trên GitHub!</sub>
 </p>
