@@ -2556,9 +2556,13 @@ class UIComponents {
     if (session && session.authenticated && session.user) {
       const u = session.user;
       const initial = (u.full_name || u.email || "U").charAt(0).toUpperCase();
+      const avatarContent = u.avatar_url
+        ? `<img src="${this.escape(u.avatar_url)}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" /><span style="display:none;">${this.escape(initial)}</span>`
+        : `<span>${this.escape(initial)}</span>`;
+
       return `
         <div class="user-profile-badge-btn" id="btn-user-profile-menu" data-testid="btn-user-profile-menu" role="button" tabindex="0" title="Tài khoản: ${this.escape(u.full_name || u.email)}">
-          <div class="user-avatar-circle">${this.escape(initial)}</div>
+          <div class="user-avatar-circle" style="overflow:hidden; display:inline-flex; align-items:center; justify-content:center;">${avatarContent}</div>
           <div class="user-meta-summary">
             <span class="user-meta-name">${this.escape(u.full_name || u.email)}</span>
             <span class="user-role-tag">${this.escape(u.role || 'creator')}</span>
@@ -2584,6 +2588,11 @@ class UIComponents {
         <div class="dropdown-user-header">
           <div class="dropdown-user-name">${this.escape(u.full_name || 'Người dùng')}</div>
           <div class="dropdown-user-email">${this.escape(u.email || '')}</div>
+        </div>
+
+        <div class="dropdown-menu-item" id="btn-menu-open-profile" title="Xem Hồ Sơ Cá Nhân & Portfolio">
+          ${Icons.user}
+          <span>Xem Hồ sơ cá nhân</span>
         </div>
 
         <div class="dropdown-menu-item" id="btn-menu-copy-token" title="Sao chép Access Token (JWT)">
@@ -2758,6 +2767,238 @@ class UIComponents {
                 </div>
               </div>
             </details>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* Profile & Developer Portfolio View (v1.3.0) */
+  static renderProfileView(session, stats = {}) {
+    const isAuth = session && session.authenticated && session.user;
+    const u = isAuth ? session.user : null;
+    const statsData = {
+      installed_count: stats.installed_count || 0,
+      total_skills: stats.total_skills || 36,
+      favorites_count: stats.favorites_count || 0,
+      contributed_count: stats.contributed_count || 1,
+      installed_skills: stats.installed_skills || [],
+      favorite_skills: stats.favorite_skills || [],
+      contributed_skills: stats.contributed_skills || []
+    };
+
+    if (!isAuth) {
+      return `
+        <div class="profile-view-wrapper">
+          <div class="profile-guest-hero">
+            <div class="profile-guest-icon-glow">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h2 class="profile-guest-title">Không Gian Hồ Sơ & Portfolio Kỹ Sư AI</h2>
+            <p class="profile-guest-subtitle">
+              Đăng nhập tài khoản để quản lý danh tính, lưu trữ bộ sưu tập 36 kỹ năng lên Supabase Cloud, 
+              và xây dựng hồ sơ lập trình viên Agentic chuyên nghiệp.
+            </p>
+            <div class="profile-guest-actions">
+              <button class="btn btn-primary" id="btn-profile-guest-login" style="padding:10px 22px; font-size:13.5px;">
+                ${Icons.user}
+                <span>Đăng Nhập / Đăng Ký Tài Khoản</span>
+              </button>
+              <button class="btn btn-secondary" id="btn-profile-guest-github" style="padding:10px 20px; font-size:13.5px;">
+                ${Icons.brandGithub}
+                <span>Đăng Nhập 1-Chạm Bằng GitHub</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const initial = (u.full_name || u.email || "U").charAt(0).toUpperCase();
+    const avatarImg = u.avatar_url 
+      ? `<img src="${this.escape(u.avatar_url)}" alt="Avatar" class="profile-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="profile-avatar-fallback" style="display:none;">${this.escape(initial)}</div>`
+      : `<div class="profile-avatar-fallback">${this.escape(initial)}</div>`;
+
+    const presetAvatars = [
+      { name: "Lăng Kính Hình Học", path: "assets/logo/avatar-geometric-prism.png" },
+      { name: "Kyuu4 Spirit", path: "assets/logo/avatar-kyuu4.png" },
+      { name: "Cáo Chân Trời", path: "assets/logo/horizon-prism-fox.png" },
+      { name: "Sóng Tỉ Lệ Vàng", path: "assets/logo/golden-ratio-wave-fox.png" },
+      { name: "Cáo Biển Trời", path: "assets/logo/ocean-sky-hidden-fox.png" },
+      { name: "Cáo Âm Bản Gestalt", path: "assets/logo/ocean-sky-pure-silhouette-fox.png" }
+    ];
+
+    const currentAvatarUrl = u.avatar_url || "";
+
+    return `
+      <div class="profile-view-wrapper">
+        <!-- Hero Profile Banner -->
+        <div class="profile-hero-card">
+          <div class="profile-hero-left">
+            <div class="profile-avatar-wrapper">
+              ${avatarImg}
+              <div class="profile-avatar-badge-led" title="Trực tuyến & Đã đồng bộ"></div>
+            </div>
+            <div class="profile-meta-info">
+              <div class="profile-name-row">
+                <h1 class="profile-display-name">${this.escape(u.full_name || u.email.split('@')[0])}</h1>
+                <span class="profile-role-badge">${this.escape(u.role || 'Creator / Pro')}</span>
+                ${u.provider === 'github' ? '<span class="profile-provider-pill github"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> GitHub Verified</span>' : '<span class="profile-provider-pill supabase">● Supabase Cloud</span>'}
+              </div>
+              <div class="profile-email-row">${this.escape(u.email || '')}</div>
+              <p class="profile-bio-text">${this.escape(u.bio || 'Lập trình viên AI & Kiến trúc sư hệ thống Agentic chuyên nghiệp.')}</p>
+            </div>
+          </div>
+          <div class="profile-hero-actions">
+            <button class="btn btn-secondary btn-icon" id="btn-profile-copy-token" title="Sao chép Access Token (JWT)">
+              ${Icons.key}
+              <span>Sao chép JWT</span>
+            </button>
+            <button class="btn btn-danger btn-icon" id="btn-profile-signout" title="Đăng xuất tài khoản an toàn">
+              ${Icons.logOut}
+              <span>Đăng xuất</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bento Metric Summary (4 Cards) -->
+        <div class="profile-bento-metrics">
+          <div class="profile-metric-card">
+            <div class="profile-metric-header">
+              <span class="profile-metric-icon cyan">${Icons.zap}</span>
+              <span class="profile-metric-title">Kỹ Năng Đã Kích Hoạt</span>
+            </div>
+            <div class="profile-metric-val">${statsData.installed_count} <span class="profile-metric-max">/ ${statsData.total_skills}</span></div>
+            <div class="profile-metric-sub">Đã nạp vào Antigravity, Claude, Cursor & Windsurf</div>
+          </div>
+
+          <div class="profile-metric-card">
+            <div class="profile-metric-header">
+              <span class="profile-metric-icon violet">${Icons.star}</span>
+              <span class="profile-metric-title">Kỹ Năng Yêu Thích</span>
+            </div>
+            <div class="profile-metric-val">${statsData.favorites_count}</div>
+            <div class="profile-metric-sub">Bộ sưu tập kỹ năng ghim truy cập nhanh</div>
+          </div>
+
+          <div class="profile-metric-card">
+            <div class="profile-metric-header">
+              <span class="profile-metric-icon emerald">${Icons.cloud}</span>
+              <span class="profile-metric-title">Đã Chia Sẻ Cloud</span>
+            </div>
+            <div class="profile-metric-val">${statsData.contributed_count}</div>
+            <div class="profile-metric-sub">Kỹ năng đóng góp cho Chợ Cộng Đồng</div>
+          </div>
+
+          <div class="profile-metric-card">
+            <div class="profile-metric-header">
+              <span class="profile-metric-icon blue">${Icons.shield}</span>
+              <span class="profile-metric-title">Trạng Thái Bảo Mật</span>
+            </div>
+            <div class="profile-metric-val" style="font-size:16px; color:var(--ocean-secondary); font-weight:600;">Zero-Trust RLS</div>
+            <div class="profile-metric-sub">Mã hóa SHA-256 & Lọc dữ liệu nhạy cảm PII</div>
+          </div>
+        </div>
+
+        <!-- 2-Column Split: Edit Form + Portfolio Items -->
+        <div class="profile-details-split">
+          <!-- Column 1: Chỉnh sửa thông tin -->
+          <div class="profile-card-panel">
+            <div class="profile-panel-header">
+              <h3 class="profile-panel-title">
+                ${Icons.user}
+                <span>Chỉnh Sửa Hồ Sơ & Hình Tượng</span>
+              </h3>
+              <span class="profile-panel-badge">Tự động đồng bộ Supabase</span>
+            </div>
+
+            <div class="profile-form-body">
+              <div class="form-group">
+                <label class="form-label">Họ và Tên / Tên Hiển Thị</label>
+                <input type="text" id="profile-edit-name" class="form-input" value="${this.escape(u.full_name || '')}" placeholder="Ví dụ: Alex Nguyễn">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Dòng Giới Thiệu (Bio / Tagline)</label>
+                <textarea id="profile-edit-bio" class="form-textarea" style="height:68px;" placeholder="Ví dụ: Kỹ sư Fullstack Next.js & Chuyên gia Tối ưu Prompt AI Agentic...">${this.escape(u.bio || '')}</textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Chọn Ảnh Đại Diện (Bộ sưu tập Abyssal Sky v2.0)</label>
+                <div class="profile-avatar-presets-grid" id="profile-avatar-picker">
+                  ${presetAvatars.map(p => {
+                    const isSelected = currentAvatarUrl === p.path;
+                    return `
+                      <div class="preset-avatar-option ${isSelected ? 'selected' : ''}" data-avatar-url="${p.path}" title="${p.name}">
+                        <img src="${p.path}" alt="${p.name}" />
+                        <span class="preset-avatar-name">${p.name}</span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:10px;">
+                <label class="form-label">Hoặc Dán Đường Dẫn Link Ảnh Tùy Chọn (URL)</label>
+                <input type="url" id="profile-edit-avatar-url" class="form-input" value="${this.escape(currentAvatarUrl)}" placeholder="https://example.com/avatar.png">
+              </div>
+
+              <div class="profile-form-footer">
+                <button class="btn btn-primary" id="btn-save-profile" style="padding:8px 18px;">
+                  ${Icons.check}
+                  <span>Lưu Thay Đổi Hồ Sơ</span>
+                </button>
+                <span id="profile-save-status" class="profile-save-status"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Danh Mục Portfolio Kỹ Năng -->
+          <div class="profile-card-panel">
+            <div class="profile-panel-header">
+              <h3 class="profile-panel-title">
+                ${Icons.folder}
+                <span>Danh Mục Portfolio Kỹ Năng Của Tôi</span>
+              </h3>
+              <span class="profile-panel-badge">${statsData.installed_count} Kỹ năng kích hoạt</span>
+            </div>
+
+            <div class="profile-portfolio-list">
+              <div class="portfolio-section-title">Kỹ năng đang hoạt động trong dự án:</div>
+              <div class="portfolio-chips-grid">
+                ${statsData.installed_skills.length > 0 ? statsData.installed_skills.map(s => `
+                  <div class="portfolio-skill-chip" data-skill-id="${s.id}">
+                    <span class="skill-chip-dot active"></span>
+                    <span class="skill-chip-title">${this.escape(s.title)}</span>
+                    <span class="skill-chip-cat">${this.escape(s.category)}</span>
+                  </div>
+                `).join('') : '<div class="portfolio-empty-hint">Chưa có kỹ năng nào được kích hoạt. Hãy vào Kho Kỹ Năng để kích hoạt ngay.</div>'}
+              </div>
+
+              <div class="portfolio-section-title" style="margin-top:18px;">Kỹ năng đã xuất bản / Đóng góp:</div>
+              <div class="portfolio-contributed-grid">
+                ${statsData.contributed_skills.length > 0 ? statsData.contributed_skills.map(c => `
+                  <div class="portfolio-contributed-card">
+                    <div style="font-weight:600; color:var(--text-primary); font-size:13px; margin-bottom:4px;">${this.escape(c.title)}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-muted);">
+                      <span>Chủ đề: ${this.escape(c.category)}</span>
+                      <span style="color:var(--ocean-cyan);">⬇ ${c.downloads || 1} lượt tải</span>
+                    </div>
+                  </div>
+                `).join('') : ''}
+              </div>
+
+              <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; color:var(--text-secondary);">Bạn muốn tự chế tác thêm kỹ năng riêng?</span>
+                <button class="btn btn-secondary btn-icon" id="btn-profile-open-studio" style="font-size:12px; padding:6px 12px;">
+                  ${Icons.box}
+                  <span>Mở Xưởng Chế Tác Studio</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

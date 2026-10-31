@@ -207,6 +207,14 @@ class DesktopBridge {
     return await this.call("auth_refresh_token", tokenPayload);
   }
 
+  static async authUpdateProfile(profileData) {
+    return await this.call("auth_update_profile", profileData);
+  }
+
+  static async authGetUserStats() {
+    return await this.call("auth_get_user_stats");
+  }
+
   // =========================================================================
   // Auto-Update Engine (v7.2 Dual-Layer Skills & Application Updates)
   // =========================================================================

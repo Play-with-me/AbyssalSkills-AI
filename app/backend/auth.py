@@ -663,3 +663,56 @@ class AuthEngine:
         cls.clear_session()
         OAuthServerManager.stop_server()
         return {"success": True, "message": "Đã đăng xuất khỏi tài khoản an toàn."}
+
+    @classmethod
+    def update_profile(cls, full_name: str, bio: str = "", avatar_url: str = "") -> Dict[str, Any]:
+        """Updates user profile information locally and syncs to Supabase public.profiles."""
+        session = cls.get_session()
+        if not session.get("authenticated") or not session.get("user"):
+            return {"success": False, "message": "Bạn chưa đăng nhập. Vui lòng đăng nhập để cập nhật hồ sơ."}
+
+        user = session["user"]
+        full_name = (full_name or "").strip() or user.get("full_name", "Developer")
+        bio = (bio or "").strip()
+        avatar_url = (avatar_url or "").strip()
+
+        # Update local session data
+        user["full_name"] = full_name
+        user["bio"] = bio
+        if avatar_url:
+            user["avatar_url"] = avatar_url
+        session["user"] = user
+        cls.save_session(session)
+
+        # Sync to Supabase Cloud if authenticated with real project
+        cfg = cls.get_config()
+        s_url = cfg.get("supabase_url", "")
+        s_key = cfg.get("anon_key", "")
+        access_token = session.get("access_token", "")
+        user_id = user.get("id")
+
+        if s_url and access_token and user_id and "demo" not in s_url and "custom-project" not in s_url:
+            try:
+                endpoint = f"{s_url.rstrip('/')}/rest/v1/profiles?id=eq.{user_id}"
+                hdrs = {
+                    "apikey": s_key,
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                }
+                body = {
+                    "display_name": full_name,
+                    "bio": bio,
+                    "avatar_url": user.get("avatar_url", "")
+                }
+                req = urllib.request.Request(endpoint, data=json.dumps(body).encode("utf-8"), headers=hdrs, method="PATCH")
+                with urllib.request.urlopen(req, timeout=5):
+                    pass
+            except Exception as e:
+                get_logger().debug(f"Supabase cloud profile update sync: {e}")
+
+        return {
+            "success": True,
+            "message": "✓ Cập nhật hồ sơ cá nhân thành công!",
+            "session": session
+        }

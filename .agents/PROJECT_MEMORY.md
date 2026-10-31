@@ -93,10 +93,15 @@
   - [x] Cross-Platform Path Engine: Tối ưu hóa `paths.py` và `assert_safe_workspace_path` hỗ trợ chuẩn thư mục Windows (`%LOCALAPPDATA%`), macOS (`~/Library/Logs`), Linux (`XDG_STATE_HOME`), và kiểm soát an toàn chống chọn thư mục hệ thống Unix (`/etc`, `/usr`, `/bin`).
   - [x] GitHub Actions CI/CD Matrix: Thiết lập `.github/workflows/build-release.yml` tự động biên dịch đám mây 3 hệ điều hành (`windows-latest`, `macos-latest`, `ubuntu-latest`) và phát hành release artifacts (Setup.exe, macOS.zip, Linux.tar.gz).
   - [x] Bilingual Cross-Platform README: Cập nhật `README.md` và `README.vi.md` với bảng hướng dẫn cài đặt trực tiếp cho Windows, macOS và Linux.
-- [x] Passed 100% Verification: All 26/26 automated test gates passed (`tests/test_verification.py`).
+- [x] Passed 100% Verification: All 27/27 automated test gates passed (`tests/test_verification.py`).
 - [x] Phase 8 (Complete Live Supabase Auth Lifecycle & Desktop OAuth Loopback Engine):
   - [x] Full REST Auth Engine: Connected live `sign_in`, `sign_up` and `sign_out` to Supabase Auth (`/auth/v1/token`, `/auth/v1/signup`, `/auth/v1/logout`) with automatic profile sync to `public.profiles`.
   - [x] Desktop OAuth Loopback Engine: Implemented local HTTP callback server on port 54321 with HTML/JS hash-to-query bridge page for seamless Google & GitHub social sign-in.
   - [x] Auto-Login on Sign Up: Instant session creation upon registration when email confirmation is disabled, or intuitive guidance to sign in.
   - [x] Gate 26 Automated Test: Added Gate 26 verifying URL config, sign-up/sign-in validation, loopback server lifecycle, token revocation, and session disk persistence.
+- [x] Phase 9 (Developer Profile & Portfolio Hub with Real-Time Avatar Sync):
+  - [x] Dedicated Profile Tab: Added `data-nav="profile"` to left activity sidebar and connected 1-click navigation from TopBar user widget dropdown.
+  - [x] Bento Grid Profile Architecture: Crafted Hero Profile Card with glowing avatar, Provider badges (GitHub Verified / Supabase Cloud), 4-metric statistics summary (Installed, Favorites, Contributed, Security Session), and Portfolio list.
+  - [x] Artistic Avatar Selection: Integrated 6 preset Abyssal Sky v2.0 artistic avatars + custom URL input with instant real-time synchronization to TopBar and Supabase `public.profiles`.
+  - [x] Gate 27 Automated Test: Added Gate 27 verifying stats calculations, profile update lifecycle, HTML bindings, and session persistence.
 - [x] Knowledge Graph: Updated Graphify AST (11,384 nodes, 11,508 edges, 659 communities).

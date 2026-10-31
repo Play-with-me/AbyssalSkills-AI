@@ -952,7 +952,64 @@ def test_all():
     assert "_oauthPollInterval" in app_code, "OAuth polling loop missing in app.js"
     print("  [PASS] Supabase Auth, Desktop OAuth Engine & Session Lifecycle (Gate 26) verified.")
 
-    print("\n✅ ALL 26 VERIFICATION GATES PASSED! AbyssalSkillsD (v1.2.0 Enterprise Commercial Suite) is 100% operational.")
+    # 27. Test Developer Profile & Portfolio Hub (v1.3.0)
+    # 1. Test HTML elements
+    assert 'data-nav="profile"' in index_html, "Profile nav link missing in index.html"
+    assert 'id="profile-container"' in index_html, "profile-container mount point missing in index.html"
+
+    # 2. Test CSS rules
+    app_css = Path("app/frontend/css/app.css").read_text(encoding="utf-8")
+    assert ".profile-hero-card" in app_css, "profile-hero-card CSS missing in app.css"
+    assert ".profile-avatar-presets-grid" in app_css, "profile-avatar-presets-grid CSS missing in app.css"
+
+    # 3. Test JS components & bridge
+    comp_code = Path("app/frontend/js/components.js").read_text(encoding="utf-8")
+    assert "renderProfileView" in comp_code, "renderProfileView missing in components.js"
+    assert "btn-menu-open-profile" in comp_code, "btn-menu-open-profile missing in components.js"
+    assert "authUpdateProfile" in bridge_code, "authUpdateProfile missing in bridge.js"
+    assert "authGetUserStats" in bridge_code, "authGetUserStats missing in bridge.js"
+    assert "renderProfileView" in app_code, "renderProfileView missing in app.js"
+
+    # 4. Test API stats calculation
+    stats = api.auth_get_user_stats()
+    assert stats["success"] is True, f"auth_get_user_stats failed: {stats}"
+    assert stats["total_skills"] >= 36
+    assert isinstance(stats["installed_skills"], list)
+    assert isinstance(stats["contributed_skills"], list)
+
+    # 5. Test profile update lifecycle
+    mock_profile_sess = {
+        "authenticated": True,
+        "access_token": "mock_prof_jwt_token",
+        "refresh_token": "mock_prof_ref_token",
+        "expires_at": time.time() + 86400,
+        "user": {
+            "id": "gate27_user",
+            "email": "kyuu.architect@skillforge.ai",
+            "full_name": "Original Name",
+            "bio": "Old Bio",
+            "role": "creator",
+            "avatar_url": ""
+        }
+    }
+    AuthEngine.save_session(mock_profile_sess)
+
+    update_res = api.auth_update_profile({
+        "full_name": "Kyuu Master Architect",
+        "bio": "Building autonomous agentic workflows with Zero-Trust security.",
+        "avatar_url": "assets/logo/avatar-geometric-prism.png"
+    })
+    assert update_res["success"] is True, f"auth_update_profile failed: {update_res}"
+    updated_sess = AuthEngine.get_session()
+    assert updated_sess["user"]["full_name"] == "Kyuu Master Architect"
+    assert "Zero-Trust" in updated_sess["user"]["bio"]
+    assert updated_sess["user"]["avatar_url"] == "assets/logo/avatar-geometric-prism.png"
+
+    # Clean test session
+    AuthEngine.clear_session()
+    print("  [PASS] Developer Profile & Portfolio Hub with Real-Time Avatar Sync (Gate 27) verified.")
+
+    print("\n✅ ALL 27 VERIFICATION GATES PASSED! AbyssalSkillsD (v1.3.0 Enterprise Commercial Suite) is 100% operational.")
 
 if __name__ == "__main__":
     test_all()

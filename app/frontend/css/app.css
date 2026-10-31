@@ -5475,6 +5475,483 @@ code, pre {
   background: var(--bg-surface);
 }
 
+/* ==========================================================================
+   Profile & Developer Portfolio View (v1.3.0) — DESIGN.md & shadcn Standard
+   ========================================================================== */
+.profile-view-wrapper {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Guest State */
+.profile-guest-hero {
+  padding: 64px 32px;
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.08), rgba(124, 58, 237, 0.08)), var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, 14px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-guest-icon-glow {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 180, 216, 0.2), rgba(124, 58, 237, 0.1));
+  border: 1px solid rgba(0, 180, 216, 0.4);
+  color: var(--ocean-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 0 24px rgba(0, 180, 216, 0.2);
+}
+
+.profile-guest-title {
+  font-family: var(--font-display, inherit);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.profile-guest-subtitle {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  max-width: 540px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.profile-guest-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Hero Profile Card */
+.profile-hero-card {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.12), rgba(124, 58, 237, 0.12)), var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, 14px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
+
+.profile-hero-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ocean-cyan), var(--sky-violet), transparent);
+}
+
+.profile-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ocean-cyan);
+  box-shadow: 0 0 16px rgba(0, 180, 216, 0.35);
+}
+
+.profile-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ocean-cyan), var(--sky-violet));
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-avatar-badge-led {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10B981;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 8px #10B981;
+}
+
+.profile-meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.profile-display-name {
+  font-family: var(--font-display, inherit);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.profile-role-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(124, 58, 237, 0.2);
+  color: var(--sky-highlight);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+}
+
+.profile-provider-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.profile-provider-pill.github {
+  color: #F8FAFC;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-provider-pill.supabase {
+  color: #3ECF8E;
+  background: rgba(62, 207, 142, 0.12);
+  border-color: rgba(62, 207, 142, 0.25);
+}
+
+.profile-email-row {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono, monospace);
+}
+
+.profile-bio-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+  line-height: 1.45;
+}
+
+.profile-hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Bento Metrics Grid */
+.profile-bento-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .profile-bento-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.profile-metric-card {
+  padding: 16px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-metric-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+}
+
+.profile-metric-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.profile-metric-icon.cyan { background: rgba(0, 180, 216, 0.15); color: var(--ocean-cyan); }
+.profile-metric-icon.violet { background: rgba(124, 58, 237, 0.15); color: var(--sky-violet); }
+.profile-metric-icon.emerald { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.profile-metric-icon.blue { background: rgba(66, 133, 244, 0.15); color: #4285F4; }
+
+.profile-metric-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.profile-metric-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display, inherit);
+  letter-spacing: -0.02em;
+}
+
+.profile-metric-max {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.profile-metric-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* 2-Column Split: Edit Form + Portfolio */
+.profile-details-split {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .profile-details-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-card-panel {
+  padding: 20px 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md, 12px);
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 16px;
+}
+
+.profile-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.profile-panel-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 180, 216, 0.12);
+  color: var(--ocean-cyan);
+}
+
+/* Avatar Presets Grid */
+.profile-avatar-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.preset-avatar-option {
+  padding: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.preset-avatar-option img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.preset-avatar-name {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.preset-avatar-option:hover {
+  border-color: var(--ocean-cyan);
+  background: var(--bg-card-hover);
+}
+
+.preset-avatar-option:hover img {
+  transform: scale(1.06);
+}
+
+.preset-avatar-option.selected {
+  border-color: var(--ocean-cyan);
+  background: rgba(0, 180, 216, 0.12);
+  box-shadow: 0 0 12px rgba(0, 180, 216, 0.25);
+}
+
+.preset-avatar-option.selected .preset-avatar-name {
+  color: var(--ocean-cyan);
+  font-weight: 600;
+}
+
+.profile-form-footer {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-save-status {
+  font-size: 12px;
+  color: #10B981;
+}
+
+/* Portfolio List */
+.profile-portfolio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.portfolio-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.portfolio-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.portfolio-skill-chip {
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.portfolio-skill-chip .skill-chip-dot.active {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 6px #10B981;
+}
+
+.portfolio-skill-chip .skill-chip-cat {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.portfolio-contributed-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portfolio-contributed-card {
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+.portfolio-empty-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
 
 
 

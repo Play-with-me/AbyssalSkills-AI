@@ -487,6 +487,11 @@ const App = {
       if (widget) {
         widget.insertAdjacentHTML("beforeend", UIComponents.renderUserDropdown(this.authSession));
         
+        document.getElementById("btn-menu-open-profile")?.addEventListener("click", () => {
+          this.closeUserMenu();
+          this.switchWorkspace("profile");
+        });
+
         document.getElementById("btn-menu-copy-token")?.addEventListener("click", () => {
           this.copyUserAccessToken();
           this.closeUserMenu();
@@ -788,6 +793,7 @@ const App = {
     const guideContainer = document.getElementById("guide-container");
     const studioContainer = document.getElementById("studio-container");
     const communityContainer = document.getElementById("community-container");
+    const profileContainer = document.getElementById("profile-container");
 
     // Hide all view containers
     bentoGrid.style.display = "none";
@@ -795,6 +801,7 @@ const App = {
     if (guideContainer) guideContainer.style.display = "none";
     studioContainer.style.display = "none";
     communityContainer.style.display = "none";
+    if (profileContainer) profileContainer.style.display = "none";
 
     if (workspace === "library" || workspace === "installed") {
       filterBar.style.display = "flex";
@@ -839,7 +846,122 @@ const App = {
       } else {
         this.renderCommunityView();
       }
+    } else if (workspace === "profile") {
+      orgBanner.style.display = "none";
+      filterBar.style.display = "none";
+      breadcrumb.innerText = "Hồ Sơ Lập Trình Viên AI & Portfolio";
+      if (profileContainer) {
+        profileContainer.style.display = "block";
+        this.renderProfileView();
+      }
     }
+  },
+
+  async renderProfileView() {
+    const container = document.getElementById("profile-container");
+    if (!container) return;
+
+    let stats = {
+      installed_count: this.skills.filter(s => s.installed_targets && s.installed_targets.length > 0).length,
+      total_skills: this.skills.length,
+      favorites_count: this.skills.filter(s => s.is_favorite).length,
+      contributed_count: 1,
+      installed_skills: [],
+      favorite_skills: [],
+      contributed_skills: []
+    };
+
+    try {
+      const statsRes = await DesktopBridge.authGetUserStats();
+      if (statsRes && statsRes.success) {
+        stats = { ...stats, ...statsRes };
+      }
+    } catch (err) {
+      console.warn("User stats fetch warning:", err);
+    }
+
+    container.innerHTML = UIComponents.renderProfileView(this.authSession, stats);
+
+    // 1. Preset avatar picker clicks
+    container.querySelectorAll(".preset-avatar-option").forEach(opt => {
+      opt.addEventListener("click", () => {
+        container.querySelectorAll(".preset-avatar-option").forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        const avatarUrl = opt.getAttribute("data-avatar-url");
+        const inputUrl = document.getElementById("profile-edit-avatar-url");
+        if (inputUrl) inputUrl.value = avatarUrl;
+      });
+    });
+
+    // 2. Save profile event
+    document.getElementById("btn-save-profile")?.addEventListener("click", async () => {
+      const btn = document.getElementById("btn-save-profile");
+      const statusEl = document.getElementById("profile-save-status");
+      const name = document.getElementById("profile-edit-name")?.value.trim();
+      const bio = document.getElementById("profile-edit-bio")?.value.trim();
+      const avatarUrl = document.getElementById("profile-edit-avatar-url")?.value.trim();
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>Đang lưu...</span>`;
+      }
+
+      try {
+        const res = await DesktopBridge.authUpdateProfile({
+          full_name: name,
+          bio: bio,
+          avatar_url: avatarUrl
+        });
+
+        if (res && res.success) {
+          if (res.session) {
+            this.authSession = res.session;
+          }
+          this.renderUserWidget();
+          this.showToast("✓ Cập nhật hồ sơ cá nhân thành công!", "success");
+          if (statusEl) {
+            statusEl.innerText = "✓ Đã lưu thay đổi vào hệ thống";
+            setTimeout(() => { if (statusEl) statusEl.innerText = ""; }, 3000);
+          }
+          await this.renderProfileView();
+        } else {
+          this.showToast(res ? res.message : "Cập nhật thất bại.", "error");
+        }
+      } catch (err) {
+        this.showToast("Lỗi lưu hồ sơ: " + err.message, "error");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `${Icons.check} <span>Lưu Thay Đổi Hồ Sơ</span>`;
+        }
+      }
+    });
+
+    // 3. Copy Token in Profile
+    document.getElementById("btn-profile-copy-token")?.addEventListener("click", () => {
+      this.copyUserAccessToken();
+    });
+
+    // 4. Signout in Profile
+    document.getElementById("btn-profile-signout")?.addEventListener("click", async () => {
+      await this.handleSignOut();
+      await this.renderProfileView();
+    });
+
+    // 5. Open Studio from Profile
+    document.getElementById("btn-profile-open-studio")?.addEventListener("click", () => {
+      this.switchWorkspace("studio");
+    });
+
+    // 6. Guest buttons
+    document.getElementById("btn-profile-guest-login")?.addEventListener("click", () => {
+      this.openAuthModal("signin");
+    });
+
+    document.getElementById("btn-profile-guest-github")?.addEventListener("click", async () => {
+      await this.handleSocialLogin("github");
+      await this.renderProfileView();
+    });
   },
 
   renderOrgBanner() {

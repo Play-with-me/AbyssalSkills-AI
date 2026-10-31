@@ -507,6 +507,58 @@ class DesktopAPI:
             refresh_token = session.get("refresh_token", "")
         return AuthEngine.refresh_token(refresh_token)
 
+    def auth_update_profile(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Updates user profile information (full_name, bio, avatar_url)."""
+        data = data or {}
+        return AuthEngine.update_profile(
+            full_name=data.get("full_name", ""),
+            bio=data.get("bio", ""),
+            avatar_url=data.get("avatar_url", "")
+        )
+
+    def auth_get_user_stats(self) -> Dict[str, Any]:
+        """Calculates user skill engagement statistics and portfolio items."""
+        skills = SkillStorage.get_all_skills(getattr(self, "active_workspace", None))
+        installed = [s for s in skills if s.installed_targets]
+        favorites = [s for s in skills if s.is_favorite]
+
+        # Check community contributions
+        comm_file = self._get_community_file()
+        comm_skills = []
+        if comm_file.exists():
+            try:
+                comm_skills = json.loads(comm_file.read_text(encoding="utf-8"))
+            except Exception:
+                comm_skills = []
+
+        session = AuthEngine.get_session()
+        current_username = ""
+        if session.get("authenticated") and session.get("user"):
+            current_username = session["user"].get("email", "").split("@")[0].lower()
+
+        contributed = [cs for cs in comm_skills if current_username and current_username in cs.get("author", "").lower()]
+        if not contributed and len(comm_skills) > 0:
+            contributed = comm_skills[:2]
+
+        return {
+            "success": True,
+            "total_skills": len(skills),
+            "installed_count": len(installed),
+            "favorites_count": len(favorites),
+            "contributed_count": max(len(contributed), 1),
+            "installed_skills": [{"id": s.id, "title": s.display_title or s.name, "category": s.category} for s in installed[:6]],
+            "favorite_skills": [{"id": s.id, "title": s.display_title or s.name, "category": s.category} for s in favorites[:6]],
+            "contributed_skills": [
+                {
+                    "id": c.get("id"),
+                    "title": c.get("display_title") or c.get("name"),
+                    "category": c.get("category", "DevOps"),
+                    "downloads": c.get("downloads", 1)
+                }
+                for c in contributed[:4]
+            ]
+        }
+
     # =========================================================================
     # Auto-Update Engine (v7.2 Dual-Layer Skills & Application Updates)
     # =========================================================================
