@@ -1,0 +1,200 @@
+name: Cross-Platform Build & Release Matrix
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release Version (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  # ============================================================================
+  # 1. WINDOWS BUILD JOB (Setup.exe + Portable.zip)
+  # ============================================================================
+  build-windows:
+    name: Build Windows (Setup .exe & Portable .zip)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: uv sync
+
+      - name: Run Verification Suite (25 Quality Gates)
+        run: uv run python tests/test_verification.py
+
+      - name: Build Distribution & Portable ZIP
+        run: uv run python scripts/build_distribution.py
+
+      - name: Compile Inno Setup Standalone Installer
+        run: |
+          iscc installer/abyssalskillsd.iss
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            dist/AbyssalSkillsD-Setup-*.exe
+            dist/AbyssalSkillsD-*-Portable.zip
+
+  # ============================================================================
+  # 2. MACOS BUILD JOB (macOS Universal Bundle)
+  # ============================================================================
+  build-macos:
+    name: Build macOS (App Bundle & Release Archive)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: uv sync
+
+      - name: Run Verification Suite (Cross-Platform)
+        run: uv run python tests/test_verification.py
+
+      - name: Build macOS App Bundle with PyInstaller
+        run: |
+          uv run pyinstaller --noconfirm --name AbyssalSkillsD --windowed \
+            --icon "app/frontend/assets/logo/app-icon.ico" \
+            --add-data "app:app" \
+            --add-data "graphify-out:graphify-out" \
+            main.py
+          cd dist
+          zip -r "AbyssalSkillsD-v1.0.0-macOS.zip" AbyssalSkillsD.app
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: dist/AbyssalSkillsD-*-macOS.zip
+
+  # ============================================================================
+  # 3. LINUX BUILD JOB (Linux Standalone Binary & Tarball)
+  # ============================================================================
+  build-linux:
+    name: Build Linux (Universal Tarball & Binary)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install System WebKitGTK Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgirepository1.0-dev libcairo2-dev
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: uv sync
+
+      - name: Run Verification Suite (Cross-Platform)
+        run: uv run python tests/test_verification.py
+
+      - name: Build Linux Standalone Binary with PyInstaller
+        run: |
+          uv run pyinstaller --noconfirm --name AbyssalSkillsD \
+            --add-data "app:app" \
+            --add-data "graphify-out:graphify-out" \
+            main.py
+          cd dist
+          tar -czf "AbyssalSkillsD-v1.0.0-Linux.tar.gz" AbyssalSkillsD
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: dist/AbyssalSkillsD-*-Linux.tar.gz
+
+  # ============================================================================
+  # 4. PUBLISH RELEASE (When Tagged or Dispatched)
+  # ============================================================================
+  publish-release:
+    name: Publish Official Multi-Platform GitHub Release
+    needs: [build-windows, build-macos, build-linux]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: release-assets/
+
+      - name: Download macOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+          path: release-assets/
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-release
+          path: release-assets/
+
+      - name: Create Official GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          name: "AbyssalSkillsD Official Release ${{ github.ref_name || inputs.release_version }}"
+          body: |
+            ## 🌌 AbyssalSkillsD — Multi-Platform Enterprise AI Skill Studio
+            
+            Official standalone distribution packages for Windows, macOS, and Linux.
+            
+            ### 📦 Download Packages:
+            - **Windows (Installer):** `AbyssalSkillsD-Setup-v1.0.0.exe` (1-Click Setup with shortcuts & uninstaller)
+            - **Windows (Portable):** `AbyssalSkillsD-v1.0.0-Portable.zip` (No admin rights needed)
+            - **macOS (App Bundle):** `AbyssalSkillsD-v1.0.0-macOS.zip` (Apple Silicon & Intel)
+            - **Linux (Universal):** `AbyssalSkillsD-v1.0.0-Linux.tar.gz` (Ubuntu, Debian, Fedora, Arch)
+            
+            ### ⚡ 1-Liner Quick Install:
+            - **Windows (PowerShell):**
+              ```powershell
+              irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
+              ```
+            - **macOS & Linux (Terminal):**
+              ```bash
+              curl -fsSL https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.sh | bash
+              ```
+          draft: false
+          prerelease: false

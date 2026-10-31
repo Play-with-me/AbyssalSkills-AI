@@ -19,8 +19,9 @@
   <a href="dist/AbyssalSkillsD-v1.0.0-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.0-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
   <a href="#-automated-verification-suite-25-quality-gates"><img src="https://img.shields.io/badge/Quality_Gates-25%2F25_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates"></a>
   <a href="#-supabase-cloud-backend--zero-trust-telemetry"><img src="https://img.shields.io/badge/Supabase-Live_Cloud-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Cloud"></a>
+  <img src="https://img.shields.io/badge/Platform-Windows_%7C_macOS_%7C_Linux-0078D4?style=for-the-badge&logo=linux&logoColor=white" alt="Cross Platform">
   <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Architecture-Graphify_AST-F59E0B?style=for-the-badge" alt="Graphify AST">
+  <img src="https://img.shields.io/badge/CI%2FCD-Multi--OS_Matrix-8B5CF6?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI/CD Matrix">
 </p>
 
 <p align="center">
@@ -37,39 +38,53 @@
 
 ## ⚡ QUICK INSTALL IN 30 SECONDS
 
-Zero runtime setup required. Pick the deployment method that fits your developer workflow:
+Zero runtime setup required. Pick your operating system below:
 
-### 🚀 Option 1: 1-Liner Terminal Install (Recommended for Engineers)
-Open **PowerShell** on Windows and run:
+### 🖥️ 1. Windows (PowerShell or 1-Click GUI)
 
+**Terminal 1-Liner (PowerShell):**
 ```powershell
 irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
 ```
-*This command downloads the latest verified release from GitHub and launches the setup wizard automatically in seconds.*
 
----
-
-### 📦 Option 2: Direct GUI Downloads (Standalone Executables)
-
-| Release Package | Size | Highlights | Direct Download Link |
+**Direct GUI Downloads:**
+| Release Package | Size | Highlights | Direct Download |
 | :--- | :---: | :--- | :---: |
-| **Windows Setup (.exe)**<br>*(Recommended)* | **16.95 MB** | • 1-Click automatic installation<br>• Deploys Desktop & Start Menu shortcuts<br>• Clean uninstaller in Windows Settings<br>• Zero Python, Git, or Node.js required (Bundled WebView2) | [⬇️ **DOWNLOAD SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
-| **Portable Package (.zip)** | **22.33 MB** | • No Administrator privileges required<br>• Extract and run immediately via `AbyssalSkillsD.exe`<br>• Ideal for USB drives, restricted enterprise laptops, or CI runners | [📦 **DOWNLOAD PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
+| **Windows Setup (.exe)**<br>*(Recommended)* | **16.95 MB** | • 1-Click auto-install with Desktop & Start Menu shortcuts<br>• Clean uninstaller in Windows Settings<br>• Zero Python, Git, or Node.js required (Bundled WebView2) | [⬇️ **DOWNLOAD SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
+| **Portable Package (.zip)** | **22.33 MB** | • No Administrator privileges required<br>• Extract and run immediately via `AbyssalSkillsD.exe`<br>• Ideal for USB drives or enterprise laptops | [📦 **DOWNLOAD PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
 
 ---
 
-### 🛠️ Option 3: Run from Source (Developer & Contributor Mode)
-Requires **Python 3.12+** and the fast package manager **`uv`**:
+### 🍎 2. macOS (Apple Silicon M-Series & Intel)
 
-```powershell
-# 1. Clone the repository
+**Terminal 1-Liner (Terminal / zsh):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.sh | bash
+```
+*Downloads, sets up dependencies in isolated sandbox, configures native macOS Apple WebKit (WKWebView), and deploys the `abyssalskillsd` launcher command.*
+
+---
+
+### 🐧 3. Linux (Ubuntu, Debian, Fedora, Arch)
+
+**Terminal 1-Liner (Bash):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.sh | bash
+```
+*Configures WebKitGTK engine, deploys `abyssalskillsd` shell launcher into `~/.local/bin/`, and automatically registers `abyssalskillsd.desktop` into your Linux Application Menu.*
+
+---
+
+### 🛠️ 4. Run from Source (Cross-Platform Developer Mode)
+Requires **Python 3.12+** and Astral **`uv`**:
+
+```bash
+# Clone the repository
 git clone https://github.com/Play-with-me/AbyssalSkills-AI.git
 cd AbyssalSkills-AI
 
-# 2. Sync all dependencies in seconds
+# Sync dependencies and launch
 uv sync
-
-# 3. Launch the Studio desktop app
 uv run main.py
 ```
 

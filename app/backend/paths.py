@@ -41,19 +41,28 @@ def get_data_dir() -> Path:
             test_file.unlink()
             return data_dir
         except (PermissionError, OSError):
-            app_data = os.environ.get("APPDATA")
-            if app_data:
-                user_data_dir = Path(app_data) / "AbyssalSkillsD" / "data"
-                user_data_dir.mkdir(parents=True, exist_ok=True)
-                for item in data_dir.glob("*.json"):
-                    dest = user_data_dir / item.name
-                    if not dest.exists():
-                        try:
-                            import shutil
-                            shutil.copy2(item, dest)
-                        except Exception:
-                            pass
-                return user_data_dir
+            if sys.platform == "win32":
+                app_data = os.environ.get("APPDATA")
+                if app_data:
+                    user_data_dir = Path(app_data) / "AbyssalSkillsD" / "data"
+                else:
+                    user_data_dir = Path.home() / ".abyssalskillsd" / "data"
+            elif sys.platform == "darwin":
+                user_data_dir = Path.home() / "Library" / "Application Support" / "AbyssalSkillsD" / "data"
+            else:
+                xdg_data = os.environ.get("XDG_DATA_HOME") or (Path.home() / ".local" / "share")
+                user_data_dir = Path(xdg_data) / "AbyssalSkillsD" / "data"
+
+            user_data_dir.mkdir(parents=True, exist_ok=True)
+            for item in data_dir.glob("*.json"):
+                dest = user_data_dir / item.name
+                if not dest.exists():
+                    try:
+                        import shutil
+                        shutil.copy2(item, dest)
+                    except Exception:
+                        pass
+            return user_data_dir
 
     data_dir.mkdir(parents=True, exist_ok=True)
     return data_dir
@@ -69,13 +78,24 @@ def get_app_icon() -> Path:
 def get_log_dir() -> Path:
     """
     Returns the persistent directory for application logs and diagnostics.
-    Defaults to %LOCALAPPDATA%/AbyssalSkillsD/logs on Windows.
+    - Windows: %LOCALAPPDATA%/AbyssalSkillsD/logs
+    - macOS: ~/Library/Logs/AbyssalSkillsD
+    - Linux: ~/.local/state/AbyssalSkillsD/logs (or XDG_STATE_HOME)
     """
-    local_app_data = os.environ.get("LOCALAPPDATA")
-    if local_app_data:
-        log_dir = Path(local_app_data) / "AbyssalSkillsD" / "logs"
+    if sys.platform == "win32":
+        local_app_data = os.environ.get("LOCALAPPDATA")
+        if local_app_data:
+            log_dir = Path(local_app_data) / "AbyssalSkillsD" / "logs"
+        else:
+            log_dir = get_data_dir() / "logs"
+    elif sys.platform == "darwin":
+        log_dir = Path.home() / "Library" / "Logs" / "AbyssalSkillsD"
     else:
-        log_dir = get_data_dir() / "logs"
+        xdg_state = os.environ.get("XDG_STATE_HOME")
+        if xdg_state:
+            log_dir = Path(xdg_state) / "AbyssalSkillsD" / "logs"
+        else:
+            log_dir = Path.home() / ".local" / "state" / "AbyssalSkillsD" / "logs"
     
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -88,6 +108,7 @@ def assert_safe_workspace_path(path_input: Any) -> Path:
     """
     Validates and canonicalizes a workspace path to prevent Path Traversal and
     accidental modification of sensitive system directories (OWASP Top 10 / Ring 1 Defense).
+    Cross-platform support for Windows, macOS, and Linux.
     """
     if not path_input:
         raise ValueError("Đường dẫn thư mục dự án không được để trống.")
@@ -104,13 +125,20 @@ def assert_safe_workspace_path(path_input: Any) -> Path:
     if not resolved.is_dir():
         raise NotADirectoryError(f"Đường dẫn không phải là một thư mục: {resolved}")
         
-    # 2. Block root drives (e.g. C:\ or /)
+    # 2. Block root drives (e.g. C:\ on Windows or / on Unix)
     if resolved.parent == resolved:
         raise PermissionError("Không được phép chọn thư mục gốc ổ đĩa làm dự án.")
         
-    # 3. Block sensitive Windows system folders
-    win_dir = os.environ.get("WINDIR") or r"C:\Windows"
-    if resolved == Path(win_dir).resolve() or Path(win_dir).resolve() in resolved.parents:
-        raise PermissionError("Không được phép chọn thư mục hệ thống Windows.")
+    # 3. Block sensitive OS system folders
+    if sys.platform == "win32":
+        win_dir = os.environ.get("WINDIR") or r"C:\Windows"
+        if resolved == Path(win_dir).resolve() or Path(win_dir).resolve() in resolved.parents:
+            raise PermissionError("Không được phép chọn thư mục hệ thống Windows.")
+    else:
+        blocked_unix = ["/etc", "/usr", "/bin", "/sbin", "/sys", "/proc", "/dev", "/boot", "/var"]
+        for b in blocked_unix:
+            b_path = Path(b).resolve()
+            if resolved == b_path or b_path in resolved.parents:
+                raise PermissionError(f"Không được phép chọn thư mục hệ thống Unix/Linux: {b}")
         
     return resolved

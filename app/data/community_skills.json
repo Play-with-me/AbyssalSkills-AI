@@ -24,7 +24,7 @@
     "author": "alex_cloud",
     "category": "DevOps & Cloud",
     "rating": 4.9,
-    "downloads": 152,
+    "downloads": 153,
     "description": "Tự động phân tích ứng dụng đa ngôn ngữ, sinh Dockerfile đa tầng tối ưu dung lượng và bộ Helm chart/K8s manifests chuẩn Production.",
     "version": "1.0.0",
     "tags": [

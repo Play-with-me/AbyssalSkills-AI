@@ -19,8 +19,9 @@
   <a href="dist/AbyssalSkillsD-v1.0.0-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.0-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
   <a href="#-bộ-kiểm-thử-tự-động-25-cổng-chất-lượng"><img src="https://img.shields.io/badge/Quality_Gates-25%2F25_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates"></a>
   <a href="#-kết-nối-đám-mây-supabase-cloud--zero-trust-telemetry"><img src="https://img.shields.io/badge/Supabase-Live_Cloud-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Cloud"></a>
+  <img src="https://img.shields.io/badge/Nền_Tảng-Windows_%7C_macOS_%7C_Linux-0078D4?style=for-the-badge&logo=linux&logoColor=white" alt="Nền Tảng Đa Hệ">
   <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Architecture-Graphify_AST-F59E0B?style=for-the-badge" alt="Graphify AST">
+  <img src="https://img.shields.io/badge/CI%2FCD-Ma_Trận_3_OS-8B5CF6?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI/CD Matrix">
 </p>
 
 <p align="center">
@@ -37,39 +38,53 @@
 
 ## ⚡ CÀI ĐẶT NGAY TRONG 30 GIÂY
 
-Không cần cấu hình môi trường phức tạp. Chọn phương thức phù hợp nhất với phong cách làm việc của bạn:
+Không cần cấu hình môi trường phức tạp. Chọn hệ điều hành của bạn dưới đây:
 
-### 🚀 Cách 1: 1 Dòng Lệnh Terminal (Dành Cho Lập Trình Viên)
-Mở **PowerShell** trên Windows và chạy lệnh tự động:
+### 🖥️ 1. Windows (Lệnh PowerShell hoặc File Cài Đặt)
 
+**Cài đặt 1 dòng lệnh siêu tốc (PowerShell):**
 ```powershell
 irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
 ```
-*Lệnh trên sẽ tự động tải bản phát hành chính thức mới nhất, giải nén và mở trình cài đặt tự động trong vài giây.*
 
----
-
-### 📦 Cách 2: Tải Trực Tiếp Bộ Cài Đặt (GUI Setup)
-
+**Hoặc tải tệp cài đặt trực tiếp:**
 | Bản Phát Hành | Dung Lượng | Điểm Nổi Bật | Tải Về Trực Tiếp |
 | :--- | :---: | :--- | :---: |
 | **Windows Setup (.exe)**<br>*(Khuyên dùng)* | **16.95 MB** | • 1-Click cài đặt tự động vào Windows<br>• Tự tạo biểu tượng trên Desktop & Start Menu<br>• Tích hợp trình gỡ cài đặt (Uninstaller) trong Settings<br>• Không cần cài Python, Git hay Node.js | [⬇️ **TẢI SETUP.EXE**](dist/AbyssalSkillsD-Setup-v1.0.0.exe?raw=true) |
-| **Bản Di Động Portable (.zip)** | **22.33 MB** | • Không cần quyền Administrator<br>• Giải nén và chạy ngay qua `AbyssalSkillsD.exe`<br>• Lý tưởng cho USB hoặc môi trường doanh nghiệp bảo mật | [📦 **TẢI PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
+| **Bản Di Động Portable (.zip)** | **22.33 MB** | • Không cần quyền Administrator<br>• Giải nén và chạy ngay qua `AbyssalSkillsD.exe`<br>• Lý tưởng cho USB hoặc máy công ty | [📦 **TẢI PORTABLE.ZIP**](dist/AbyssalSkillsD-v1.0.0-Portable.zip?raw=true) |
 
 ---
 
-### 🛠️ Cách 3: Chạy Từ Mã Nguồn (Developer & Contributor Mode)
-Dành cho lập trình viên muốn tinh chỉnh mã nguồn, kiểm thử hoặc mở rộng chức năng:
+### 🍎 2. macOS (Apple Silicon M-Series & Intel)
 
-```powershell
-# 1. Clone repository
+**Cài đặt 1 dòng lệnh Terminal (zsh / bash):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.sh | bash
+```
+*Tự động tải mã nguồn, thiết lập môi trường cô lập, kích hoạt engine đồ họa gốc Apple WebKit (WKWebView), và tạo lệnh khởi chạy `abyssalskillsd` toàn hệ thống.*
+
+---
+
+### 🐧 3. Linux (Ubuntu, Debian, Fedora, Arch)
+
+**Cài đặt 1 dòng lệnh Terminal (Bash):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.sh | bash
+```
+*Tự động cấu hình WebKitGTK, tạo lối tắt shell `abyssalskillsd` vào `~/.local/bin/`, và đăng ký biểu tượng `abyssalskillsd.desktop` vào Menu Ứng Dụng của Linux.*
+
+---
+
+### 🛠️ 4. Chạy Từ Mã Nguồn (Dành Cho Lập Trình Viên Đa Hệ)
+Yêu cầu máy đã cài **Python 3.12+** và công cụ quản lý gói **`uv`**:
+
+```bash
+# Clone kho lưu trữ về máy
 git clone https://github.com/Play-with-me/AbyssalSkills-AI.git
 cd AbyssalSkills-AI
 
-# 2. Cài đặt toàn bộ dependencies tự động với uv
+# Đồng bộ thư viện và khởi chạy
 uv sync
-
-# 3. Khởi chạy ứng dụng Studio
 uv run main.py
 ```
 

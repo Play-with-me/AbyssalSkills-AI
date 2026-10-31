@@ -88,5 +88,10 @@
   - [x] Single-File Windows Installer: Biên dịch thành công tệp cài đặt chính thức `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (16.95 MB, SHA256: `3E0C650DF7E4CA4890D2EFE46ED7C4AA0850EA14BD4E3606DA9D6C95754E93BB`) qua Inno Setup 6, tích hợp Desktop shortcut, Start Menu shortcut và Uninstaller chuẩn Windows.
   - [x] Portable Package: Cập nhật `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (22.33 MB, SHA256: `90434965fc9e2e5395ac484d74dedb4d41e65f6f8670430f1bfb537877f4a003`).
   - [x] Enterprise Bilingual Documentation: Đã thiết lập tài liệu song ngữ chuyên nghiệp chuẩn quốc tế gồm `README.md` (English) và `README.vi.md` (Tiếng Việt) với nút chuyển đổi ngôn ngữ 2 chiều, kịch bản cài đặt tự động `scripts/install.ps1`, sơ đồ kiến trúc Mermaid, ma trận so sánh và cẩm nang 36 kỹ năng.
+- [x] Phase 7 (Cross-Platform macOS & Linux Architecture & GitHub Actions CI/CD Matrix):
+  - [x] Universal POSIX Installer: Xây dựng `scripts/install.sh` hỗ trợ 1-Liner Terminal (`curl | bash`) trên macOS & Linux, tự động cấu hình WKWebView / WebKitGTK và tạo launcher `abyssalskillsd` & `abyssalskillsd.desktop`.
+  - [x] Cross-Platform Path Engine: Tối ưu hóa `paths.py` và `assert_safe_workspace_path` hỗ trợ chuẩn thư mục Windows (`%LOCALAPPDATA%`), macOS (`~/Library/Logs`), Linux (`XDG_STATE_HOME`), và kiểm soát an toàn chống chọn thư mục hệ thống Unix (`/etc`, `/usr`, `/bin`).
+  - [x] GitHub Actions CI/CD Matrix: Thiết lập `.github/workflows/build-release.yml` tự động biên dịch đám mây 3 hệ điều hành (`windows-latest`, `macos-latest`, `ubuntu-latest`) và phát hành release artifacts (Setup.exe, macOS.zip, Linux.tar.gz).
+  - [x] Bilingual Cross-Platform README: Cập nhật `README.md` và `README.vi.md` với bảng hướng dẫn cài đặt trực tiếp cho Windows, macOS và Linux.
 - [x] Passed 100% Verification: All 25/25 automated test gates passed (`tests/test_verification.py`).
 - [x] Knowledge Graph: Updated Graphify AST (11,384 nodes, 11,508 edges, 659 communities).
