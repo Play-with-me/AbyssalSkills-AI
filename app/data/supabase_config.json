@@ -1,6 +1,6 @@
 {
-  "supabase_url": "https://custom-project.supabase.co",
-  "anon_key": "custom_anon_jwt_token_sample",
-  "service_secret_key": "custom_service_secret_key_123",
+  "supabase_url": "https://ldzgwlvhbomjmonxutyc.supabase.co",
+  "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxkemd3bHZoYm9tam1vbnh1dHljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MDk5NzgsImV4cCI6MjEwODk4NTk3OH0.6nRWVCPToD3zyI5sbRrBa6FKFo2TPR0uPmQlduDFQr0",
+  "service_secret_key": "",
   "project_name": "Kyuu449977's Project"
 }

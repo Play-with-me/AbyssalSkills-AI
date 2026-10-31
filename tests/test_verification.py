@@ -5,6 +5,7 @@ Batch Multi-Target Deployment, Graphify AST, Standalone Packaging, and Auto-Upda
 """
 import sys
 import json
+import time
 import zipfile
 from pathlib import Path
 
@@ -121,6 +122,7 @@ def test_all():
 
     # 9. Test Supabase Authentication, Token & Secret Key Engine (supabase-backend-architect)
     from app.backend.auth import AuthEngine
+    orig_saved_cfg = api.auth_get_config()
 
     # Test config save and get
     save_cfg_res = api.auth_save_config({
@@ -158,6 +160,13 @@ def test_all():
 
     # Test sign out
     sign_out_res = api.auth_sign_out()
+
+    # Restore original real configuration
+    api.auth_save_config({
+        "supabase_url": orig_saved_cfg.get("supabase_url", ""),
+        "anon_key": orig_saved_cfg.get("anon_key", ""),
+        "service_secret_key": orig_saved_cfg.get("service_secret_key", "")
+    })
     assert sign_out_res["success"] is True
     cleared_sess = api.auth_get_session()
     assert cleared_sess.get("authenticated") is False
@@ -883,7 +892,67 @@ def test_all():
     assert "btn-card-review-diff" in app_js, "btn-card-review-diff delegated listener missing in app.js"
     print("  [PASS] Anti-Overflow Layout Safety, 2-Flow Batch Activation & Side-by-Side Diff Engine (Gate 25) verified.")
 
-    print("\n✅ ALL 25 VERIFICATION GATES PASSED! AbyssalSkillsD (v1.2.0 Enterprise Commercial Suite) is 100% operational.")
+    # -------------------------------------------------------------------------
+    # Gate 26: Complete Supabase Auth Suite, Desktop OAuth Loopback & Session Lifecycle
+    # -------------------------------------------------------------------------
+    from app.backend.auth import AuthEngine, OAuthServerManager
+    # 1. Test get_safe_config
+    auth_cfg = AuthEngine.get_safe_config()
+    assert "supabase_url" in auth_cfg and "anon_key" in auth_cfg
+    assert "https://ldzgwlvhbomjmonxutyc.supabase.co" in auth_cfg["supabase_url"]
+
+    # 2. Test sign_up validation (empty password, short password)
+    err_signup1 = AuthEngine.sign_up("", "")
+    assert err_signup1["success"] is False
+    err_signup2 = AuthEngine.sign_up("test@example.com", "123")
+    assert err_signup2["success"] is False and "ít nhất 6 ký tự" in err_signup2["message"]
+
+    # 3. Test sign_in validation
+    err_signin = AuthEngine.sign_in("", "")
+    assert err_signin["success"] is False
+
+    # 4. Test OAuth Loopback Server lifecycle
+    assert OAuthServerManager.start_server(AuthEngine, port=54321) is True
+    assert OAuthServerManager.server is not None
+    OAuthServerManager.stop_server()
+    assert OAuthServerManager.server is None
+
+    # 5. Test session persistence & clear on logout
+    mock_test_session = {
+        "authenticated": True,
+        "access_token": "gate26_test_token_123",
+        "refresh_token": "gate26_refresh_123",
+        "expires_at": time.time() + 3600,
+        "user": {
+            "id": "gate26_user",
+            "email": "tester@example.com",
+            "full_name": "Gate26 Tester",
+            "role": "creator",
+            "avatar_url": ""
+        }
+    }
+    AuthEngine.save_session(mock_test_session)
+    loaded_session = AuthEngine.get_session()
+    assert loaded_session.get("authenticated") is True
+    assert loaded_session["user"]["email"] == "tester@example.com"
+
+    # Test Sign Out clears session
+    signout_res = AuthEngine.sign_out()
+    assert signout_res["success"] is True
+    cleared_session = AuthEngine.get_session()
+    assert cleared_session.get("authenticated") is False
+
+    # 6. Verify Frontend bridge & components bindings
+    bridge_code = Path("app/frontend/js/bridge.js").read_text(encoding="utf-8")
+    assert "authCheckOAuthStatus" in bridge_code, "authCheckOAuthStatus missing in bridge.js"
+    assert "authSignInOAuth" in bridge_code, "authSignInOAuth missing in bridge.js"
+
+    app_code = Path("app/frontend/js/app.js").read_text(encoding="utf-8")
+    assert "authCheckOAuthStatus" in app_code, "authCheckOAuthStatus missing in app.js"
+    assert "_oauthPollInterval" in app_code, "OAuth polling loop missing in app.js"
+    print("  [PASS] Supabase Auth, Desktop OAuth Engine & Session Lifecycle (Gate 26) verified.")
+
+    print("\n✅ ALL 26 VERIFICATION GATES PASSED! AbyssalSkillsD (v1.2.0 Enterprise Commercial Suite) is 100% operational.")
 
 if __name__ == "__main__":
     test_all()

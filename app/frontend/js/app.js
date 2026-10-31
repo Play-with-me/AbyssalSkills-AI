@@ -600,16 +600,68 @@ const App = {
     if (btn) {
       btn.disabled = true;
       btn.style.opacity = "0.7";
-      btn.innerHTML = `<span style="display:inline-block; animation:spin 1s infinite linear;">↻</span><span>Đang xác thực ${provider === 'google' ? 'Google' : 'GitHub'}...</span>`;
+      btn.innerHTML = `<span style="display:inline-block; animation:spin 1s infinite linear;">↻</span><span>Đang mở trình duyệt ${provider === 'google' ? 'Google' : 'GitHub'}...</span>`;
     }
 
     try {
       const res = await DesktopBridge.authSignInOAuth(provider);
       if (res && res.success) {
-        this.authSession = res.session;
-        this.renderUserWidget();
-        this.closeActiveModal();
-        this.showToast(res.message, "success");
+        if (res.session) {
+          // Instant demo/test session
+          this.authSession = res.session;
+          this.renderUserWidget();
+          this.closeActiveModal();
+          this.showToast(res.message, "success");
+          return;
+        }
+
+        if (res.listening) {
+          if (btn) {
+            btn.innerHTML = `<span style="display:inline-block; animation:spin 1s infinite linear;">↻</span><span>Đang chờ đăng nhập trên trình duyệt...</span>`;
+          }
+          this.showToast(res.message, "info");
+
+          // Start polling loop (every 1.5s, max 80 iterations = 120s)
+          let attempts = 0;
+          if (this._oauthPollInterval) clearInterval(this._oauthPollInterval);
+          this._oauthPollInterval = setInterval(async () => {
+            attempts++;
+            if (attempts > 80) {
+              clearInterval(this._oauthPollInterval);
+              this._oauthPollInterval = null;
+              if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.innerHTML = origHtml;
+              }
+              this.showToast("Hết thời gian chờ xác thực OAuth. Vui lòng thử lại.", "warning");
+              return;
+            }
+
+            try {
+              const status = await DesktopBridge.authCheckOAuthStatus();
+              if (status && status.success && status.session) {
+                clearInterval(this._oauthPollInterval);
+                this._oauthPollInterval = null;
+                this.authSession = status.session;
+                this.renderUserWidget();
+                this.closeActiveModal();
+                this.showToast(status.message || `Đăng nhập thành công! Chào mừng ${status.session.user?.full_name || 'bạn'}.`, "success");
+              } else if (status && status.success === false && !status.pending) {
+                clearInterval(this._oauthPollInterval);
+                this._oauthPollInterval = null;
+                if (btn) {
+                  btn.disabled = false;
+                  btn.style.opacity = "1";
+                  btn.innerHTML = origHtml;
+                }
+                this.openAuthModal("signin", status.message || "Xác thực không thành công.");
+              }
+            } catch (e) {
+              // Ignore interim poll errors
+            }
+          }, 1500);
+        }
       } else {
         if (btn) {
           btn.disabled = false;
@@ -671,9 +723,17 @@ const App = {
         if (res.session) {
           this.authSession = res.session;
           this.renderUserWidget();
+          this.closeActiveModal();
+          this.showToast(res.message, "success");
+        } else if (res.requires_login) {
+          this.openAuthModal("signin", "");
+          const emailInput = document.getElementById("auth-signin-email");
+          if (emailInput) emailInput.value = email;
+          this.showToast(res.message, "info");
+        } else {
+          this.closeActiveModal();
+          this.showToast(res.message, "success");
         }
-        this.closeActiveModal();
-        this.showToast(res.message, "success");
       } else {
         this.openAuthModal("signup", res ? res.message : "Đăng ký không thành công.");
       }

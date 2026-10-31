@@ -464,7 +464,14 @@ class DesktopAPI:
     def auth_sign_in_oauth(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Signs in user using OAuth provider (Google / GitHub)."""
         provider = data.get("provider", "google") if isinstance(data, dict) else "google"
+        use_loopback = bool(data.get("use_loopback", False)) if isinstance(data, dict) else False
+        if use_loopback:
+            return AuthEngine.start_oauth(provider)
         return AuthEngine.sign_in_with_oauth(provider)
+
+    def auth_check_oauth_status(self) -> Dict[str, Any]:
+        """Checks if Desktop OAuth loopback received token from browser redirect."""
+        return AuthEngine.check_oauth_status()
 
     def auth_sign_up(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Registers new user account."""

@@ -175,8 +175,12 @@ class DesktopBridge {
     return await this.call("auth_sign_in", credentials);
   }
 
-  static async authSignInOAuth(provider) {
-    return await this.call("auth_sign_in_oauth", { provider });
+  static async authSignInOAuth(provider, useLoopback = true) {
+    return await this.call("auth_sign_in_oauth", { provider, use_loopback: useLoopback });
+  }
+
+  static async authCheckOAuthStatus() {
+    return await this.call("auth_check_oauth_status");
   }
 
   static async authSignUp(data) {
