@@ -1831,31 +1831,178 @@ const App = {
       const diff = await DesktopBridge.getSkillDiff(skillId, this.activeWorkspaceProject);
       root.innerHTML = UIComponents.renderDiffReviewModal(diff);
 
-      // Button Keep Local
+      const chunks = diff.chunks || [];
+      const totalChunks = chunks.length;
+      const selectedChunkIds = new Set(chunks.map(c => c.id));
+
+      const updateSelectionUI = () => {
+        const count = selectedChunkIds.size;
+        const counterEl = document.getElementById("diff-selected-counter");
+        if (counterEl) {
+          counterEl.textContent = `Đã chọn: ${count}/${totalChunks} khối`;
+        }
+        const btnCountEl = document.getElementById("btn-selected-count");
+        if (btnCountEl) {
+          btnCountEl.textContent = `${count}`;
+        }
+
+        const applySelectedBtn = document.getElementById("btn-diff-apply-selected");
+        if (applySelectedBtn) {
+          applySelectedBtn.disabled = count === 0;
+          applySelectedBtn.style.opacity = count === 0 ? "0.5" : "1";
+        }
+
+        // Update cards and rows styling
+        chunks.forEach(c => {
+          const isSelected = selectedChunkIds.has(c.id);
+          const chk = document.getElementById(`chk-chunk-${c.id}`);
+          if (chk) chk.checked = isSelected;
+
+          const card = document.getElementById(`chunk-card-${c.id}`);
+          if (card) {
+            if (isSelected) {
+              card.classList.add("active");
+              card.classList.remove("deselected");
+            } else {
+              card.classList.remove("active");
+              card.classList.add("deselected");
+            }
+          }
+
+          // Mark right pane rows for deselected chunks
+          const rightRows = document.querySelectorAll(`#diff-code-wrapper-right .diff-row[data-chunk-id="${c.id}"]`);
+          rightRows.forEach(r => {
+            if (isSelected) {
+              r.classList.remove("chunk-deselected");
+            } else {
+              r.classList.add("chunk-deselected");
+            }
+          });
+        });
+      };
+
+      // 1. Synchronized Scrolling between left and right code wrappers
+      const leftPane = document.getElementById("diff-code-wrapper-left");
+      const rightPane = document.getElementById("diff-code-wrapper-right");
+      if (leftPane && rightPane) {
+        let isSyncing = false;
+        leftPane.addEventListener("scroll", () => {
+          if (!isSyncing) {
+            isSyncing = true;
+            rightPane.scrollTop = leftPane.scrollTop;
+            rightPane.scrollLeft = leftPane.scrollLeft;
+            requestAnimationFrame(() => { isSyncing = false; });
+          }
+        });
+        rightPane.addEventListener("scroll", () => {
+          if (!isSyncing) {
+            isSyncing = true;
+            leftPane.scrollTop = rightPane.scrollTop;
+            leftPane.scrollLeft = rightPane.scrollLeft;
+            requestAnimationFrame(() => { isSyncing = false; });
+          }
+        });
+      }
+
+      // 2. Interactive Checkbox Handlers
+      document.querySelectorAll(".diff-chunk-checkbox").forEach(chk => {
+        chk.addEventListener("change", (e) => {
+          const cid = parseInt(e.target.getAttribute("data-chunk-id"), 10);
+          if (e.target.checked) {
+            selectedChunkIds.add(cid);
+          } else {
+            selectedChunkIds.delete(cid);
+          }
+          updateSelectionUI();
+        });
+      });
+
+      // 3. Click chunk card (outside checkbox) to scroll directly to chunk
+      document.querySelectorAll(".diff-chunk-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const cid = card.getAttribute("data-chunk-id");
+          const targetRow = document.querySelector(`#diff-code-wrapper-right .diff-row[data-chunk-id="${cid}"]`) ||
+                            document.querySelector(`#diff-code-wrapper-left .diff-row[data-chunk-id="${cid}"]`);
+          if (targetRow) {
+            targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+            targetRow.style.transition = "outline 0.15s ease";
+            targetRow.style.outline = "2px solid #00B4D8";
+            setTimeout(() => { targetRow.style.outline = ""; }, 1200);
+          }
+        });
+      });
+
+      // 4. Select All / Deselect All
+      document.getElementById("btn-diff-select-all")?.addEventListener("click", () => {
+        chunks.forEach(c => selectedChunkIds.add(c.id));
+        updateSelectionUI();
+      });
+
+      document.getElementById("btn-diff-deselect-all")?.addEventListener("click", () => {
+        selectedChunkIds.clear();
+        updateSelectionUI();
+      });
+
+      // 5. Button Keep Local
       document.getElementById("btn-diff-keep-local")?.addEventListener("click", () => {
         this.closeActiveModal();
         this.showToast("🛡️ Đã giữ lại bản tùy biến của bạn trên máy (không thay đổi).", "info");
       });
 
-      // Button Accept Update
+      // 6. Button Apply Selected Chunks
+      document.getElementById("btn-diff-apply-selected")?.addEventListener("click", async () => {
+        if (selectedChunkIds.size === 0) {
+          this.showToast("Vui lòng chọn ít nhất 1 khối thay đổi hoặc bấm 'Giữ Lại Bản Cũ'.", "warning");
+          return;
+        }
+
+        const btn = document.getElementById("btn-diff-apply-selected");
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = `<span>Đang áp dụng ${selectedChunkIds.size} khối...</span>`;
+        }
+
+        try {
+          const isAll = selectedChunkIds.size === totalChunks;
+          const payload = {
+            skill_id: skillId,
+            selected_chunks: Array.from(selectedChunkIds),
+            apply_all: isAll,
+            workspace_path: this.activeWorkspaceProject
+          };
+          const res = await DesktopBridge.applySkillDiff(payload);
+          if (res && res.success) {
+            this.closeActiveModal();
+            this.showToast(res.message || `✓ Đã áp dụng ${selectedChunkIds.size} khối thay đổi thành công! (Bản cũ đã lưu tại SKILL.md.bak)`, "success");
+            await this.loadSkills();
+            await this.updateSystemStatus();
+          } else {
+            this.showToast(res ? res.message : "Lỗi khi áp dụng thay đổi.", "error");
+            if (btn) btn.disabled = false;
+          }
+        } catch (e) {
+          this.showToast("Lỗi áp dụng: " + e.message, "error");
+          if (btn) btn.disabled = false;
+        }
+      });
+
+      // 7. Button Accept All Updates (Thay Đổi Toàn Bộ)
       document.getElementById("btn-diff-apply-update")?.addEventListener("click", async () => {
         const btn = document.getElementById("btn-diff-apply-update");
         if (btn) {
           btn.disabled = true;
-          btn.innerHTML = `<span>Đang cập nhật & sao lưu .bak...</span>`;
+          btn.innerHTML = `<span>Đang cập nhật toàn bộ & sao lưu .bak...</span>`;
         }
         try {
-          const installPayload = {
+          const payload = {
             skill_id: skillId,
-            targets: (diff.targets && diff.targets.length > 0) ? diff.targets : ["antigravity"],
-            workspace_path: this.activeWorkspaceProject,
-            enable_always_on: true,
-            with_graphify: false
+            apply_all: true,
+            workspace_path: this.activeWorkspaceProject
           };
-          const res = await DesktopBridge.installSkill(installPayload);
+          const res = await DesktopBridge.applySkillDiff(payload);
           if (res && res.success) {
             this.closeActiveModal();
-            this.showToast(`✓ Đã cập nhật thành công kỹ năng "${diff.display_title}"! (Bản cũ đã được lưu tại SKILL.md.bak)`, "success");
+            this.showToast(res.message || `✓ Đã cập nhật toàn bộ kỹ năng "${diff.display_title}"! (Bản cũ đã được lưu tại SKILL.md.bak)`, "success");
             await this.loadSkills();
             await this.updateSystemStatus();
           } else {

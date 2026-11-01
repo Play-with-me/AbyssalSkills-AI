@@ -2212,6 +2212,24 @@ class UIComponents {
     `;
   }
 
+  static renderDiffRows(rows) {
+    if (!rows || rows.length === 0) {
+      return `<div class="diff-empty-state" style="padding:20px; text-align:center; color:var(--text-muted);">(Không có dữ liệu)</div>`;
+    }
+    return rows.map(r => {
+      const typeClass = r.type === "add" ? "diff-row add" : (r.type === "delete" ? "diff-row delete" : (r.type === "empty" ? "diff-row empty" : "diff-row normal"));
+      const marker = r.type === "add" ? "+" : (r.type === "delete" ? "-" : " ");
+      const chunkAttr = r.chunk_id !== null && r.chunk_id !== undefined ? `data-chunk-id="${r.chunk_id}"` : "";
+      return `
+        <div class="${typeClass}" ${chunkAttr}>
+          <span class="diff-gutter-num">${r.line_num || ""}</span>
+          <span class="diff-marker">${marker}</span>
+          <span class="diff-code-text">${this.escape(r.text || "")}</span>
+        </div>
+      `;
+    }).join("");
+  }
+
   static renderDiffReviewModal(diff) {
     if (!diff || !diff.success) {
       return `
@@ -2225,20 +2243,79 @@ class UIComponents {
       `;
     }
 
+    const stats = diff.diff_stats || { total_chunks: 0, added_lines: 0, deleted_lines: 0 };
+    const chunks = diff.chunks || [];
+    const hasAligned = diff.aligned_rows && diff.aligned_rows.left && diff.aligned_rows.right;
+    const totalChunks = chunks.length;
+
+    const chunkChipsHtml = chunks.map(c => `
+      <div class="diff-chunk-card active" data-chunk-id="${c.id}" id="chunk-card-${c.id}" title="Bấm để cuộn đến khối này">
+        <label class="diff-chunk-label" onclick="event.stopPropagation()">
+          <input type="checkbox" class="diff-chunk-checkbox" data-chunk-id="${c.id}" id="chk-chunk-${c.id}" checked />
+          <span class="diff-chunk-name">Khối ${c.id + 1}: ${this.escape(c.title)}</span>
+        </label>
+        <div class="diff-chunk-badges">
+          ${c.added > 0 ? `<span class="chunk-badge-add">+${c.added}</span>` : ""}
+          ${c.deleted > 0 ? `<span class="chunk-badge-del">-${c.deleted}</span>` : ""}
+        </div>
+      </div>
+    `).join("");
+
     return `
       <div class="modal-backdrop" id="modal-diff-review" onclick="App.closeActiveModal(event)">
         <div class="diff-modal-container" onclick="event.stopPropagation()">
+          <!-- Header -->
           <div class="diff-modal-header">
             <div class="diff-header-left">
               <span class="diff-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00B4D8" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 <span>So Sánh & Cập Nhật Kỹ Năng: ${this.escape(diff.display_title || diff.skill_id)}</span>
               </span>
-              <span class="diff-subtitle">Nội dung tệp trên máy của bạn có sự khác biệt so với bản cập nhật mới từ kho. Hãy kiểm tra kỹ trước khi quyết định.</span>
+              <span class="diff-subtitle">Đã chỉ rõ các dòng thay đổi bằng màu sắc. Bạn có thể tick chọn từng khối muốn thay đổi hoặc bấm "Thay Đổi Toàn Bộ".</span>
             </div>
             <button class="btn-close-modal" onclick="App.closeActiveModal()" title="Đóng cửa sổ">✕</button>
           </div>
 
+          <!-- Diff Toolbar & Stats Bar -->
+          <div class="diff-toolbar">
+            <div class="diff-stats-group">
+              <span class="diff-stat-pill pill-add">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>+${stats.added_lines} dòng mới</span>
+              </span>
+              <span class="diff-stat-pill pill-del">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>-${stats.deleted_lines} dòng sửa/xóa</span>
+              </span>
+              <span class="diff-stat-pill pill-chunks">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <span>${stats.total_chunks} khối khác biệt</span>
+              </span>
+            </div>
+
+            <div class="diff-actions-group">
+              <button class="btn-diff-action-chip" id="btn-diff-select-all" title="Chọn tất cả các khối">✓ Chọn tất cả (${stats.total_chunks})</button>
+              <button class="btn-diff-action-chip" id="btn-diff-deselect-all" title="Bỏ chọn tất cả các khối">✕ Bỏ chọn</button>
+              <span class="diff-counter-pill" id="diff-selected-counter">Đã chọn: ${stats.total_chunks}/${stats.total_chunks} khối</span>
+            </div>
+          </div>
+
+          <!-- Horizontal Chunk Selector Strip -->
+          ${chunks.length > 0 ? `
+            <div class="diff-chunk-selector-strip" id="diff-chunk-selector-strip">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:4px; margin-right:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <span>KHỐI:</span>
+              </span>
+              ${chunkChipsHtml}
+            </div>
+          ` : `
+            <div style="padding:8px 20px; font-size:11px; color:#10B981; background:rgba(16,185,129,0.06); border-bottom:1px solid var(--border-subtle);">
+              ✓ Tệp trên máy của bạn hiện hoàn toàn khớp với bản trong kho (không có khối khác biệt nào).
+            </div>
+          `}
+
+          <!-- Code View Body (Side-by-Side Aligned) -->
           <div class="diff-modal-body">
             <!-- Cột Trái: Bản Cũ Trên Máy Của Bạn -->
             <div class="diff-column">
@@ -2249,8 +2326,8 @@ class UIComponents {
                 </span>
                 <span class="diff-col-meta" title="${this.escape(diff.local_path)}">${this.escape(diff.local_path || "Đường dẫn không xác định")}</span>
               </div>
-              <div class="diff-code-wrapper">
-                <pre><code>${this.escape(diff.local_content || "(Tệp rỗng)")}</code></pre>
+              <div class="diff-code-wrapper" id="diff-code-wrapper-left">
+                ${hasAligned ? this.renderDiffRows(diff.aligned_rows.left) : `<pre><code>${this.escape(diff.local_content || "(Tệp rỗng)")}</code></pre>`}
               </div>
             </div>
 
@@ -2263,26 +2340,31 @@ class UIComponents {
                 </span>
                 <span class="diff-col-meta">Nguồn: Kho Kỹ Năng Bản Quyền</span>
               </div>
-              <div class="diff-code-wrapper">
-                <pre><code>${this.escape(diff.new_content || "(Tệp rỗng)")}</code></pre>
+              <div class="diff-code-wrapper" id="diff-code-wrapper-right">
+                ${hasAligned ? this.renderDiffRows(diff.aligned_rows.right) : `<pre><code>${this.escape(diff.new_content || "(Tệp rỗng)")}</code></pre>`}
               </div>
             </div>
           </div>
 
+          <!-- Footer Actions -->
           <div class="diff-modal-footer">
             <button class="btn btn-secondary" id="btn-diff-keep-local" data-id="${diff.skill_id}">
               🛡️ Giữ Lại Bản Cũ Của Tôi (Bỏ qua)
             </button>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span style="font-size:11px; color:var(--text-muted);">Tự động sao lưu bản cũ vào SKILL.md.bak</span>
-              <button class="btn btn-primary" id="btn-diff-apply-update" data-id="${diff.skill_id}" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none;">
-                💾 Đồng Ý Cập Nhật Sang Bản Mới
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <span class="diff-backup-hint" style="font-size:11px; color:var(--text-muted);">Tự động sao lưu bản cũ vào SKILL.md.bak</span>
+              <button class="btn btn-secondary" id="btn-diff-apply-selected" data-id="${diff.skill_id}" style="border:1px solid var(--ocean-cyan); color:var(--ocean-cyan); background:rgba(0,180,216,0.12); font-weight:600;">
+                ✓ Áp Dụng Phần Đã Chọn (<span id="btn-selected-count">${totalChunks}</span> khối)
+              </button>
+              <button class="btn btn-primary" id="btn-diff-apply-update" data-id="${diff.skill_id}" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none; font-weight:700;">
+                ⚡ Thay Đổi Toàn Bộ (${totalChunks} khối)
               </button>
             </div>
           </div>
         </div>
       </div>
     `;
+  }
   }
 
   static renderCommunitySkillDetailModal(skill, targetWorkspace) {

@@ -80,7 +80,9 @@ class DesktopAPI:
         """
         Loads both the current local version from disk and the registry version
         for side-by-side comparison before accepting updates.
+        Computes structured diff chunks and synchronized row alignment.
         """
+        import difflib
         skill_id = data if isinstance(data, str) else (data.get("skill_id") if isinstance(data, dict) else "")
         workspace_path = getattr(self, "active_workspace", str(Path.cwd()))
         if isinstance(data, dict) and data.get("workspace_path"):
@@ -103,6 +105,107 @@ class DesktopAPI:
         else:
             local_content = "Chưa có bản cài đặt trên máy."
 
+        # Compute line-by-line diff and structured chunks
+        local_lines = local_content.splitlines(keepends=False)
+        new_lines = new_content.splitlines(keepends=False)
+
+        matcher = difflib.SequenceMatcher(None, local_lines, new_lines)
+        opcodes = matcher.get_opcodes()
+
+        chunks = []
+        left_rows = []
+        right_rows = []
+        chunk_id = 0
+        total_added = 0
+        total_deleted = 0
+
+        for tag, i1, i2, j1, j2 in opcodes:
+            if tag == "equal":
+                count = i2 - i1
+                for k in range(count):
+                    left_rows.append({
+                        "type": "equal",
+                        "line_num": i1 + k + 1,
+                        "text": local_lines[i1 + k],
+                        "chunk_id": None
+                    })
+                    right_rows.append({
+                        "type": "equal",
+                        "line_num": j1 + k + 1,
+                        "text": new_lines[j1 + k],
+                        "chunk_id": None
+                    })
+            else:
+                # Find nearest Markdown header for contextual title
+                title = ""
+                for l in reversed(new_lines[:j1]):
+                    if l.strip().startswith("#"):
+                        title = l.strip().lstrip("#").strip()
+                        break
+                if not title:
+                    for l in reversed(local_lines[:i1]):
+                        if l.strip().startswith("#"):
+                            title = l.strip().lstrip("#").strip()
+                            break
+                if not title:
+                    title = f"Dòng {i1+1}-{max(i1+1, i2)}"
+                else:
+                    title = f"{title} (Dòng {i1+1}-{max(i1+1, i2)})"
+
+                l_count = i2 - i1
+                r_count = j2 - j1
+                max_count = max(l_count, r_count)
+
+                added = r_count if tag in ("insert", "replace") else 0
+                deleted = l_count if tag in ("delete", "replace") else 0
+                total_added += added
+                total_deleted += deleted
+
+                chunks.append({
+                    "id": chunk_id,
+                    "tag": tag,
+                    "title": title,
+                    "local_start": i1 + 1,
+                    "local_end": i2,
+                    "new_start": j1 + 1,
+                    "new_end": j2,
+                    "added": added,
+                    "deleted": deleted
+                })
+
+                for k in range(max_count):
+                    if k < l_count:
+                        left_rows.append({
+                            "type": "delete",
+                            "line_num": i1 + k + 1,
+                            "text": local_lines[i1 + k],
+                            "chunk_id": chunk_id
+                        })
+                    else:
+                        left_rows.append({
+                            "type": "empty",
+                            "line_num": "",
+                            "text": "",
+                            "chunk_id": chunk_id
+                        })
+
+                    if k < r_count:
+                        right_rows.append({
+                            "type": "add",
+                            "line_num": j1 + k + 1,
+                            "text": new_lines[j1 + k],
+                            "chunk_id": chunk_id
+                        })
+                    else:
+                        right_rows.append({
+                            "type": "empty",
+                            "line_num": "",
+                            "text": "",
+                            "chunk_id": chunk_id
+                        })
+
+                chunk_id += 1
+
         return {
             "success": True,
             "skill_id": skill.id,
@@ -112,7 +215,117 @@ class DesktopAPI:
             "new_content": new_content,
             "new_version": skill.version or "1.0.0",
             "has_update": skill.has_update,
-            "targets": skill.installed_targets or ["antigravity"]
+            "targets": skill.installed_targets or ["antigravity"],
+            "chunks": chunks,
+            "diff_stats": {
+                "total_chunks": len(chunks),
+                "added_lines": total_added,
+                "deleted_lines": total_deleted
+            },
+            "aligned_rows": {
+                "left": left_rows,
+                "right": right_rows
+            }
+        }
+
+    def apply_skill_diff(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Applies either all changes or selectively chosen diff chunks to local skill.
+        Automatically creates a snapshot backup (.bak) before modifying.
+        """
+        skill_id = data.get("skill_id")
+        selected_chunks = data.get("selected_chunks", [])
+        apply_all = data.get("apply_all", False)
+        workspace_path = data.get("workspace_path") or getattr(self, "active_workspace", str(Path.cwd()))
+
+        if not skill_id:
+            return {"success": False, "message": "Thiếu skill_id để áp dụng cập nhật."}
+
+        skill = SkillStorage.get_skill(skill_id, workspace_path)
+        if not skill:
+            return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}'"}
+
+        from app.backend.installer import SkillInstaller
+        new_content = SkillInstaller.generate_skill_markdown(skill)
+
+        # If applying all changes, execute standard full install with backup
+        if apply_all:
+            install_payload = {
+                "skill_id": skill_id,
+                "targets": skill.installed_targets or ["antigravity"],
+                "workspace_path": workspace_path,
+                "enable_always_on": True,
+                "with_graphify": False
+            }
+            res = self.install_skill(install_payload)
+            if res.get("success"):
+                skill.has_update = False
+                SkillStorage.upsert_skill(skill)
+                return {
+                    "success": True,
+                    "message": f"✓ Đã áp dụng toàn bộ thay đổi cho kỹ năng '{skill.display_title or skill.name}'! (Bản cũ đã lưu tại SKILL.md.bak)"
+                }
+            return res
+
+        # Partial chunk application
+        local_path_str = skill.installed_path or ""
+        if not local_path_str or not Path(local_path_str).exists():
+            return {"success": False, "message": "Không tìm thấy tệp cài đặt trên máy để áp dụng từng phần."}
+
+        local_file = Path(local_path_str)
+        try:
+            local_content = local_file.read_text(encoding="utf-8", errors="replace")
+        except Exception as e:
+            return {"success": False, "message": f"Lỗi đọc tệp trên máy: {e}"}
+
+        import difflib
+        local_lines = local_content.splitlines(keepends=True)
+        new_lines = new_content.splitlines(keepends=True)
+
+        matcher = difflib.SequenceMatcher(None, local_lines, new_lines)
+        opcodes = matcher.get_opcodes()
+
+        selected_set = set(selected_chunks) if isinstance(selected_chunks, (list, set, tuple)) else set()
+        if not selected_set:
+            return {"success": False, "message": "Vui lòng chọn ít nhất một khối thay đổi hoặc bấm 'Giữ Lại Bản Cũ'."}
+
+        merged_lines = []
+        chunk_idx = 0
+        for tag, i1, i2, j1, j2 in opcodes:
+            if tag == "equal":
+                merged_lines.extend(local_lines[i1:i2])
+            else:
+                if chunk_idx in selected_set:
+                    merged_lines.extend(new_lines[j1:j2])
+                else:
+                    merged_lines.extend(local_lines[i1:i2])
+                chunk_idx += 1
+
+        merged_content = "".join(merged_lines)
+
+        # 1. Create .bak snapshot
+        bak_file = local_file.with_name(local_file.name + ".bak")
+        try:
+            import shutil
+            shutil.copy2(local_file, bak_file)
+        except Exception:
+            pass
+
+        # 2. Write merged file
+        try:
+            local_file.write_text(merged_content, encoding="utf-8")
+        except Exception as e:
+            return {"success": False, "message": f"Lỗi ghi tệp sau khi hợp nhất: {e}"}
+
+        # 3. Update skill state
+        if merged_content.strip() == new_content.strip():
+            skill.has_update = False
+        SkillStorage.upsert_skill(skill)
+
+        return {
+            "success": True,
+            "message": f"✓ Đã áp dụng thành công {len(selected_set)} khối thay đổi cho kỹ năng '{skill.display_title or skill.name}'! (Bản cũ đã lưu tại SKILL.md.bak)",
+            "applied_chunks": len(selected_set)
         }
 
     def uninstall_skill(self, data: Dict[str, Any]) -> Dict[str, Any]:

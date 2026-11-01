@@ -4,6 +4,7 @@ Maintains app/data/skills_registry.json and seeds both:
 1. The complete 7-skill suite from the Skill-AI-private organization (~/.gemini/config/skills).
 2. The 25 production engineering skills and 4 specialist personas from Addy Osmani (app/data/repos/agent-skills).
 """
+import os
 import json
 import time
 from pathlib import Path
@@ -127,7 +128,24 @@ class SkillStorage:
     def save_all_skills(cls, skills: List[SkillItem]):
         cls.DATA_DIR.mkdir(parents=True, exist_ok=True)
         data = [s.to_dict() for s in skills]
-        cls.REGISTRY_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+        payload = json.dumps(data, indent=2, ensure_ascii=False)
+        temp_file = cls.DATA_DIR / f"skills_registry_{os.getpid()}_{time.time_ns()}.tmp"
+        try:
+            temp_file.write_text(payload, encoding="utf-8")
+            temp_file.replace(cls.REGISTRY_FILE)
+        except Exception:
+            for attempt in range(3):
+                try:
+                    cls.REGISTRY_FILE.write_text(payload, encoding="utf-8")
+                    break
+                except Exception:
+                    time.sleep(0.05)
+        finally:
+            if temp_file.exists():
+                try:
+                    temp_file.unlink()
+                except Exception:
+                    pass
 
     @classmethod
     def upsert_skill(cls, skill: SkillItem) -> SkillItem:

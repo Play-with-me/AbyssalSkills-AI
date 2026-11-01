@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/backend/api.py": {
-    "mtime": 1793501427.1323752,
-    "seen": 1793501592.7058794,
-    "ast_hash": "797c96c803c9b7765bb73ed1ad035376",
+    "mtime": 1793504623.0541918,
+    "seen": 1793504883.6167283,
+    "ast_hash": "28b9d7f5df2fe2198b66bb6ae48e4695",
     "semantic_hash": ""
   },
   "app/backend/git_sync.py": {
@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "app/backend/storage.py": {
-    "mtime": 1793501449.108326,
-    "seen": 1793501592.7065027,
-    "ast_hash": "98a3532d40bbb1d2bf9aa25b3ad8c5ff",
+    "mtime": 1793504552.4700801,
+    "seen": 1793504883.6174629,
+    "ast_hash": "1fbdcbb9b7a5d6db9883db163320b3ea",
     "semantic_hash": ""
   },
   "app/data/skills_registry.json": {
@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   ".agents/PROJECT_MEMORY.md": {
-    "mtime": 1793501572.4603965,
-    "seen": 1793501592.7076557,
-    "ast_hash": "ab2e183c4d6a26839c208ffa7578d6cc",
+    "mtime": 1793504864.9797778,
+    "seen": 1793504883.6183076,
+    "ast_hash": "47a706ce6d885e80478f76704de51048",
     "semantic_hash": ""
   },
   "DESIGN.md": {
@@ -72,21 +72,21 @@
     "semantic_hash": ""
   },
   "app/frontend/js/app.js": {
-    "mtime": 1793499312.3539436,
-    "seen": 1793499399.461314,
-    "ast_hash": "be6636be9dd729f63e6eda63890a779b",
+    "mtime": 1793504729.4938562,
+    "seen": 1793504883.617753,
+    "ast_hash": "28d4121655b198ef5ead403d0b9778d9",
     "semantic_hash": ""
   },
   "app/frontend/js/bridge.js": {
-    "mtime": 1793420739.8089888,
-    "seen": 1793421083.9065125,
-    "ast_hash": "5c0653f8a47959681f38488d9c3a9103",
+    "mtime": 1793504630.7687886,
+    "seen": 1793504883.6177545,
+    "ast_hash": "3d65f5fc8acc1f441a761f61f1ad61a0",
     "semantic_hash": ""
   },
   "app/frontend/js/components.js": {
-    "mtime": 1793499294.3922544,
-    "seen": 1793499399.461418,
-    "ast_hash": "2da35a2d22a311215975017d594e639b",
+    "mtime": 1793504701.4492176,
+    "seen": 1793504883.617756,
+    "ast_hash": "99acb9981772b2658578fccd6a3095a3",
     "semantic_hash": ""
   },
   "main.py": {
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "tests/test_verification.py": {
-    "mtime": 1793502060.3029985,
-    "seen": 1793502114.6804855,
-    "ast_hash": "abec704d33fe2a8594fc75f32af3d05d",
+    "mtime": 1793504781.6901822,
+    "seen": 1793504883.6183062,
+    "ast_hash": "82250d3859e54cebd669dab386f74476",
     "semantic_hash": ""
   },
   "app/frontend/index.html": {
@@ -114,8 +114,8 @@
     "semantic_hash": ""
   },
   "app/data/supabase_config.json": {
-    "mtime": 1793503994.8310204,
-    "seen": 1793504028.0154867,
+    "mtime": 1793504832.6266599,
+    "seen": 1793504883.6176374,
     "ast_hash": "cb6bedc8b5e7285e6ce674e0019ca13a",
     "semantic_hash": ""
   },
@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "app/data/community_skills.json": {
-    "mtime": 1793504020.4187143,
-    "seen": 1793504028.0154846,
+    "mtime": 1793504873.560481,
+    "seen": 1793504883.6176353,
     "ast_hash": "3faa9818d39e24f09f5499d2978461c2",
     "semantic_hash": ""
   },

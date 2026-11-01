@@ -123,4 +123,14 @@
   - [x] Cross-Platform Test Gates: Adapted Gates 19, 24, and 25 to run seamlessly across Windows, macOS, and Linux runners without assuming Windows paths or pre-built folders.
   - [x] Inno Setup CI Integration: Added `choco install innosetup` to GitHub Actions `windows-latest` runner for automated cloud compilation of `Setup-v1.0.1.exe`.
   - [x] Multi-Platform Release Matrix: Verified all 28/28 verification gates pass green in simulated clean checkout.
+- [x] Phase 12 (Visual Line Diff Highlighting, Selective Chunk Picker & Apply All Engine):
+  - [x] Visual Line Diff Highlighting: Side-by-side synchronized diff with line numbers, green `+` highlight for additions, red `-` highlight for deletions, and padding for vertical alignment.
+  - [x] Statistics & Status Toolbar: Summary badges `+X dòng mới`, `-Y dòng sửa/xóa`, and `⚡ Z khối khác biệt`.
+  - [x] Selective Chunk Picker: Horizontal scrollable strip with interactive checkboxes `[✓] Khối K: ...` enabling users to selectively pick which changes to apply or ignore.
+  - [x] 1-Click Navigation: Clicking any chunk card smoothly scrolls the diff editor directly to that change block.
+  - [x] Three-Tier Action Controls:
+    - `[🛡️ Giữ Lại Bản Cũ (Bỏ qua)]`: Rejects incoming updates.
+    - `[✓ Áp Dụng Phần Đã Chọn]`: Merges only checked chunks into local file with automatic `.bak` snapshot.
+    - `[⚡ Thay Đổi Toàn Bộ]`: Overwrites entire skill with new version and creates `.bak` backup.
+  - [x] Gate 25 Extended: All 28 automated gates verified passing 100%.
 - [x] Knowledge Graph: Updated Graphify AST (499 nodes, 1066 edges, 38 communities).

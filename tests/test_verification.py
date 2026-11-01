@@ -884,6 +884,12 @@ def test_all():
     assert "local_content" in diff_res and "new_content" in diff_res
     assert diff_res["skill_id"] == "nextjs-fullstack-master"
     assert len(diff_res["new_content"]) > 100
+    assert "chunks" in diff_res and isinstance(diff_res["chunks"], list)
+    assert "diff_stats" in diff_res and "total_chunks" in diff_res["diff_stats"]
+    assert "aligned_rows" in diff_res and "left" in diff_res["aligned_rows"] and "right" in diff_res["aligned_rows"]
+
+    # Test apply_skill_diff API
+    assert hasattr(api, "apply_skill_diff"), "DesktopAPI.apply_skill_diff missing"
 
     # Test Selective Batch Installation (skill_ids whitelist)
     with tempfile.TemporaryDirectory() as temp_batch_ws:
@@ -900,11 +906,15 @@ def test_all():
     # Frontend Bridge, Components & App.js
     bridge_js = Path("app/frontend/js/bridge.js").read_text(encoding="utf-8")
     assert "getSkillDiff" in bridge_js, "getSkillDiff missing in bridge.js"
+    assert "applySkillDiff" in bridge_js, "applySkillDiff missing in bridge.js"
 
     components_js = Path("app/frontend/js/components.js").read_text(encoding="utf-8")
     assert "renderDiffReviewModal" in components_js, "renderDiffReviewModal missing in components.js"
     assert "btn-diff-keep-local" in components_js, "btn-diff-keep-local missing in components.js"
     assert "btn-diff-apply-update" in components_js, "btn-diff-apply-update missing in components.js"
+    assert "btn-diff-apply-selected" in components_js, "btn-diff-apply-selected missing in components.js"
+    assert "btn-diff-select-all" in components_js, "btn-diff-select-all missing in components.js"
+    assert "diff-chunk-checkbox" in components_js, "diff-chunk-checkbox missing in components.js"
     assert "btn-batch-updates-pill" in components_js, "btn-batch-updates-pill missing in components.js"
     assert "btn-card-review-diff" in components_js, "btn-card-review-diff missing in components.js"
 
@@ -912,6 +922,8 @@ def test_all():
     assert "openDiffReviewModal" in app_js, "openDiffReviewModal missing in app.js"
     assert "btn-diff-keep-local" in app_js, "btn-diff-keep-local click handler missing in app.js"
     assert "btn-diff-apply-update" in app_js, "btn-diff-apply-update click handler missing in app.js"
+    assert "btn-diff-apply-selected" in app_js, "btn-diff-apply-selected click handler missing in app.js"
+    assert "btn-diff-select-all" in app_js, "btn-diff-select-all click handler missing in app.js"
     assert "btn-batch-review-updates" in app_js, "btn-batch-review-updates click listener missing in app.js"
     assert "btn-card-review-diff" in app_js, "btn-card-review-diff delegated listener missing in app.js"
     print("  [PASS] Anti-Overflow Layout Safety, 2-Flow Batch Activation & Side-by-Side Diff Engine (Gate 25) verified.")

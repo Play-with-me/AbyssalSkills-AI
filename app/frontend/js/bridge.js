@@ -72,6 +72,10 @@ class DesktopBridge {
     return await this.call("get_skill_diff", { skill_id: skillId, workspace_path: workspacePath });
   }
 
+  static async applySkillDiff(payload) {
+    return await this.call("apply_skill_diff", payload);
+  }
+
   static async installSkill(payload) {
     return await this.call("install_skill", payload);
   }
