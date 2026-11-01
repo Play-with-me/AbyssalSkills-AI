@@ -77,7 +77,7 @@ class UpdateEngine:
         Returns a complete update status object (offline-resilient).
         """
         local_info = cls.get_version_info()
-        current_ver = local_info.get("version", "7.1.0")
+        current_ver = local_info.get("version", "1.0.0")
         repo_slug = custom_repo or DEFAULT_APP_REPO
         api_url = f"https://api.github.com/repos/{repo_slug}/releases/latest"
         
@@ -112,8 +112,29 @@ class UpdateEngine:
                         if html_url:
                             download_url = html_url
         except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, Exception):
-            # Graceful offline mode - no hard failures
-            is_offline = True
+            # If GitHub Releases API fails or has no releases yet, fallback to raw version.json manifest
+            try:
+                raw_url = f"https://raw.githubusercontent.com/{repo_slug}/main/app/data/version.json"
+                raw_req = urllib.request.Request(
+                    raw_url,
+                    headers={"User-Agent": "AbyssalSkillsD-AutoUpdater/1.0"}
+                )
+                with urllib.request.urlopen(raw_req, timeout=3) as raw_resp:
+                    if raw_resp.status == 200:
+                        raw_data = json.loads(raw_resp.read().decode("utf-8"))
+                        remote_ver = raw_data.get("version", "")
+                        if remote_ver and cls.is_newer_version(remote_ver, current_ver):
+                            app_update_available = True
+                            latest_ver = remote_ver
+                            cl = raw_data.get("changelog", {})
+                            release_title = cl.get("title", f"AbyssalSkillsD v{latest_ver}")
+                            release_notes = cl.get("highlights", release_notes)
+                            download_url = f"https://github.com/{repo_slug}/raw/main/dist/AbyssalSkillsD-Setup-v{latest_ver}.exe"
+                        is_offline = False
+                    else:
+                        is_offline = True
+            except Exception:
+                is_offline = True
 
         # 2. Check Skills Library Status
         skills_repo_dir = Path("app/data/repos/agent-skills")
