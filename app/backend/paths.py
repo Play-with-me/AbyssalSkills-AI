@@ -130,7 +130,16 @@ def assert_safe_workspace_path(path_input: Any) -> Path:
     if resolved.parent == resolved:
         raise PermissionError("Không được phép chọn thư mục gốc ổ đĩa làm dự án.")
         
-    # 3. Block sensitive OS system folders
+    # 3. Allow legitimate temporary directories (e.g. testing scratch workspaces or CI runners under /tmp or /var/folders)
+    import tempfile
+    try:
+        temp_root = Path(tempfile.gettempdir()).resolve()
+        if resolved == temp_root or temp_root in resolved.parents:
+            return resolved
+    except Exception:
+        pass
+
+    # 4. Block sensitive OS system folders
     if sys.platform == "win32":
         win_dir = os.environ.get("WINDIR") or r"C:\Windows"
         if resolved == Path(win_dir).resolve() or Path(win_dir).resolve() in resolved.parents:

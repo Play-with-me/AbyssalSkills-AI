@@ -561,7 +561,7 @@ def test_all():
         assert "workspace_path" in curr_ws
         set_res = api.set_active_workspace({"path": str(temp_ws_path)})
         assert set_res["success"] is True
-        assert api.get_active_workspace()["workspace_path"] == str(temp_ws_path)
+        assert Path(api.get_active_workspace()["workspace_path"]).resolve() == temp_ws_path.resolve()
 
         # Test Installation targeting dynamic workspace
         inst_res = api.install_skill({
