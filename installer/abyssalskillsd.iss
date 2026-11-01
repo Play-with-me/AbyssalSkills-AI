@@ -5,7 +5,7 @@
 
 #define MyAppName "AbyssalSkillsD"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Kyuu4"
+#define MyAppPublisher "Lâm Nhựt Hải Đăng (Kyuu449977)"
 #define MyAppURL "https://github.com/Play-with-me/AbyssalSkills-AI"
 #define MyAppExeName "AbyssalSkillsD.exe"
 

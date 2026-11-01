@@ -4,6 +4,9 @@ version = "1.0.0"
 description = "AbyssalSkillsD - Standalone Desktop Application for AI Skill Management & Marketplace"
 readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+    { name = "Lâm Nhựt Hải Đăng", email = "kyuu449977@gmail.com" }
+]
 dependencies = [
     "pywebview>=5.0.0",
     "pyyaml>=6.0.0",

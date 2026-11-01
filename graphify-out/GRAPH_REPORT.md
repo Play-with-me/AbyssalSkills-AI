@@ -1,7 +1,7 @@
-# Graph Report - Manager Skills  (2026-10-31)
+# Graph Report - Manager Skills  (2026-11-01)
 
 ## Corpus Check
-- 30 files · ~404,749 words
+- 30 files · ~404,800 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .ico 3, (none) 1, .lnk 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7c74ca54`
+- Built from commit: `147b9516`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

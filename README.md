@@ -15,9 +15,10 @@
 </p>
 
 <p align="center">
-  <a href="dist/AbyssalSkillsD-Setup-v1.0.0.exe"><img src="https://img.shields.io/badge/Windows_Setup-v1.0.0-00B4D8?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Setup"></a>
-  <a href="dist/AbyssalSkillsD-v1.0.0-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.0-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
-  <a href="#-automated-verification-suite-25-quality-gates"><img src="https://img.shields.io/badge/Quality_Gates-25%2F25_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates"></a>
+  <a href="https://github.com/Kyuu449977"><img src="https://img.shields.io/badge/Author-Lâm_Nhựt_Hải_Đăng_(Kyuu449977)-00B4D8?style=for-the-badge&logo=github&logoColor=white" alt="Author"></a>
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe"><img src="https://img.shields.io/badge/Windows_Setup-v1.0.0-00B4D8?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Setup"></a>
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.0-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
+  <a href="#-automated-verification-suite-25-quality-gates"><img src="https://img.shields.io/badge/Quality_Gates-28%2F28_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates"></a>
   <a href="#-supabase-cloud-backend--zero-trust-telemetry"><img src="https://img.shields.io/badge/Supabase-Live_Cloud-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Cloud"></a>
   <img src="https://img.shields.io/badge/Platform-Windows_%7C_macOS_%7C_Linux-0078D4?style=for-the-badge&logo=linux&logoColor=white" alt="Cross Platform">
   <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
@@ -318,10 +319,10 @@ uv run python scripts/build_distribution.py
 
 ## 📄 LICENSE & CREDITS
 
-- **Lead Architect:** **[Kyuu4](https://github.com/kyuu4)**.
+- **Lead Architect & Creator:** **[Lâm Nhựt Hải Đăng (Kyuu449977)](https://github.com/Kyuu449977)**.
 - **Brand System:** Abyssal Sky v2.0 motif and visual design system are proprietary to AbyssalSkills.
 - **Intellectual Attribution:** Sincere gratitude to **Addy Osmani** and the open-source engineering community for foundational contributions to modern AI developer tooling.
 
 <p align="center">
-  <sub>Built with precision for the era of AI-native software engineering. If you find AbyssalSkillsD valuable, please leave a ⭐️ Star on GitHub!</sub>
+  <sub>Built with precision for the era of AI-native software engineering by <a href="https://github.com/Kyuu449977">Lâm Nhựt Hải Đăng (Kyuu449977)</a>. If you find AbyssalSkillsD valuable, please leave a ⭐️ Star on GitHub!</sub>
 </p>
