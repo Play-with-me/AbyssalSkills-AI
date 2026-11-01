@@ -104,11 +104,17 @@
   - [x] Bento Grid Profile Architecture: Crafted Hero Profile Card with glowing avatar, Provider badges (GitHub Verified / Supabase Cloud), 4-metric statistics summary (Installed, Favorites, Contributed, Security Session), and Portfolio list.
   - [x] Artistic Avatar Selection: Integrated 6 preset Abyssal Sky v2.0 artistic avatars + custom URL input with instant real-time synchronization to TopBar and Supabase `public.profiles`.
   - [x] Gate 27 Automated Test: Added Gate 27 verifying stats calculations, profile update lifecycle, HTML bindings, and session persistence.
-- [x] Phase 10 (Universal AutoPilot OpenAI Codex Integration & Gate 28):
+- [x] Phase 10 (Universal AutoPilot & Individual Skill OpenAI Codex Integration & Gate 28):
   - [x] Root & Rule Scaffolding: `generate_rule_scaffold()` generates `CODEX.md` and `.codex/rules/always-on-autopilot.md`.
   - [x] Multi-AI Sync & Installer: Added target `codex` deploying to `~/.codex/skills/` and workspace `CODEX.md`.
   - [x] Sidebar & Autopilot UI: Added `OpenAI Codex` row with LED status indicator in sidebar and `Codex` pill in `autopilot-tools-grid`.
+  - [x] Individual Skill Cards & Inspector Integration:
+    - Added `pro-sw-codex` toggle to the Pro Settings drawer (`pro-targets-grid`).
+    - Added `sw-codex` toggle to the Skill Inspector footer target configuration.
+    - Added OpenAI Codex to the Community Skill installation dialog and Uninstaller modal.
+    - Updated `SkillScanner` fast-path bulk scanner (`get_installed_targets_and_paths`, `detect_installed_targets`) to detect `~/.codex/skills/<skill_id>` on disk.
+    - Connected `app.js` single-skill target selection and installation flows for Codex.
   - [x] Modals & Brand Vector: Added official `brandCodex` SVG and checkboxes in `renderSyncAllModal` & `renderGenerateRulesModal`.
-  - [x] Gate 28 Automated Test: Verified rule generation, target install/uninstall, and UI bindings (28/28 gates pass).
-- [x] Standalone Packaging: Built `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (17.0 MB) & `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (22.41 MB).
-- [x] Knowledge Graph: Updated Graphify AST (497 nodes, 1059 edges, 26 communities).
+  - [x] Gate 28 Automated Test: Verified rule generation, single-skill Codex target install/uninstall, scanner detection, and UI bindings (28/28 gates pass).
+- [x] Standalone Packaging: Built `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (18.55 MB) & `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (24.06 MB).
+- [x] Knowledge Graph: Updated Graphify AST (499 nodes, 1063 edges, 31 communities).

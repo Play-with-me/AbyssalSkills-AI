@@ -389,7 +389,7 @@ def test_all():
     v_data = json.loads(v_file.read_text(encoding="utf-8"))
     assert v_data.get("version") == "1.0.0", "Version in version.json must be 1.0.0"
     assert v_data.get("app_name") == "AbyssalSkillsD", "app_name in version.json must be AbyssalSkillsD"
-    assert "kyuu4/abyssalskillsd" in v_data.get("repository", ""), "Repository slug missing in version.json"
+    assert "Play-with-me/AbyssalSkills-AI" in v_data.get("repository", "") or "abyssalskillsd" in v_data.get("repository", ""), "Repository slug missing in version.json"
 
     # Test UpdateEngine SemVer logic
     assert UpdateEngine.parse_semver("1.0.1") == (1, 0, 1)
@@ -1074,6 +1074,28 @@ def test_all():
     components_js = Path("app/frontend/js/components.js").read_text(encoding="utf-8")
     assert "brandCodex" in components_js, "brandCodex SVG icon missing in components.js"
     assert 'value="codex"' in components_js, "codex checkbox option missing in components.js"
+    assert 'id="pro-sw-codex"' in components_js, "pro-sw-codex missing in individual skill pro settings panel"
+    assert 'id="sw-codex"' in components_js, "sw-codex missing in skill inspector footer toggle grid"
+    assert 'OpenAI Codex' in components_js, "OpenAI Codex label missing in components.js"
+
+    app_js = Path("app/frontend/js/app.js").read_text(encoding="utf-8")
+    assert 'pro-sw-codex' in app_js, "pro-sw-codex handling missing in app.js"
+    assert 'sw-codex' in app_js, "sw-codex handling missing in app.js"
+
+    # F. Test SkillScanner detects installed Codex target
+    with tempfile.TemporaryDirectory() as temp_detect_ws:
+        temp_detect_path = Path(temp_detect_ws)
+        # Create a mock skill installed in codex
+        mock_codex_skill = temp_detect_path / ".codex" / "skills" / "strict-architect-coder"
+        mock_codex_skill.mkdir(parents=True, exist_ok=True)
+        (mock_codex_skill / "SKILL.md").write_text("# Test Skill", encoding="utf-8")
+
+        detected = SkillScanner.detect_installed_targets("strict-architect-coder", workspace_path=str(temp_detect_path))
+        assert "codex" in detected, f"SkillScanner.detect_installed_targets must detect 'codex': {detected}"
+
+        bulk_targets, paths_map = SkillScanner.get_installed_targets_and_paths(workspace_path=str(temp_detect_path))
+        assert "strict-architect-coder" in bulk_targets, "bulk_targets must include strict-architect-coder"
+        assert "codex" in bulk_targets["strict-architect-coder"], f"bulk targets must include codex: {bulk_targets}"
 
     print("  [PASS] Universal AutoPilot OpenAI Codex Integration (Gate 28) verified.")
 

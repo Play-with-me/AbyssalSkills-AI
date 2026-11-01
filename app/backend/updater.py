@@ -20,7 +20,7 @@ from .storage import SkillStorage
 from .paths import get_data_dir
 
 VERSION_FILE = get_data_dir() / "version.json"
-DEFAULT_APP_REPO = "kyuu4/abyssalskillsd"
+DEFAULT_APP_REPO = "Play-with-me/AbyssalSkills-AI"
 DEFAULT_SKILLS_REPO = "https://github.com/addyosmani/agent-skills"
 
 class UpdateEngine:

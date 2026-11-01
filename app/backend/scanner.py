@@ -899,9 +899,48 @@ class SkillScanner:
             except Exception:
                 pass
 
-        # 4. Active Workspace targets (highest priority for paths)
-        ws_set = set()
+        # 4. OpenAI Codex targets (Global & Workspace)
+        codex_set = set()
         active_ws = Path(workspace_path) if workspace_path else Path.cwd()
+        for c_base in [home / ".codex" / "skills", active_ws / ".codex" / "skills"]:
+            if c_base.exists() and c_base.is_dir():
+                try:
+                    for p in c_base.iterdir():
+                        if p.is_dir() and (p / "SKILL.md").exists():
+                            codex_set.add(p.name)
+                            if p.name not in paths_map:
+                                paths_map[p.name] = p / "SKILL.md"
+                except Exception:
+                    pass
+
+        # 5. Cursor AI targets
+        cursor_set = set()
+        cursor_base = active_ws / ".cursor" / "skills"
+        if cursor_base.exists() and cursor_base.is_dir():
+            try:
+                for p in cursor_base.iterdir():
+                    if p.is_dir() and (p / "SKILL.md").exists():
+                        cursor_set.add(p.name)
+                        if p.name not in paths_map:
+                            paths_map[p.name] = p / "SKILL.md"
+            except Exception:
+                pass
+
+        # 6. Windsurf targets
+        windsurf_set = set()
+        windsurf_base = active_ws / ".codeium" / "windsurf" / "skills"
+        if windsurf_base.exists() and windsurf_base.is_dir():
+            try:
+                for p in windsurf_base.iterdir():
+                    if p.is_dir() and (p / "SKILL.md").exists():
+                        windsurf_set.add(p.name)
+                        if p.name not in paths_map:
+                            paths_map[p.name] = p / "SKILL.md"
+            except Exception:
+                pass
+
+        # 7. Active Workspace targets (highest priority for paths)
+        ws_set = set()
         ws_base = active_ws / ".agents" / "skills"
         if ws_base.exists() and ws_base.is_dir():
             try:
@@ -912,7 +951,7 @@ class SkillScanner:
             except Exception:
                 pass
 
-        all_skill_ids = antigravity_set | claude_set | copilot_set | ws_set
+        all_skill_ids = antigravity_set | claude_set | copilot_set | codex_set | cursor_set | windsurf_set | ws_set
         targets_result = {}
         for s_id in all_skill_ids:
             targets = []
@@ -924,6 +963,12 @@ class SkillScanner:
                 targets.append("claude")
             if s_id in copilot_set:
                 targets.append("copilot")
+            if s_id in codex_set:
+                targets.append("codex")
+            if s_id in cursor_set:
+                targets.append("cursor")
+            if s_id in windsurf_set:
+                targets.append("windsurf")
             targets_result[s_id] = targets
 
         return targets_result, paths_map
@@ -972,8 +1017,42 @@ class SkillScanner:
             except Exception:
                 pass
 
-        ws_set = set()
+        # 4. OpenAI Codex targets (Global & Workspace)
+        codex_set = set()
         active_ws = Path(workspace_path) if workspace_path else Path.cwd()
+        for c_base in [home / ".codex" / "skills", active_ws / ".codex" / "skills"]:
+            if c_base.exists() and c_base.is_dir():
+                try:
+                    for p in c_base.iterdir():
+                        if p.is_dir() and (p / "SKILL.md").exists():
+                            codex_set.add(p.name)
+                except Exception:
+                    pass
+
+        # 5. Cursor targets
+        cursor_set = set()
+        cursor_base = active_ws / ".cursor" / "skills"
+        if cursor_base.exists() and cursor_base.is_dir():
+            try:
+                for p in cursor_base.iterdir():
+                    if p.is_dir() and (p / "SKILL.md").exists():
+                        cursor_set.add(p.name)
+            except Exception:
+                pass
+
+        # 6. Windsurf targets
+        windsurf_set = set()
+        windsurf_base = active_ws / ".codeium" / "windsurf" / "skills"
+        if windsurf_base.exists() and windsurf_base.is_dir():
+            try:
+                for p in windsurf_base.iterdir():
+                    if p.is_dir() and (p / "SKILL.md").exists():
+                        windsurf_set.add(p.name)
+            except Exception:
+                pass
+
+        # 7. Workspace targets
+        ws_set = set()
         ws_base = active_ws / ".agents" / "skills"
         if ws_base.exists() and ws_base.is_dir():
             try:
@@ -983,18 +1062,24 @@ class SkillScanner:
             except Exception:
                 pass
 
-        all_skill_ids = antigravity_set | claude_set | copilot_set | ws_set
+        all_skill_ids = antigravity_set | claude_set | copilot_set | codex_set | cursor_set | windsurf_set | ws_set
         result = {}
         for s_id in all_skill_ids:
             targets = []
+            if s_id in ws_set:
+                targets.append("workspace")
             if s_id in antigravity_set:
                 targets.append("antigravity")
             if s_id in claude_set:
                 targets.append("claude")
             if s_id in copilot_set:
                 targets.append("copilot")
-            if s_id in ws_set:
-                targets.append("workspace")
+            if s_id in codex_set:
+                targets.append("codex")
+            if s_id in cursor_set:
+                targets.append("cursor")
+            if s_id in windsurf_set:
+                targets.append("windsurf")
             result[s_id] = targets
         return result
 
@@ -1003,6 +1088,7 @@ class SkillScanner:
         """Detects which tools currently have this skill installed."""
         targets = []
         home = Path.home()
+        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
 
         # 1. Antigravity Global
         antigravity_paths = [
@@ -1022,8 +1108,25 @@ class SkillScanner:
         if copilot_path.exists() and (copilot_path / "SKILL.md").exists():
             targets.append("copilot")
 
-        # 4. Current Workspace (Hỗ trợ đường dẫn động)
-        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
+        # 4. OpenAI Codex Global & Workspace
+        codex_paths = [
+            home / ".codex" / "skills" / skill_id,
+            active_ws / ".codex" / "skills" / skill_id,
+        ]
+        if any(p.exists() and (p / "SKILL.md").exists() for p in codex_paths):
+            targets.append("codex")
+
+        # 5. Cursor AI
+        cursor_path = active_ws / ".cursor" / "skills" / skill_id
+        if cursor_path.exists() and (cursor_path / "SKILL.md").exists():
+            targets.append("cursor")
+
+        # 6. Windsurf
+        windsurf_path = active_ws / ".codeium" / "windsurf" / "skills" / skill_id
+        if windsurf_path.exists() and (windsurf_path / "SKILL.md").exists():
+            targets.append("windsurf")
+
+        # 7. Current Workspace (Hỗ trợ đường dẫn động)
         ws_path = active_ws / ".agents" / "skills" / skill_id
         if ws_path.exists() and (ws_path / "SKILL.md").exists():
             targets.append("workspace")
@@ -1032,13 +1135,16 @@ class SkillScanner:
 
     @classmethod
     def detect_always_on_enabled(cls) -> bool:
-        """Checks if always-on-autopilot rule is active in Antigravity or Claude."""
+        """Checks if always-on-autopilot rule is active in Antigravity, Claude, or Codex."""
         home = Path.home()
         candidates = [
             home / ".gemini" / "config" / "rules" / "always-on-autopilot.md",
             home / ".gemini" / "GEMINI.md",
             home / ".gemini" / "config" / "GEMINI.md",
             home / ".claude" / "CLAUDE.md",
+            home / ".codex" / "rules" / "always-on-autopilot.md",
+            Path.cwd() / "CODEX.md",
+            Path.cwd() / ".codex" / "rules" / "always-on-autopilot.md",
             Path.cwd() / "GEMINI.md",
             Path.cwd() / ".agents" / "rules" / "always-on-autopilot.md",
         ]

@@ -1544,6 +1544,7 @@ const App = {
       if (document.getElementById("pro-sw-claude")?.checked) targets.push("claude");
       if (document.getElementById("pro-sw-antigravity")?.checked) targets.push("antigravity");
       if (document.getElementById("pro-sw-copilot")?.checked) targets.push("copilot");
+      if (document.getElementById("pro-sw-codex")?.checked) targets.push("codex");
       if (customPath) targets.push("workspace");
       if (targets.length === 0) targets.push("workspace");
 
@@ -1673,8 +1674,9 @@ const App = {
     if (document.getElementById("sw-cursor")?.checked) targets.push("cursor");
     if (document.getElementById("sw-windsurf")?.checked) targets.push("windsurf");
     if (document.getElementById("sw-copilot")?.checked) targets.push("copilot");
+    if (document.getElementById("sw-codex")?.checked) targets.push("codex");
     if (document.getElementById("sw-workspace")?.checked) targets.push("workspace");
-    if (targets.length === 0) targets.push("antigravity", "cursor");
+    if (targets.length === 0) targets.push("antigravity", "cursor", "codex");
 
     const enableAlwaysOn = document.getElementById("sw-always-on")?.checked ?? true;
     const withGraphify = document.getElementById("sw-graphify")?.checked ?? true;

@@ -1,17 +1,17 @@
 # Graph Report - Manager Skills  (2026-11-01)
 
 ## Corpus Check
-- 30 files · ~404,800 words
+- 30 files · ~405,514 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .ico 3, (none) 1, .lnk 1)
 
 ## Summary
-- 499 nodes · 1062 edges · 31 communities (8 shown, 23 thin omitted)
+- 499 nodes · 1063 edges · 31 communities (8 shown, 23 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 46 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `80902022`
+- Built from commit: `b8b67cba`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,7 +36,7 @@
 1. `DesktopAPI` - 60 edges
 2. `DesktopBridge` - 49 edges
 3. `SkillItem` - 37 edges
-4. `test_all()` - 35 edges
+4. `test_all()` - 36 edges
 5. `UIComponents` - 34 edges
 6. `SkillInstaller` - 26 edges
 7. `SkillScanner` - 24 edges

@@ -969,6 +969,7 @@ class UIComponents {
                               t === 'copilot' ? 'GitHub Copilot (~/.copilot/skills)' :
                               t === 'cursor' ? 'Cursor AI (.cursor/skills)' :
                               t === 'windsurf' ? 'Windsurf (.codeium/windsurf/skills)' :
+                              t === 'codex' ? 'OpenAI Codex (~/.codex/skills & CODEX.md)' :
                               t === 'workspace' ? `Thư mục dự án (${workspacePath || '.agents/skills'})` : t;
                 return `
                   <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); cursor:pointer;">
@@ -1247,6 +1248,16 @@ class UIComponents {
 
   static renderBentoCard(skill, isSelected = false) {
     const isInstalled = skill.installed_targets && skill.installed_targets.length > 0;
+    const targetMap = {
+      antigravity: "Antigravity",
+      claude: "Claude Code",
+      copilot: "Copilot",
+      cursor: "Cursor",
+      windsurf: "Windsurf",
+      codex: "OpenAI Codex",
+      workspace: "Dự án"
+    };
+    const installedListStr = (skill.installed_targets || []).map(t => targetMap[t] || t).join(", ");
     const refCount = (skill.references || []).length;
     const hasGraphify = skill.has_graphify;
     const starterPrompts = skill.starter_prompts || [];
@@ -1266,7 +1277,7 @@ class UIComponents {
               <span>${this.escape(skill.display_title || skill.name)}</span>
               <span class="version-tag">v${skill.version || '1.0'}</span>
               ${skill.has_update ? `<span class="badge-skill-update btn-card-review-diff" data-id="${skill.id}" style="background:rgba(245,158,11,0.18); color:#FBBF24; font-size:10px; font-weight:600; padding:1px 6px; border-radius:4px; border:1px solid rgba(245,158,11,0.4); cursor:pointer;" title="Bản trên máy khác với kho. Bấm để so sánh!">🔄 Có cập nhật</span>` : ''}
-              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Kỹ năng đã nạp vào AI. Bấm để xem bằng chứng và lệnh kiểm chứng">● Đã vào AI</span>` : ''}
+              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Kỹ năng đã nạp vào AI (${this.escape(installedListStr || 'Đã kích hoạt')}). Bấm để xem bằng chứng và lệnh kiểm chứng">● Đã vào AI</span>` : ''}
             </div>
             <div class="bento-card-category">${this.escape(skill.use_case_group || skill.category || 'Chuyên gia')}</div>
           </div>
@@ -1340,6 +1351,16 @@ class UIComponents {
 
   static renderLinearRow(skill, isSelected = false) {
     const isInstalled = skill.installed_targets && skill.installed_targets.length > 0;
+    const targetMap = {
+      antigravity: "Antigravity",
+      claude: "Claude Code",
+      copilot: "Copilot",
+      cursor: "Cursor",
+      windsurf: "Windsurf",
+      codex: "OpenAI Codex",
+      workspace: "Dự án"
+    };
+    const installedListStr = (skill.installed_targets || []).map(t => targetMap[t] || t).join(", ");
     const refCount = (skill.references || []).length;
     const whenToUse = skill.when_to_use || "";
     const isAddy = skill.source_group === "addy_osmani" || (skill.author && skill.author.includes("Addy Osmani"));
@@ -1374,7 +1395,7 @@ class UIComponents {
 
         <div class="linear-col-status">
           ${isInstalled ? `
-            <span class="pill-tag installed btn-card-verify" data-id="${skill.id}" style="cursor:pointer;" title="Bấm để kiểm chứng tệp và câu lệnh trong AI">
+            <span class="pill-tag installed btn-card-verify" data-id="${skill.id}" style="cursor:pointer;" title="Đã nạp vào: ${this.escape(installedListStr || 'Đã kích hoạt')}. Bấm để kiểm chứng tệp và câu lệnh trong AI">
               <span class="status-led active"></span>
               <span>Đã vào AI</span>
             </span>
@@ -1416,6 +1437,7 @@ class UIComponents {
     const hasCursor = targets.includes("cursor");
     const hasWindsurf = targets.includes("windsurf");
     const hasCopilot = targets.includes("copilot");
+    const hasCodex = targets.includes("codex");
     const hasWorkspace = targets.includes("workspace");
     const starterPrompts = skill.starter_prompts || [];
 
@@ -1591,6 +1613,17 @@ class UIComponents {
                       <span class="switch-slider"></span>
                     </label>
                   </div>
+
+                  <div class="pro-target-card ${hasCodex ? 'installed' : ''}">
+                    <div class="pro-target-info">
+                      <span class="pro-target-name">OpenAI Codex</span>
+                      <span class="pro-target-path">~/.codex/skills & CODEX.md</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="pro-sw-codex" ${hasCodex ? 'checked' : ''} data-target="codex">
+                      <span class="switch-slider"></span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -1738,6 +1771,17 @@ class UIComponents {
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="sw-copilot" ${hasCopilot ? 'checked' : ''} aria-label="Toggle Copilot">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="switch-row">
+            <div class="switch-label-area">
+              <span class="switch-title">OpenAI Codex</span>
+              <span class="switch-desc">~/.codex/skills & CODEX.md</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="sw-codex" ${hasCodex ? 'checked' : ''} aria-label="Toggle Codex">
               <span class="switch-slider"></span>
             </label>
           </div>
@@ -2288,6 +2332,13 @@ class UIComponents {
                   <div>
                     <div style="font-weight:600; font-size:12.5px;">Claude Code CLI (~/.claude)</div>
                     <div style="font-size:11px; color:var(--text-muted);">Sẵn sàng cho các câu lệnh claude terminal</div>
+                  </div>
+                </label>
+                <label class="uninstall-target-item">
+                  <input type="checkbox" class="comm-target-checkbox" value="codex" checked>
+                  <div>
+                    <div style="font-weight:600; font-size:12.5px;">OpenAI Codex (~/.codex)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Tương thích Codex CLI và CODEX.md</div>
                   </div>
                 </label>
               </div>
