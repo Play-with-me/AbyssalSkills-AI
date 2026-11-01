@@ -6,6 +6,7 @@ and icon files across development mode and packaged frozen PyInstaller executabl
 import sys
 import os
 from pathlib import Path
+from typing import Any, Optional, Union, Dict, List, Tuple
 
 def get_app_root() -> Path:
     """

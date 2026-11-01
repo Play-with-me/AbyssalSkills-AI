@@ -1,17 +1,17 @@
 # Graph Report - Manager Skills  (2026-11-01)
 
 ## Corpus Check
-- 30 files · ~405,868 words
+- 30 files · ~405,932 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .ico 3, (none) 1, .lnk 1)
 
 ## Summary
-- 500 nodes · 1070 edges · 39 communities (10 shown, 29 thin omitted)
+- 504 nodes · 1076 edges · 40 communities (11 shown, 29 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 52 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d7bccc27`
+- Built from commit: `c6936a58`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -29,6 +29,7 @@
 - SkillItem
 - UIComponents
 - install.sh script
+- build-release.yml
 - app.js
 - AuthEngine
 - UpdateEngine
@@ -60,19 +61,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (39 total, 29 thin omitted)
+## Communities (40 total, 29 thin omitted)
 
 ### Community 0 - "api.py"
 Cohesion: 0.06
 Nodes (16): GitSyncEngine, export_diagnostic_zip(), get_recent_logs(), init_logger(), sanitize_sensitive_data(), InstallResult, RuleDoc, assert_safe_workspace_path() (+8 more)
 
 ### Community 1 - "SkillItem"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (4): 3. Recent Completed Changes, ReferenceDoc, SkillScanner, SkillStorage
 
 ### Community 3 - "with"
-Cohesion: 0.06
-Nodes (43): name, runs-on, steps, name, runs-on, steps, name, runs-on (+35 more)
+Cohesion: 0.09
+Nodes (31): name, runs-on, steps, name, runs-on, steps, name, runs-on (+23 more)
 
 ### Community 4 - "README.vi.md"
 Cohesion: 0.08
@@ -95,8 +96,12 @@ Cohesion: 0.17
 Nodes (3): SkillInstaller, InstallRequest, SkillItem
 
 ### Community 13 - "UIComponents"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (3): Icons, MarkdownRenderer, UIComponents
+
+### Community 18 - "build-release.yml"
+Cohesion: 0.12
+Nodes (15): env, PYTHONIOENCODING, PYTHONUTF8, release_version, name, on, push, workflow_dispatch (+7 more)
 
 ### Community 22 - "AuthEngine"
 Cohesion: 0.10
@@ -104,23 +109,23 @@ Nodes (6): _push_cloud(), AuthEngine, OAuthServerManager, _timeout(), get_logger
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `abyssalskillsd`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 209 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 212 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `DesktopAPI` connect `DesktopAPI` to `api.py`, `SkillItem`, `.community_get_skills`, `DesktopBridge`, `.auth_sign_up`, `SkillItem`, `.auth_sign_in`, `.updater_sync_skills`, `.auth_update_profile`, `.auth_sign_out`, `.generate_project_rules`, `AuthEngine`, `.import_from_github`, `.auth_get_config`, `.open_folder`, `UpdateEngine`, `Any`, `.export_diagnostic_logs`, `.get_skill_diff`, `.get_active_workspace`, `.get_community_schema`, `.get_skill`, `.run_graphify`, `.open_skill_folder`, `.toggle_favorite`, `.updater_get_info`, `.verify_skill_active`, `.updater_check`?**
-  _High betweenness centrality (0.235) - this node is a cross-community bridge._
+- **Why does `DesktopAPI` connect `DesktopAPI` to `api.py`, `SkillItem`, `.community_get_skills`, `DesktopBridge`, `.auth_sign_up`, `SkillItem`, `.auth_sign_in`, `.updater_sync_skills`, `.auth_check_oauth_status`, `.auth_save_config`, `AuthEngine`, `.import_from_github`, `.get_system_info`, `.open_folder`, `UpdateEngine`, `Any`, `.pick_folder_dialog`, `.get_skill_diff`, `.get_active_workspace`, `.get_community_schema`, `.get_skill`, `.scan_local_folder`, `.open_skill_folder`, `.toggle_favorite`, `.updater_get_info`, `.verify_skill_active`, `.set_active_workspace`, `.sync_all_ais`?**
+  _High betweenness centrality (0.232) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `DesktopAPI` (e.g. with `2. Architecture & God Nodes (Graphify AST Audit)` and `AuthEngine`) actually correct?**
   _`DesktopAPI` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `abyssalskillsd` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `api.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.05966724039013196 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05995410212277682 - nodes in this community are weakly interconnected._
 - **Why does `2. Architecture & God Nodes (Graphify AST Audit)` connect `DesktopBridge` to `SkillItem`, `DesktopAPI`, `SkillItem`, `UIComponents`, `UpdateEngine`?**
-  _High betweenness centrality (0.209) - this node is a cross-community bridge._
+  _High betweenness centrality (0.206) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `SkillItem` (e.g. with `DesktopAPI` and `GitSyncEngine`) actually correct?**
   _`SkillItem` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **Should `SkillItem` be split into smaller, more focused modules?**
-  _Cohesion score 0.07591836734693877 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07372549019607844 - nodes in this community are weakly interconnected._

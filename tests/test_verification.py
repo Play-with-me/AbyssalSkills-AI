@@ -4,10 +4,27 @@ Tests the 7-Skill Suite from Skill-AI-private, Addy Osmani Suite, Supabase Commu
 Batch Multi-Target Deployment, Graphify AST, Standalone Packaging, and Auto-Update Engine.
 """
 import sys
+import os
+import io
 import json
 import time
 import zipfile
 from pathlib import Path
+
+# Force UTF-8 on Windows stdout/stderr to prevent cp1252 charmap UnicodeEncodeError on CI runners
+if sys.platform == "win32":
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+    elif hasattr(sys.stdout, "buffer"):
+        try:
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+        except Exception:
+            pass
 
 def test_all():
     print("▶ Running AbyssalSkillsD Comprehensive Verification Suite (20 Gates)...")

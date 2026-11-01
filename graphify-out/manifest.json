@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "tests/test_verification.py": {
-    "mtime": 1793501490.3815446,
-    "seen": 1793501592.7076535,
-    "ast_hash": "c731203b9234f65e7031ac9b63f659f3",
+    "mtime": 1793501771.012253,
+    "seen": 1793501807.4532125,
+    "ast_hash": "eb711beb525b74fa65277a7d8768fb09",
     "semantic_hash": ""
   },
   "app/frontend/index.html": {
@@ -174,9 +174,9 @@
     "semantic_hash": ""
   },
   "app/backend/paths.py": {
-    "mtime": 1793417907.2724104,
-    "seen": 1793418044.836973,
-    "ast_hash": "19c8be3d62480521d0f06d0f35188600",
+    "mtime": 1793501766.8090913,
+    "seen": 1793501807.4518516,
+    "ast_hash": "3b9546810e605205526eb48a49771168",
     "semantic_hash": ""
   },
   "scripts/build_distribution.py": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/build-release.yml": {
-    "mtime": 1793501537.7943685,
-    "seen": 1793501592.705723,
-    "ast_hash": "dd9add76902ce1d33175266b3b5940f5",
+    "mtime": 1793501778.6111739,
+    "seen": 1793501807.4510033,
+    "ast_hash": "8f9bafac061bb84b18f5c45d30a6bc81",
     "semantic_hash": ""
   },
   "scripts/install.ps1": {
