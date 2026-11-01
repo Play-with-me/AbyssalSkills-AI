@@ -57,7 +57,9 @@ def get_data_dir() -> Path:
             user_data_dir.mkdir(parents=True, exist_ok=True)
             for item in data_dir.glob("*.json"):
                 dest = user_data_dir / item.name
-                if not dest.exists():
+                # Always sync version.json so new app versions reflect immediately in UI
+                # For all other json files (user data, configs), only copy if not present
+                if item.name == "version.json" or not dest.exists():
                     try:
                         import shutil
                         shutil.copy2(item, dest)

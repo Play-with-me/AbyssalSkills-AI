@@ -17,9 +17,16 @@ from typing import Dict, Any, Optional, List, Tuple
 from .git_sync import GitSyncEngine
 from .scanner import SkillScanner
 from .storage import SkillStorage
-from .paths import get_data_dir
+from .paths import get_data_dir, get_app_root
 
-VERSION_FILE = get_data_dir() / "version.json"
+def get_version_file() -> Path:
+    """Returns the bundled version.json from app root, falling back to data_dir."""
+    bundled = get_app_root() / "app" / "data" / "version.json"
+    if bundled.exists():
+        return bundled
+    return get_data_dir() / "version.json"
+
+VERSION_FILE = get_version_file()
 DEFAULT_APP_REPO = "Play-with-me/AbyssalSkills-AI"
 DEFAULT_SKILLS_REPO = "https://github.com/addyosmani/agent-skills"
 
@@ -27,9 +34,10 @@ class UpdateEngine:
     @classmethod
     def get_version_info(cls) -> Dict[str, Any]:
         """Loads local version configuration from version.json."""
-        if VERSION_FILE.exists():
+        v_file = get_version_file()
+        if v_file.exists():
             try:
-                return json.loads(VERSION_FILE.read_text(encoding="utf-8"))
+                return json.loads(v_file.read_text(encoding="utf-8"))
             except Exception:
                 pass
         return {
