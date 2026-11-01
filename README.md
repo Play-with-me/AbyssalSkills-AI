@@ -16,8 +16,8 @@
 
 <p align="center">
   <a href="https://github.com/Kyuu449977"><img src="https://img.shields.io/badge/Author-Lâm_Nhựt_Hải_Đăng_(Kyuu449977)-00B4D8?style=for-the-badge&logo=github&logoColor=white" alt="Author"></a>
-  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe"><img src="https://img.shields.io/badge/Windows_Setup-v1.0.0-00B4D8?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Setup"></a>
-  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.0-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.1.exe"><img src="https://img.shields.io/badge/Windows_Setup-v1.0.1-00B4D8?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Setup"></a>
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.1-Portable.zip"><img src="https://img.shields.io/badge/Portable_ZIP-v1.0.1-7C3AED?style=for-the-badge&logo=zip&logoColor=white" alt="Portable ZIP"></a>
   <a href="#-automated-verification-suite-25-quality-gates"><img src="https://img.shields.io/badge/Quality_Gates-28%2F28_PASSED-06D6A0?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Quality Gates"></a>
   <a href="#-supabase-cloud-backend--zero-trust-telemetry"><img src="https://img.shields.io/badge/Supabase-Live_Cloud-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Cloud"></a>
   <img src="https://img.shields.io/badge/Platform-Windows_%7C_macOS_%7C_Linux-0078D4?style=for-the-badge&logo=linux&logoColor=white" alt="Cross Platform">
@@ -55,19 +55,19 @@ powershell -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https
 **Direct GUI Downloads:**
 | Release Package | Size | Highlights | Direct Download |
 | :--- | :---: | :--- | :---: |
-| **Windows Setup (.exe)**<br>*(Recommended)* | **16.99 MB** | • 1-Click auto-install with Desktop & Start Menu shortcuts<br>• Clean uninstaller in Windows Settings<br>• Zero Python, Git, or Node.js required (Bundled WebView2) | [⬇️ **DOWNLOAD SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe) |
-| **Portable Package (.zip)** | **22.41 MB** | • No Administrator privileges required<br>• Extract and run immediately via `AbyssalSkillsD.exe`<br>• Ideal for USB drives or enterprise laptops | [📦 **DOWNLOAD PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip) |
+| **Windows Setup (.exe)**<br>*(Recommended)* | **18.55 MB** | • 1-Click auto-install with Desktop & Start Menu shortcuts<br>• Clean uninstaller in Windows Settings<br>• Zero Python, Git, or Node.js required (Bundled WebView2) | [⬇️ **DOWNLOAD SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.1.exe) |
+| **Portable Package (.zip)** | **24.06 MB** | • No Administrator privileges required<br>• Extract and run immediately via `AbyssalSkillsD.exe`<br>• Ideal for USB drives or enterprise laptops | [📦 **DOWNLOAD PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.1-Portable.zip) |
 
 #### 📖 Detailed Installation Instructions:
 
 - **Method A: Windows Setup Installer (.exe) — Recommended**
-  1. Click [**DOWNLOAD SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.0.exe) above to download the installer directly.
-  2. Double-click `AbyssalSkillsD-Setup-v1.0.0.exe` to run the setup wizard.
+  1. Click [**DOWNLOAD SETUP.EXE**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-Setup-v1.0.1.exe) above to download the installer directly.
+  2. Double-click `AbyssalSkillsD-Setup-v1.0.1.exe` to run the setup wizard.
   3. Click **Next** -> **Install**. The installer automatically configures the application and creates an `AbyssalSkillsD` shortcut on your Desktop and Start Menu.
   4. Launch the app from the Desktop icon or Start Menu.
 
 - **Method B: Portable ZIP Package (.zip) — No Installation Required**
-  1. Click [**DOWNLOAD PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.0-Portable.zip) above to download the portable archive.
+  1. Click [**DOWNLOAD PORTABLE.ZIP**](https://github.com/Play-with-me/AbyssalSkills-AI/raw/main/dist/AbyssalSkillsD-v1.0.1-Portable.zip) above to download the portable archive.
   2. Right-click the downloaded `.zip` file -> Select **Extract All...** to any location (e.g. `Desktop`, `D:\Apps`, or a USB flash drive).
   3. Open the extracted folder and double-click `AbyssalSkillsD.exe` to run immediately without admin rights.
 

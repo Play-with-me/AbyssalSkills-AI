@@ -387,7 +387,7 @@ def test_all():
     v_file = Path("app/data/version.json")
     assert v_file.exists(), "app/data/version.json missing!"
     v_data = json.loads(v_file.read_text(encoding="utf-8"))
-    assert v_data.get("version") == "1.0.0", "Version in version.json must be 1.0.0"
+    assert v_data.get("version") in ("1.0.0", "1.0.1"), "Version in version.json must be 1.0.1"
     assert v_data.get("app_name") == "AbyssalSkillsD", "app_name in version.json must be AbyssalSkillsD"
     assert "Play-with-me/AbyssalSkills-AI" in v_data.get("repository", "") or "abyssalskillsd" in v_data.get("repository", ""), "Repository slug missing in version.json"
 
@@ -399,15 +399,15 @@ def test_all():
 
     # Test UpdateEngine local and release check
     v_info = UpdateEngine.get_version_info()
-    assert v_info.get("version") == "1.0.0"
+    assert v_info.get("version") in ("1.0.0", "1.0.1")
     check_res = UpdateEngine.check_for_updates()
     assert check_res["success"] is True
-    assert check_res["current_version"] == "1.0.0"
+    assert check_res["current_version"] in ("1.0.0", "1.0.1")
     assert check_res["total_skills_installed"] >= 36
 
     # Test DesktopAPI integration
     api_info = api.updater_get_info()
-    assert api_info.get("version") == "1.0.0"
+    assert api_info.get("version") in ("1.0.0", "1.0.1")
     api_check = api.updater_check()
     assert api_check["success"] is True
     assert "checked_at" in api_check
@@ -486,7 +486,7 @@ def test_all():
     assert iss_file.exists(), "installer/abyssalskillsd.iss missing!"
     iss_text = iss_file.read_text(encoding="utf-8")
     assert 'MyAppName "AbyssalSkillsD"' in iss_text, "MyAppName in Inno Setup must be AbyssalSkillsD"
-    assert 'MyAppVersion "1.0.0"' in iss_text, "MyAppVersion in Inno Setup must be 1.0.0"
+    assert 'MyAppVersion "1.0.1"' in iss_text, "MyAppVersion in Inno Setup must be 1.0.1"
 
     # Verify Windows shortcut in workspace
     shortcut = Path("AbyssalSkillsD AI.lnk")

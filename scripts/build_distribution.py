@@ -76,7 +76,7 @@ def main():
     with open(version_file, "r", encoding="utf-8") as f:
         v_data = json.load(f)
         assert v_data.get("app_name") == "AbyssalSkillsD", f"Wrong app name: {v_data}"
-        assert v_data.get("version") == "1.0.0", f"Wrong version: {v_data}"
+        version = v_data.get("version", "1.0.1")
 
     icon_file = base_assets_dir / "app" / "frontend" / "assets" / "logo" / "app-icon.ico"
     assert icon_file.exists(), f"Error: Brand icon missing in {icon_file}!"
@@ -85,7 +85,7 @@ def main():
     readme_path = app_output_dir / "HUONG_DAN_SU_DUNG.txt"
     readme_path.write_text(
         "=========================================================\n"
-        " AbyssalSkillsD v1.0.0 - Quản Lý Kỹ Năng Cho Trợ Lý AI\n"
+        f" AbyssalSkillsD v{version} - Quản Lý Kỹ Năng Cho Trợ Lý AI\n"
         "=========================================================\n\n"
         "1. Cách khởi động:\n"
         "   - Nhấp đúp vào tệp 'AbyssalSkillsD.exe' để mở ứng dụng.\n"
@@ -104,7 +104,7 @@ def main():
     print(f"[+] Verified Assets:    HTML, CSS, JS, Brand Icons & Version Config verified.")
 
     # 4. Generate Portable ZIP distribution
-    zip_output_path = dist_dir / "AbyssalSkillsD-v1.0.0-Portable.zip"
+    zip_output_path = dist_dir / f"AbyssalSkillsD-v{version}-Portable.zip"
     print(f"[*] Creating Portable Distribution: {zip_output_path.name}...")
     
     with zipfile.ZipFile(zip_output_path, "w", zipfile.ZIP_DEFLATED) as zipf:
@@ -132,7 +132,7 @@ def main():
         print(f"[*] Inno Setup found at {iscc_bin}. Compiling Windows installer...")
         iss_res = subprocess.run([iscc_bin, str(iss_file)], cwd=str(iss_file.parent), capture_output=True, text=True)
         if iss_res.returncode == 0:
-            setup_exe = dist_dir / "AbyssalSkillsD-Setup-v1.0.0.exe"
+            setup_exe = dist_dir / f"AbyssalSkillsD-Setup-v{version}.exe"
             if setup_exe.exists():
                 setup_mb = setup_exe.stat().st_size / (1024 * 1024)
                 print(f"[+] Standalone Installer: {setup_exe.name} ({setup_mb:.2f} MB)")

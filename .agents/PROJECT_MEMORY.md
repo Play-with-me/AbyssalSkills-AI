@@ -116,5 +116,5 @@
     - Connected `app.js` single-skill target selection and installation flows for Codex.
   - [x] Modals & Brand Vector: Added official `brandCodex` SVG and checkboxes in `renderSyncAllModal` & `renderGenerateRulesModal`.
   - [x] Gate 28 Automated Test: Verified rule generation, single-skill Codex target install/uninstall, scanner detection, and UI bindings (28/28 gates pass).
-- [x] Standalone Packaging: Built `dist/AbyssalSkillsD-Setup-v1.0.0.exe` (18.55 MB) & `dist/AbyssalSkillsD-v1.0.0-Portable.zip` (24.06 MB).
-- [x] Knowledge Graph: Updated Graphify AST (499 nodes, 1063 edges, 31 communities).
+- [x] Standalone Packaging (Hotfix v1.0.1): Built `dist/AbyssalSkillsD-Setup-v1.0.1.exe` (18.55 MB) & `dist/AbyssalSkillsD-v1.0.1-Portable.zip` (24.06 MB).
+- [x] Knowledge Graph: Updated Graphify AST (499 nodes, 1066 edges, 38 communities).
