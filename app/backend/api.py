@@ -245,8 +245,8 @@ class DesktopAPI:
             except Exception as e:
                 graphify_status = f"warning: {str(e)}"
 
-        # Refresh storage
-        SkillStorage.sync_all_local_skills()
+        # Refresh storage status dynamically without rescanning disk repos
+        SkillStorage.get_all_skills(workspace_path)
 
         return {
             "success": total_installed > 0,

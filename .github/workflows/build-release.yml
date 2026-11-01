@@ -25,6 +25,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -38,7 +41,7 @@ jobs:
       - name: Install Dependencies
         run: uv sync
 
-      - name: Run Verification Suite (25 Quality Gates)
+      - name: Run Verification Suite (28 Quality Gates)
         run: uv run python tests/test_verification.py
 
       - name: Build Distribution & Portable ZIP
@@ -46,7 +49,7 @@ jobs:
 
       - name: Compile Inno Setup Standalone Installer
         run: |
-          iscc installer/abyssalskillsd.iss
+          & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" installer/abyssalskillsd.iss
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
@@ -90,7 +93,7 @@ jobs:
             --add-data "graphify-out:graphify-out" \
             main.py
           cd dist
-          zip -r "AbyssalSkillsD-v1.0.0-macOS.zip" AbyssalSkillsD.app
+          zip -r "AbyssalSkillsD-v1.0.1-macOS.zip" AbyssalSkillsD.app
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
@@ -136,7 +139,7 @@ jobs:
             --add-data "graphify-out:graphify-out" \
             main.py
           cd dist
-          tar -czf "AbyssalSkillsD-v1.0.0-Linux.tar.gz" AbyssalSkillsD
+          tar -czf "AbyssalSkillsD-v1.0.1-Linux.tar.gz" AbyssalSkillsD
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
@@ -182,10 +185,10 @@ jobs:
             Official standalone distribution packages for Windows, macOS, and Linux.
             
             ### 📦 Download Packages:
-            - **Windows (Installer):** `AbyssalSkillsD-Setup-v1.0.0.exe` (1-Click Setup with shortcuts & uninstaller)
-            - **Windows (Portable):** `AbyssalSkillsD-v1.0.0-Portable.zip` (No admin rights needed)
-            - **macOS (App Bundle):** `AbyssalSkillsD-v1.0.0-macOS.zip` (Apple Silicon & Intel)
-            - **Linux (Universal):** `AbyssalSkillsD-v1.0.0-Linux.tar.gz` (Ubuntu, Debian, Fedora, Arch)
+            - **Windows (Installer):** `AbyssalSkillsD-Setup-v1.0.1.exe` (1-Click Setup with shortcuts & uninstaller)
+            - **Windows (Portable):** `AbyssalSkillsD-v1.0.1-Portable.zip` (No admin rights needed)
+            - **macOS (App Bundle):** `AbyssalSkillsD-v1.0.1-macOS.zip` (Apple Silicon & Intel)
+            - **Linux (Universal):** `AbyssalSkillsD-v1.0.1-Linux.tar.gz` (Ubuntu, Debian, Fedora, Arch)
             
             ### ⚡ 1-Liner Quick Install:
             - **Windows (PowerShell):**

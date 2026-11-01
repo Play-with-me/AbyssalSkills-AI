@@ -27,12 +27,30 @@ class SkillStorage:
             skills = cls.get_all_skills()
             personas = [s for s in skills if s.is_persona]
             if len(skills) < 36 or len(personas) < 4:
-                cls.sync_all_local_skills()
+                # Only attempt sync if local source directories exist on disk to prevent wiping pre-seeded skills
+                config_dir = Path.home() / ".gemini" / "config" / "skills"
+                addy_dir = Path("app/data/repos/agent-skills")
+                if config_dir.exists() or addy_dir.exists():
+                    cls.sync_all_local_skills()
 
     @classmethod
     def sync_all_local_skills(cls) -> List[SkillItem]:
-        """Scans ~/.gemini/config/skills and app/data/repos/agent-skills."""
+        """Scans ~/.gemini/config/skills and app/data/repos/agent-skills while preserving pre-seeded registry items."""
         skills: List[SkillItem] = []
+        if cls.REGISTRY_FILE.exists() and cls.REGISTRY_FILE.stat().st_size > 10:
+            try:
+                raw = json.loads(cls.REGISTRY_FILE.read_text(encoding="utf-8"))
+                skills = [SkillItem.from_dict(item) for item in raw]
+            except Exception:
+                skills = []
+
+        def merge_or_append(s: SkillItem):
+            for i, existing in enumerate(skills):
+                if existing.id == s.id:
+                    skills[i] = s
+                    return
+            skills.append(s)
+
         home = Path.home()
         config_skills_dir = home / ".gemini" / "config" / "skills"
 
@@ -48,18 +66,17 @@ class SkillStorage:
                 if folder.is_dir() and folder.name in core_skill_ai_ids:
                     scanned = SkillScanner.scan_skill_directory(folder)
                     for s in scanned:
-                        if not any(existing.id == s.id for existing in skills):
-                            skills.append(s)
+                        merge_or_append(s)
 
         # 2. Addy Osmani Production Skills & Personas Suite (25 skills + 4 personas)
         addy_dir = Path("app/data/repos/agent-skills")
         if addy_dir.exists() and addy_dir.is_dir():
             addy_skills = SkillScanner.scan_skill_directory(addy_dir, repo_url="https://github.com/addyosmani/agent-skills")
             for s in addy_skills:
-                if not any(existing.id == s.id for existing in skills):
-                    skills.append(s)
+                merge_or_append(s)
 
-        cls.save_all_skills(skills)
+        if skills:
+            cls.save_all_skills(skills)
         return skills
 
     @classmethod
@@ -90,6 +107,12 @@ class SkillStorage:
                     s.has_update = False
             return skills
         except Exception:
+            try:
+                if cls.REGISTRY_FILE.exists():
+                    raw = json.loads(cls.REGISTRY_FILE.read_text(encoding="utf-8"))
+                    return [SkillItem.from_dict(item) for item in raw]
+            except Exception:
+                pass
             return cls.sync_all_local_skills()
 
     @classmethod

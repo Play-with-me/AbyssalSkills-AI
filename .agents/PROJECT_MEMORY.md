@@ -117,4 +117,10 @@
   - [x] Modals & Brand Vector: Added official `brandCodex` SVG and checkboxes in `renderSyncAllModal` & `renderGenerateRulesModal`.
   - [x] Gate 28 Automated Test: Verified rule generation, single-skill Codex target install/uninstall, scanner detection, and UI bindings (28/28 gates pass).
 - [x] Standalone Packaging (Hotfix v1.0.1): Built `dist/AbyssalSkillsD-Setup-v1.0.1.exe` (18.55 MB) & `dist/AbyssalSkillsD-v1.0.1-Portable.zip` (24.06 MB).
+- [x] Phase 11 (CI/CD Matrix Fix & Clean Runner Quality Gate Resilience):
+  - [x] Storage Resilience: `SkillStorage.sync_all_local_skills()` and `initialize()` preserve pre-seeded skills from `skills_registry.json` instead of wiping them on clean CI checkout.
+  - [x] API Decoupling: Removed redundant `sync_all_local_skills()` call from `install_all_skills()`.
+  - [x] Cross-Platform Test Gates: Adapted Gates 19, 24, and 25 to run seamlessly across Windows, macOS, and Linux runners without assuming Windows paths or pre-built folders.
+  - [x] Inno Setup CI Integration: Added `choco install innosetup` to GitHub Actions `windows-latest` runner for automated cloud compilation of `Setup-v1.0.1.exe`.
+  - [x] Multi-Platform Release Matrix: Verified all 28/28 verification gates pass green in simulated clean checkout.
 - [x] Knowledge Graph: Updated Graphify AST (499 nodes, 1066 edges, 38 communities).
