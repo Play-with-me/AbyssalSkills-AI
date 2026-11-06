@@ -182,3 +182,7 @@ The earlier checked boxes/28-gate claims above are historical implementation not
 - **Standard Desktop Launch & Status Clarity:**
   - Clarified standard desktop launch workflow: Normal users double-click Desktop shortcut `AbyssalSkillsD` (pointing to `C:\Users\kyuu4\AppData\Local\Programs\AbyssalSkillsD\AbyssalSkillsD.exe`) and never touch installer `.exe` files manually.
   - In `renderUpdateModal()`, when `skills_need_update == 0`, explicitly shows `✓ 100% Đã mới nhất` with green status and message `Toàn bộ 36 kỹ năng trong máy của bạn đều khớp hoàn toàn với kho chuẩn`, eliminating user confusion between total library size (36 skills) and pending updates.
+- **Dual-Mode GitHub Skill Ingestion (Private vs Community Cloud):**
+  - Enhanced GitHub import modal (`UIComponents.renderGitHubModal`) with dual storage mode selector: `[🔒 Để Dùng Riêng]` vs `[☁️ Để Lên Chợ Cloud]`, and explicit bottom actions `[🔒 Để Riêng (Máy Này)]` and `[☁️ Đăng Lên Chợ Cloud]`.
+  - Added 1-click cloud publishing from Skill Inspector (`btn-inspector-publish-cloud`), Studio GitHub importer (`btn-studio-load-github`), and Community Cloud toolbar (`btn-comm-add-github`).
+  - Verified 100% automated test suite passing (34 tests in 2.176s).
