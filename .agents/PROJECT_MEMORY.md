@@ -186,3 +186,8 @@ The earlier checked boxes/28-gate claims above are historical implementation not
   - Enhanced GitHub import modal (`UIComponents.renderGitHubModal`) with dual storage mode selector: `[🔒 Để Dùng Riêng]` vs `[☁️ Để Lên Chợ Cloud]`, and explicit bottom actions `[🔒 Để Riêng (Máy Này)]` and `[☁️ Đăng Lên Chợ Cloud]`.
   - Added 1-click cloud publishing from Skill Inspector (`btn-inspector-publish-cloud`), Studio GitHub importer (`btn-studio-load-github`), and Community Cloud toolbar (`btn-comm-add-github`).
   - Verified 100% automated test suite passing (34 tests in 2.176s).
+- **Release v1.1.1 Official Live (Software Auto-Update & Addy References Fix):**
+  - Resolved root cause of 29 pending skills: Addy Osmani skills had updated reference files (`accessibility-checklist.md`, `security-checklist.md`). `sync_skills_library()` now automatically updates on-disk target files with backups. Verified `skills_need_update` = 0.
+  - Bumped version to `1.1.1`. GitHub Actions workflow `42266578017` completed with 100% SUCCESS.
+  - Release assets published on GitHub Releases: `AbyssalSkillsD-Setup-v1.1.1.exe`, `AbyssalSkillsD-Setup.exe` (15.11 MB).
+  - Users running v1.1.0 can now trigger 1-Click Silent Auto-Update directly in-app, watch live progress bar, and restart into v1.1.1 with zero data loss.
