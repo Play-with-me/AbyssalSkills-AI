@@ -1693,8 +1693,9 @@ class UIComponents {
                       <span style="color:#06D6A0;">${Icons.checkCircle}</span>
                       <span style="font-weight:700; font-size:12px; color:var(--text-primary);">Đã nạp vào não bộ AI (${targets.join(", ")})</span>
                     </div>
-                    <div style="display:flex; gap:6px;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
                       <button class="btn-text-action btn-inspector-customize" data-id="${skill.id}" style="color:#00B4D8; font-weight:600;" title="Nạp vào Studio để chỉnh sửa và lưu thành kỹ năng riêng">✏️ Tùy biến</button>
+                      <button class="btn-text-action btn-inspector-publish-cloud" data-id="${skill.id}" style="color:#A78BFA; font-weight:600;" title="Đăng tải kỹ năng này lên Chợ Cloud Cộng Đồng">☁️ Đăng Cloud</button>
                       <button class="btn-text-action btn-inspector-open-explorer" data-id="${skill.id}" style="color:var(--ocean-cyan); font-weight:600;">📁 Mở thư mục</button>
                       <button class="btn-text-action btn-inspector-verify-ai" data-id="${skill.id}" style="color:#06D6A0; font-weight:600;">🧪 Kiểm chứng</button>
                       <button class="btn-text-action btn-inspector-uninstall" data-id="${skill.id}" style="color:#F43F5E; font-weight:600;" title="Gỡ bỏ kỹ năng này khỏi các công cụ AI">🗑 Gỡ cài đặt</button>
@@ -2060,11 +2061,14 @@ class UIComponents {
             </div>
           </div>
 
-          <div style="display:flex;gap:8px;align-items:center;margin:12px 0">
+          <div style="display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap;">
             <button class="btn btn-secondary" id="community-page-previous" ${(options.page || 0) === 0 ? 'disabled' : ''}>Trang trước</button>
             <span>Trang ${(options.page || 0) + 1}</span>
             <button class="btn btn-secondary" id="community-page-next" ${((options.page || 0) + 1) * 24 >= (options.count || 0) ? 'disabled' : ''}>Trang sau</button>
             <button class="btn btn-secondary" id="community-refresh">Tải lại</button>
+            <button class="btn btn-secondary" id="btn-comm-add-github" style="background:rgba(0,180,216,0.12); color:var(--ocean-cyan); border-color:rgba(0,180,216,0.3); font-weight:600;" title="Thêm kỹ năng mới từ link GitHub lên Chợ Cloud">
+              ${Icons.uploadCloud} <span>+ Thêm từ GitHub lên Cloud</span>
+            </button>
             ${options.isAdmin ? '<button class="btn btn-secondary" id="community-moderation">Báo cáo cần xem</button>' : ''}
           </div>
           ${filtered.length === 0 ? `
@@ -2577,6 +2581,9 @@ class UIComponents {
             <button class="preset-chip-btn" data-preset="ui-ux-artisan" title="Mẫu thiết kế giao diện chống slop, chuẩn Vercel và hiệu ứng mượt">
               <span>⚡ Frontend UI/UX Artisan</span>
             </button>
+            <button class="preset-chip-btn" id="btn-studio-load-github" style="color:var(--ocean-cyan); border-color:rgba(0,180,216,0.35); font-weight:600;" title="Nhập thông tin kỹ năng từ kho GitHub vào khung soạn thảo Studio">
+              <span>🔗 Nhập từ Link GitHub...</span>
+            </button>
             <button class="preset-chip-btn" data-preset="blank" style="margin-left:auto; color:var(--text-muted);" title="Xóa trắng để tự viết từ đầu">
               <span>Tự viết từ đầu</span>
             </button>
@@ -2671,37 +2678,80 @@ class UIComponents {
     `;
   }
 
-  static renderGitHubModal() {
+  static renderGitHubModal(options = {}) {
+    const defaultMode = options.defaultMode || 'private';
     return `
       <div class="modal-backdrop" id="modal-github" onclick="App.closeActiveModal(event)">
-        <div class="modal-dialog" onclick="event.stopPropagation()">
+        <div class="modal-dialog" style="max-width: 580px;" onclick="event.stopPropagation()">
           <div class="modal-header">
-            <div style="font-size:14px; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
-              ${Icons.gitBranch}
-              <span>Nhập Kho Kỹ Năng từ GitHub</span>
+            <div style="font-size:14px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+              <span style="color:#00B4D8;">${Icons.gitBranch}</span>
+              <span>Thêm Kỹ Năng từ Đường Dẫn GitHub</span>
             </div>
-            <button class="btn btn-ghost btn-icon" onclick="App.closeActiveModal()">
+            <button class="btn btn-ghost btn-icon" onclick="App.closeActiveModal()" title="Đóng">
               ${Icons.x}
             </button>
           </div>
-          <div class="modal-body">
-            <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:14px;">
-              Nhập đường dẫn kho chứa mã nguồn kỹ năng trên GitHub:
+          <div class="modal-body" style="padding: 20px;">
+            <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:14px; line-height:1.5;">
+              Nhập link kho GitHub chứa tệp <code>SKILL.md</code>. Hệ thống sẽ tự động quét, chuẩn hóa cấu trúc và nạp kỹ năng:
             </p>
-            <div class="form-group">
-              <input type="text" id="input-github-url" class="form-input" value="https://github.com/Skill-AI-private/Strict-architect-coder.git" placeholder="https://github.com/owner/repo.git">
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label" style="font-size:12px; font-weight:600; margin-bottom:6px; display:block;">
+                Đường dẫn kho GitHub:
+              </label>
+              <input type="text" id="input-github-url" class="form-input" value="https://github.com/Skill-AI-private/Strict-architect-coder.git" placeholder="https://github.com/tên-tài-khoản/tên-kho.git" style="width:100%; font-family:var(--font-mono, monospace); font-size:12.5px;">
             </div>
 
-            <div id="github-sync-status" style="display:none; margin-top:12px; padding:10px 12px; background:rgba(94,106,210,0.1); border:1px solid rgba(94,106,210,0.25); border-radius:var(--radius-sm); font-size:12px; color:var(--accent-primary);">
-              <span id="github-sync-text">Đang kết nối và nạp kho kỹ năng...</span>
+            <!-- Tùy Chọn 2 Chế Độ Lưu Trữ -->
+            <div style="margin-bottom:16px;">
+              <label class="form-label" style="font-size:12px; font-weight:600; margin-bottom:8px; display:block;">
+                Mục đích lưu trữ & sử dụng:
+              </label>
+              <div class="github-dest-selector" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- Chế độ Để Riêng -->
+                <div class="github-dest-card ${defaultMode === 'private' ? 'active' : ''}" id="dest-card-private" data-mode="private" style="border: 1.5px solid ${defaultMode === 'private' ? '#7C3AED' : 'rgba(255,255,255,0.08)'}; background: ${defaultMode === 'private' ? 'rgba(124,58,237,0.12)' : 'rgba(255,255,255,0.02)'}; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span style="font-size:15px;">🔒</span>
+                    <strong style="font-size:13px; color:var(--text-primary);">Để Dùng Riêng</strong>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">
+                    Lưu trên máy này để nạp vào các IDE AI (Cursor, Claude, Copilot...). Hoàn toàn riêng tư, không công khai.
+                  </div>
+                </div>
+
+                <!-- Chế độ Để Lên Chợ Cloud -->
+                <div class="github-dest-card ${defaultMode === 'cloud' ? 'active' : ''}" id="dest-card-cloud" data-mode="cloud" style="border: 1.5px solid ${defaultMode === 'cloud' ? '#00B4D8' : 'rgba(255,255,255,0.08)'}; background: ${defaultMode === 'cloud' ? 'rgba(0,180,216,0.12)' : 'rgba(255,255,255,0.02)'}; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span style="font-size:15px;">☁️</span>
+                    <strong style="font-size:13px; color:var(--text-primary);">Để Lên Chợ Cloud</strong>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">
+                    Vừa lưu trong máy vừa đăng tải lên Chợ Đám Mây Cộng Đồng cho cộng đồng cùng tải và đánh giá.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="github-sync-status" style="display:none; margin-top:14px; padding:12px 14px; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.25); border-radius:8px; font-size:12px; color:var(--ocean-cyan, #00B4D8);">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="sync-spinner">⏳</span>
+                <span id="github-sync-text">Đang kết nối và nạp kho kỹ năng...</span>
+              </div>
             </div>
           </div>
-          <div class="modal-footer">
+
+          <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-top:1px solid var(--border-subtle); flex-wrap:wrap; gap:8px;">
             <button class="btn btn-secondary" onclick="App.closeActiveModal()">Đóng</button>
-            <button class="btn btn-primary" id="btn-confirm-github-clone">
-              ${Icons.download}
-              <span>Bắt đầu Nạp</span>
-            </button>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-secondary" id="btn-save-private-github" title="Chỉ lưu vào thư viện riêng trên máy tính này">
+                <span>🔒 Để Riêng (Máy Này)</span>
+              </button>
+              <button class="btn btn-primary" id="btn-publish-cloud-github" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); font-weight:700;" title="Lưu vào máy và xuất bản lên Chợ Cloud">
+                ${Icons.uploadCloud}
+                <span>☁️ Đăng Lên Chợ Cloud</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

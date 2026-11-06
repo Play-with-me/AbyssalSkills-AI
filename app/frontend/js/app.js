@@ -1588,6 +1588,10 @@ const App = {
       });
     });
 
+    drawer.querySelector(".btn-inspector-publish-cloud")?.addEventListener("click", () => {
+      this.handlePublishSkillFromInspector(skill.id);
+    });
+
     document.getElementById("btn-inspector-copy-all")?.addEventListener("click", () => {
       this.copySkillPrompt(skill.id);
     });
@@ -2394,6 +2398,10 @@ phase: build-and-polish
       }
     });
 
+    document.getElementById("btn-studio-load-github")?.addEventListener("click", () => {
+      this.openStudioGitHubImporter();
+    });
+
     document.getElementById("btn-publish-to-community")?.addEventListener("click", async () => {
       const title = titleInput.value.trim();
       const id = idInput.value.trim();
@@ -2491,6 +2499,9 @@ phase: build-and-polish
     );
 
     document.getElementById('community-refresh')?.addEventListener('click', async () => { await this.loadCommunitySkills(); await this.renderCommunityView(); });
+    document.getElementById('btn-comm-add-github')?.addEventListener('click', () => {
+      this.openGitHubModal({ defaultMode: 'cloud' });
+    });
     for (const [id, step] of [['community-page-previous', -1], ['community-page-next', 1]]) {
       document.getElementById(id)?.addEventListener('click', async () => { this.communityPage = Math.max(0, (this.communityPage || 0) + step); await this.loadCommunitySkills(); await this.renderCommunityView(); });
     }
@@ -2835,41 +2846,232 @@ phase: build-and-polish
     if (container) container.innerHTML = "";
   },
 
-  openGitHubModal() {
+  openGitHubModal(options = {}) {
     const root = document.getElementById("modal-root");
-    root.innerHTML = UIComponents.renderGitHubModal();
+    if (!root) return;
+    root.innerHTML = UIComponents.renderGitHubModal(options);
 
+    let activeMode = options.defaultMode || 'private';
+
+    const cardPrivate = document.getElementById("dest-card-private");
+    const cardCloud = document.getElementById("dest-card-cloud");
+
+    const updateModeStyles = (mode) => {
+      activeMode = mode;
+      if (cardPrivate) {
+        cardPrivate.classList.toggle("active", mode === 'private');
+        cardPrivate.style.border = mode === 'private' ? '1.5px solid #7C3AED' : '1.5px solid rgba(255,255,255,0.08)';
+        cardPrivate.style.background = mode === 'private' ? 'rgba(124,58,237,0.12)' : 'rgba(255,255,255,0.02)';
+      }
+      if (cardCloud) {
+        cardCloud.classList.toggle("active", mode === 'cloud');
+        cardCloud.style.border = mode === 'cloud' ? '1.5px solid #00B4D8' : '1.5px solid rgba(255,255,255,0.08)';
+        cardCloud.style.background = mode === 'cloud' ? 'rgba(0,180,216,0.12)' : 'rgba(255,255,255,0.02)';
+      }
+    };
+
+    cardPrivate?.addEventListener("click", () => updateModeStyles('private'));
+    cardCloud?.addEventListener("click", () => updateModeStyles('cloud'));
+
+    // Nút Lưu Dùng Riêng
+    document.getElementById("btn-save-private-github")?.addEventListener("click", () => {
+      const url = document.getElementById("input-github-url")?.value.trim();
+      if (!url) {
+        this.showToast("Vui lòng nhập đường dẫn kho GitHub.", "warning");
+        return;
+      }
+      this.handleGitHubSync(url, { publishToCloud: false });
+    });
+
+    // Nút Đăng Lên Chợ Cloud
+    document.getElementById("btn-publish-cloud-github")?.addEventListener("click", () => {
+      const url = document.getElementById("input-github-url")?.value.trim();
+      if (!url) {
+        this.showToast("Vui lòng nhập đường dẫn kho GitHub.", "warning");
+        return;
+      }
+      this.handleGitHubSync(url, { publishToCloud: true });
+    });
+
+    // Tương thích nút clone mặc định
     document.getElementById("btn-confirm-github-clone")?.addEventListener("click", () => {
       const url = document.getElementById("input-github-url")?.value.trim();
-      if (url) this.handleGitHubSync(url);
+      if (!url) {
+        this.showToast("Vui lòng nhập đường dẫn kho GitHub.", "warning");
+        return;
+      }
+      this.handleGitHubSync(url, { publishToCloud: activeMode === 'cloud' });
     });
   },
 
-  async handleGitHubSync(repoUrl) {
+  async handleGitHubSync(repoUrl, options = {}) {
+    const publishToCloud = !!options.publishToCloud;
+
+    // Nếu chọn đưa lên Cloud, kiểm tra đăng nhập trước
+    if (publishToCloud && (!this.authSession || !this.authSession.authenticated)) {
+      this.showToast("Vui lòng đăng nhập để đăng tải kỹ năng lên Chợ Cloud!", "warning");
+      this.openAuthModal();
+      return;
+    }
+
     const statusBox = document.getElementById("github-sync-status");
     const statusText = document.getElementById("github-sync-text");
+    const btnPrivate = document.getElementById("btn-save-private-github");
+    const btnCloud = document.getElementById("btn-publish-cloud-github");
     const confirmBtn = document.getElementById("btn-confirm-github-clone");
 
     if (statusBox) statusBox.style.display = "block";
-    if (statusText) statusText.innerText = "Đang kết nối và tải kho từ GitHub...";
+    if (statusText) statusText.innerText = publishToCloud
+      ? "Đang tải từ GitHub và chuẩn bị xuất bản lên Chợ Cloud..."
+      : "Đang kết nối GitHub và nạp vào máy tính...";
+    if (btnPrivate) btnPrivate.disabled = true;
+    if (btnCloud) btnCloud.disabled = true;
     if (confirmBtn) confirmBtn.disabled = true;
 
     try {
       const res = await DesktopBridge.importFromGitHub(repoUrl);
       if (res && res.success) {
-        this.showToast(res.message, "success");
-        await this.loadSkills();
-        this.closeActiveModal();
+        const skills = res.skills || [];
+
+        if (publishToCloud) {
+          if (statusText) statusText.innerText = `Đang xuất bản ${skills.length} kỹ năng lên Chợ Đám Mây Cộng Đồng...`;
+          let publishedCount = 0;
+          let publishErrors = [];
+
+          for (const s of skills) {
+            try {
+              const pubRes = await DesktopBridge.communityPublishSkill({
+                id: s.id,
+                title: s.display_title || s.name || s.id,
+                category: s.category || "Architecture & Code",
+                description: s.description || s.when_to_use || "",
+                content: s.skill_content || s.content || "",
+                references: s.references || [],
+                rules: s.rules || [],
+                author: this.authSession?.user?.email ? this.authSession.user.email.split('@')[0] : "Kỹ Sư Cộng Đồng"
+              });
+              if (pubRes && (pubRes.success || pubRes.status === "success")) {
+                publishedCount++;
+              } else {
+                publishErrors.push(pubRes?.message || pubRes?.error || "Lỗi không xác định");
+              }
+            } catch (err) {
+              publishErrors.push(err.message);
+            }
+          }
+
+          if (publishedCount > 0) {
+            this.showToast(`🎉 Đã nạp vào máy và đăng tải ${publishedCount} kỹ năng lên Chợ Cloud thành công!`, "success");
+            await this.loadSkills();
+            await this.loadCommunitySkills();
+            this.closeActiveModal();
+            this.switchWorkspace("community");
+          } else {
+            this.showToast(`Đã nạp về máy nhưng chưa thể đăng Cloud: ${publishErrors.join(", ")}`, "warning");
+            await this.loadSkills();
+            this.closeActiveModal();
+          }
+        } else {
+          // Để riêng trên máy
+          this.showToast(`🎉 Đã nạp thành công ${skills.length || 'các'} kỹ năng vào Thư Viện Riêng trên máy!`, "success");
+          await this.loadSkills();
+          this.closeActiveModal();
+          this.switchWorkspace("library");
+        }
       } else {
         this.showToast(res ? res.message : "Tải từ GitHub thất bại.", "error");
         if (statusBox) statusBox.style.display = "none";
+        if (btnPrivate) btnPrivate.disabled = false;
+        if (btnCloud) btnCloud.disabled = false;
         if (confirmBtn) confirmBtn.disabled = false;
       }
     } catch (err) {
       this.showToast("Lỗi đồng bộ GitHub: " + err.message, "error");
       if (statusBox) statusBox.style.display = "none";
+      if (btnPrivate) btnPrivate.disabled = false;
+      if (btnCloud) btnCloud.disabled = false;
       if (confirmBtn) confirmBtn.disabled = false;
     }
+  },
+
+  async handlePublishSkillFromInspector(skillId) {
+    if (!this.authSession || !this.authSession.authenticated) {
+      this.showToast("Vui lòng đăng nhập để đăng tải kỹ năng lên Chợ Cloud!", "warning");
+      this.openAuthModal();
+      return;
+    }
+    const skill = (this.skills || []).find(s => s.id === skillId);
+    if (!skill) {
+      this.showToast("Không tìm thấy thông tin kỹ năng.", "error");
+      return;
+    }
+
+    this.showToast(`Đang đưa kỹ năng '${skill.display_title || skill.name}' lên Chợ Cloud...`, "info");
+    try {
+      const pubRes = await DesktopBridge.communityPublishSkill({
+        id: skill.id,
+        title: skill.display_title || skill.name,
+        category: skill.category || "Architecture & Code",
+        description: skill.description || skill.when_to_use || "",
+        content: skill.skill_content || "",
+        references: skill.references || [],
+        rules: skill.rules || [],
+        author: this.authSession?.user?.email ? this.authSession.user.email.split('@')[0] : "Kỹ Sư Cộng Đồng"
+      });
+      if (pubRes && (pubRes.success || pubRes.status === "success")) {
+        this.showToast(`🎉 Đã đăng tải kỹ năng '${skill.display_title || skill.name}' lên Chợ Cloud thành công!`, "success");
+        await this.loadCommunitySkills();
+        this.closeInspector();
+        this.switchWorkspace("community");
+      } else {
+        this.showToast(pubRes?.message || pubRes?.error || "Đăng tải lên Chợ Cloud thất bại.", "error");
+      }
+    } catch (err) {
+      this.showToast("Lỗi đăng Cloud: " + err.message, "error");
+    }
+  },
+
+  openStudioGitHubImporter() {
+    const url = prompt("Nhập đường dẫn kho GitHub chứa kỹ năng (ví dụ: https://github.com/owner/repo.git):", "https://github.com/Skill-AI-private/Strict-architect-coder.git");
+    if (!url || !url.trim()) return;
+
+    this.showToast("Đang kết nối GitHub và trích xuất kỹ năng vào Studio...", "info");
+    DesktopBridge.importFromGitHub(url.trim()).then(res => {
+      if (res && res.success && res.skills && res.skills.length > 0) {
+        const s = res.skills[0];
+        const titleInput = document.getElementById("studio-title");
+        const idInput = document.getElementById("studio-id");
+        const descInput = document.getElementById("studio-desc");
+        const contentInput = document.getElementById("studio-content");
+        const categorySelect = document.getElementById("studio-category");
+
+        if (titleInput) titleInput.value = s.display_title || s.name || "";
+        if (idInput) {
+          idInput.value = s.id || "";
+          idInput.dataset.manual = "true";
+        }
+        if (descInput) descInput.value = s.description || s.when_to_use || "";
+        if (contentInput) contentInput.value = s.skill_content || s.content || "";
+        if (categorySelect && s.category) {
+          categorySelect.value = s.category;
+        }
+
+        const previewPane = document.getElementById("studio-preview-pane");
+        const charCount = document.getElementById("studio-char-count");
+        if (charCount && contentInput) {
+          charCount.innerText = `${contentInput.value.length} ký tự`;
+        }
+        if (previewPane && window.marked && contentInput) {
+          previewPane.innerHTML = window.marked.parse(contentInput.value);
+        }
+
+        this.showToast(`✓ Đã nạp thành công '${s.display_title || s.name}' vào Studio! Bạn có thể lưu vào Thư Viện (để riêng) hoặc bấm [Đăng Lên Chợ Cloud]!`, "success");
+      } else {
+        this.showToast(res ? res.message : "Không thể trích xuất kỹ năng từ đường dẫn này.", "error");
+      }
+    }).catch(err => {
+      this.showToast("Lỗi nhập từ GitHub: " + err.message, "error");
+    });
   },
 
   async triggerNativeFolderPicker() {

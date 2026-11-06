@@ -6320,3 +6320,19 @@ code, pre {
 .studio-actions .form-hint { display: none; }
 .modal-dialog { max-height: calc(100vh - 80px); overflow-y: auto; min-width: 0; }
 .modal-dialog pre { overflow-wrap: anywhere; }
+
+/* GitHub Destination Mode Cards (Zero-Overflow & Physics Motion) */
+.github-dest-card {
+  user-select: none;
+  border-radius: var(--radius-md, 8px);
+}
+.github-dest-card:hover {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1px);
+}
+.github-dest-card.active {
+  box-shadow: 0 0 16px rgba(0, 180, 216, 0.15);
+}
+.btn-inspector-publish-cloud:hover {
+  filter: brightness(1.2);
+}
