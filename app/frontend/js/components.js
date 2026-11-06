@@ -2056,7 +2056,7 @@ class UIComponents {
                 ${Icons.uploadCloud} <span>+ Thêm từ GitHub</span>
               </button>
               <button class="btn btn-secondary" id="community-refresh" title="Làm mới danh sách từ Cloud">
-                ${Icons.refreshCw} <span>Tải lại</span>
+                ${Icons.refresh} <span>Tải lại</span>
               </button>
               ${options.isAdmin ? '<button class="btn btn-secondary" id="community-moderation">Báo cáo cần xem</button>' : ''}
             </div>

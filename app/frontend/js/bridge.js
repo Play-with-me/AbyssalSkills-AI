@@ -114,7 +114,17 @@ class DesktopBridge {
 
   /* Phase 3: Community Cloud & Diagnostic Logger */
   static async communityGetSkills(data = {}) {
-    return await this.call("community_get_skills", data);
+    try {
+      if (data && (data.query || data.category || (data.page && data.page > 0))) {
+        return await this.call("community_get_skills", data);
+      }
+      return await this.call("community_get_skills");
+    } catch (err) {
+      if (String(err).includes("positional argument")) {
+        return await this.call("community_get_skills");
+      }
+      throw err;
+    }
   }
 
   static async communityAction(action, payload) {
