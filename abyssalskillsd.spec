@@ -49,6 +49,11 @@ hidden_imports = [
     'app.backend.git_sync',
     'app.backend.auth',
     'app.backend.updater',
+    'app.backend.cloud_client',
+    'app.backend.community',
+    'app.backend.logger',
+    'app.backend.secure_storage',
+    'app.backend.telemetry',
 ]
 
 a = Analysis(

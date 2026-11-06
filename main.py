@@ -5,10 +5,27 @@ Initializes Desktop Window powered by Microsoft Edge WebView2 and PyWebView.
 import os
 import sys
 import ctypes
+import traceback
 from pathlib import Path
 import webview
 from app.backend.api import DesktopAPI
-from app.backend.paths import get_frontend_html, get_app_icon
+from app.backend.paths import get_frontend_html, get_app_icon, get_log_dir
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    """Crash guard: writes traceback to crash.log and alerts on Windows."""
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    err = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+    try:
+        crash_log = get_log_dir() / "crash.log"
+        crash_log.write_text(err, encoding="utf-8")
+        if sys.platform == "win32":
+            ctypes.windll.user32.MessageBoxW(0, f"AbyssalSkillsD Error:\n\n{err[:600]}", "AbyssalSkillsD Crash Guard", 0x10)
+    except Exception:
+        pass
+
+sys.excepthook = handle_exception
 
 def main():
     icon_ico = get_app_icon()
