@@ -167,8 +167,10 @@ class UpdateEngine:
             except (OSError, subprocess.TimeoutExpired):
                 pass
 
-        total_skills = len(SkillStorage.get_all_skills())
-        update_signature = f"skills_v{current_ver}_{has_skills_update}_{total_skills}"
+        all_skills = SkillStorage.get_all_skills()
+        total_skills = len(all_skills)
+        skills_need_update = sum(1 for s in all_skills if getattr(s, 'has_update', False))
+        update_signature = f"skills_v{current_ver}_{has_skills_update}_{total_skills}_{skills_need_update}"
 
         return {
             "success": True,
@@ -180,11 +182,12 @@ class UpdateEngine:
             "download_url": download_url,
             "setup_download_url": setup_download_url,
             "has_skills_update": has_skills_update,
+            "skills_need_update": skills_need_update,
             "skills_summary": skills_summary,
             "new_skills_count": None,
             "skills_check_status": skills_check_status,
             "update_signature": update_signature,
-            "total_skills_installed": sum(bool(item.installed_targets) for item in SkillStorage.get_all_skills()),
+            "total_skills_installed": sum(bool(item.installed_targets) for item in all_skills),
             "total_skills": total_skills,
             "is_offline": is_offline,
             "checked_at": datetime.now().strftime("%H:%M:%S - %d/%m/%Y")

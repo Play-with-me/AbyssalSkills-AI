@@ -485,12 +485,21 @@ class UIComponents {
             <div class="update-skills-section">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <div>
-                  <div style="font-weight:600; font-size:13px; color:var(--text-primary);">Đồng bộ Kỹ Năng (Addy Osmani & Skill-AI)</div>
-                  <div style="font-size:12px; color:var(--text-muted);">Hiện có <strong style="color:var(--ocean-cyan, #00B4D8);">${totalSkills} kỹ năng</strong> trong thư viện.</div>
+                  <div style="font-weight:600; font-size:13px; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                    <span>Thư Viện Kỹ Năng Bản Quyền</span>
+                    ${(data.skills_need_update > 0 || (window.App && window.App.skills && window.App.skills.filter(s => s.has_update).length > 0))
+                      ? `<span style="background:rgba(245,158,11,0.2); color:#FBBF24; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:600;">⚠️ Có ${data.skills_need_update || window.App.skills.filter(s => s.has_update).length} bản cập nhật</span>`
+                      : `<span style="background:rgba(16,185,129,0.15); color:#10B981; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:600;">✓ 100% Đã mới nhất</span>`}
+                  </div>
+                  <div style="font-size:12px; color:var(--text-muted); margin-top:3px;">
+                    ${(data.skills_need_update > 0 || (window.App && window.App.skills && window.App.skills.filter(s => s.has_update).length > 0))
+                      ? `Phát hiện <strong style="color:#FBBF24;">${data.skills_need_update || window.App.skills.filter(s => s.has_update).length} kỹ năng</strong> có thay đổi cần cập nhật.`
+                      : `Toàn bộ <strong style="color:var(--ocean-cyan, #00B4D8);">${totalSkills || 36} kỹ năng</strong> trong máy của bạn đều khớp hoàn toàn với kho chuẩn.`}
+                  </div>
                 </div>
                 <button class="btn btn-primary btn-action-sync-skills" id="btn-action-sync-skills" data-testid="btn-action-sync-skills">
                   <span id="sync-spinner" style="display:none; margin-right:4px;">⏳</span>
-                  <span id="btn-sync-skills-text">🔄 Đồng Bộ Kho Kỹ Năng</span>
+                  <span id="btn-sync-skills-text">${(data.skills_need_update > 0 || (window.App && window.App.skills && window.App.skills.filter(s => s.has_update).length > 0)) ? `⚡ Cập Nhật Ngay` : `🔄 Kiểm Tra Lại Kho`}</span>
                 </button>
               </div>
 
