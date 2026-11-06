@@ -5,6 +5,15 @@ import sys
 import unittest
 from pathlib import Path
 
+# Force UTF-8 on Windows stdout/stderr to prevent cp1252 charmap UnicodeEncodeError on CI runners
+if sys.platform == "win32":
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
 
 def main():
     root = Path(__file__).resolve().parents[1]
@@ -12,22 +21,8 @@ def main():
     sys.path.insert(0, str(root / "tests"))
     suite = unittest.defaultTestLoader.discover(str(root / "tests"), pattern="test_*.py")
 
-    stream = io.StringIO()
-    runner = unittest.TextTestRunner(stream=stream, verbosity=2)
+    runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
-
-    output = stream.getvalue()
-    sys.stdout.write(output)
-    sys.stdout.flush()
-
-    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
-    if summary_file:
-        try:
-            with open(summary_file, "a", encoding="utf-8") as f:
-                f.write("### Test Results\n```\n" + output + "\n```\n")
-        except Exception:
-            pass
-
     return 0 if result.wasSuccessful() else 1
 
 

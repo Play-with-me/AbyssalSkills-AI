@@ -1,35 +1,52 @@
 name: Windows verification and release artifacts
+
 on:
   pull_request:
   push:
     branches: [main, 'codex/**']
     tags: ['v*']
   workflow_dispatch:
+
 permissions:
   contents: write
+
 env:
   PYTHONUTF8: '1'
   PYTHONIOENCODING: utf-8
+
 jobs:
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --frozen
+
+      - run: uv sync
+
       - name: Python and JavaScript behavior regressions
         run: uv run python tests/test_verification.py
-      - name: Install Inno Setup
-        run: choco install innosetup --no-progress
+
       - name: Build Windows artifacts from this commit
         run: uv run python scripts/build_distribution.py
+
       - name: Verify artifact provenance and excluded runtime data
         run: uv run python tests/check_distribution.py
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows-candidate
@@ -39,6 +56,7 @@ jobs:
             dist/AbyssalSkillsD-Setup.exe
             dist/AbyssalSkillsD-Portable.zip
             dist/SHA256SUMS-v1.1.0.txt
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
