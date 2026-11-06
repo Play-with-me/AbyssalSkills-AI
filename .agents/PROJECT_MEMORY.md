@@ -2,8 +2,8 @@
 
 ## 1. Product Summary & Active UX Rules
 - **Product:** AbyssalSkillsD (v1.1.2+) — Standalone Windows Desktop App for AI Skill Management & Marketplace.
-- **Brand Identity:** Abyssal Sky v2.0 (`#050C1A` Void, `#00B4D8` Ocean Cyan, `#7C3AED` Aurora Violet, `#1E2D4A` Hairline).
-- **External Asset Integrity Law:** `C:\Logo` remains 100% read-only and untouched.
+- **Brand Identity:** Abyssal Sky v2.0 (`#050814` Void, `#00B4D8` Ocean Cyan, `#7C3AED` Aurora Violet, `#1E2D4A` Hairline).
+- **Background Aesthetic Law:** Luxury Studio Atmospheric Canvas. Zero fake sci-fi blueprint rings, zero crosshairs, zero giant watermarks.
 - **UI/UX Guardrails:** Anti-overflow CSS (`min-h-0`, `min-w-0`), sub-250ms physics motion, zero blind actions, uncluttered headers, and collapsible guidance hubs.
 - **Universal Multi-AI Ecosystem (7 Environments):** Google Antigravity, Claude Code, Cursor AI, Windsurf, GitHub Copilot, OpenAI Codex, and Aider/Workspace.
 - **Aggregated Suites:** 36 Skills (7 Skill-AI Nucleus + 29 Addy Osmani Production Engineering).
@@ -19,19 +19,17 @@
 - `App` (`app/frontend/js/app.js`): View state, filtering, auto-update progress listener, and workspace router.
 
 ## 3. Recent Completed Changes
+- [x] **Luxury Studio Atmospheric Background:**
+  - Removed all fake sci-fi blueprint graphics (orbit rings, compass crosshairs, dashed diagonal lines, giant fox watermark).
+  - Implemented human-crafted deep obsidian mesh with organic cyan/violet ambient aurora lighting and subtle studio dot matrix (Linear/Raycast aesthetic).
 - [x] **Project Tools Dropdown List (Consolidated Actions):**
-  - Replaced the 4 horizontal buttons (`Đổi Dự Án`, `Đồng Bộ Tất Cả AI`, `Sinh Rules`, `Chẩn Đoán`) with a single, sleek glowing trigger: `[⚡ Thao Tác Dự Án ▾]`.
-  - Clicking opens a clean vertical list menu with icons and descriptive labels; automatically closes on selection or clicking outside.
+  - Replaced the 4 horizontal buttons with a single glowing trigger: `[⚡ Thao Tác Dự Án ▾]`.
 - [x] **UI Decluttering & Header Streamlining:**
-  - Collapsed 3-card `hero-action-hub` by default into `[✨ Mở Gợi Ý Nhanh]`, increasing visible card area by 40%.
+  - Collapsed 3-card `hero-action-hub` by default into `[✨ Mở Gợi Ý Nhanh]`.
   - Replaced 7 static non-clickable sidebar rows with sleek `.sidebar-ai-health-card` ("7 Nền Tảng AI Sẵn Sàng").
 - [x] **Workspace Isolation (Toolbar Leakage Fix):**
-  - Isolated `#catalog-unified-toolbar` and `#workspace-project-bar` to `library` and `installed` views only, permanently eliminating unwanted toolbars from leaking into Community Cloud, Studio, and Guide.
+  - Isolated `#catalog-unified-toolbar` and `#workspace-project-bar` to `library` and `installed` views only.
 - [x] **Card Ergonomics & Anti-Squish Refactoring:**
-  - Bento skill cards streamlined to 2 primary actions (`[⚡ Lấy Lệnh Nhanh]` / `[🔄 Cập Nhật]` + `[⚙️ Chi Tiết ▾]`) and compact icon tool for Studio.
-  - Community Cloud cards refactored with clean top icon tools and wide 2-tier buttons, preventing button clipping.
+  - Bento skill cards streamlined to 2 primary actions. Community Cloud cards refactored with clean top icon tools and wide 2-tier buttons.
 - [x] **Intelligent Diff Modal (0-Diff Clean State):**
-  - When differences are 0, confusing bulk selectors and "Áp dụng (0 khối)" buttons are replaced by a clean `[✓ Đã Khớp 100% — Đóng Hộp Thoại]` completion badge.
-- [x] **Verification & Release:**
-  - Verified 100% passing across all 34 automated unit & service tests (`Ran 34 tests in 2.180s, OK`).
-  - Synced files directly to `C:\Users\kyuu4\AppData\Local\Programs\AbyssalSkillsD\_internal`.
+  - Clean `[✓ Đã Khớp 100% — Đóng Hộp Thoại]` completion badge.
