@@ -165,3 +165,17 @@ The earlier checked boxes/28-gate claims above are historical implementation not
   - **Image 1 & 2 (Codex "chưa thấy kết nối abyssalSkillsD" & "chỉ thấy 6 skill lúc 12:27 PM"):** Codex is an LLM client, not a daemon with socket connections to manager apps. At 12:27 PM, only the first seed existed. At 12:29 PM and 2:16 PM, all 36 skills were written to `C:\Users\kyuu4\.codex\skills\`. Verified all 36 skills are currently present on disk.
   - **Image 3 (v1.0.0 & "Hệ thống đang ở phiên bản mới nhất"):** Captured when the user ran v1.0.0 before v1.1.0 was published on GitHub Releases. When GitHub had only v1.0.0, the app correctly reported no newer version. Once v1.1.0 was published, the app received v1.1.0.
   - **Standalone Binary Fix:** Added missing backend modules (`community`, `telemetry`, `cloud_client`, `secure_storage`, `logger`) to `abyssalskillsd.spec` `hidden_imports` and recompiled standalone binary at `C:\Users\kyuu4\AppData\Local\Programs\AbyssalSkillsD\AbyssalSkillsD.exe`. Verified 100% running smoothly.
+
+## 2026-11-06 (Late Turn) — Resolution of 36 Persistent False Updates, Community Cloud 2-Tier Ergonomics & Seamless In-Place Auto-Update
+- **Persistent 36 Updates False-Positive Resolved:**
+  - Root Cause: `generate_skill_markdown()` dumped YAML without `width=1000`, causing PyYAML to wrap 80-char descriptions, while on-disk files had single-line descriptions. String comparison `!=` flagged all 36 skills as having updates. When diff modal opened, it only viewed and updated a single file in `antigravity`, leaving `claude`, `copilot`, `codex` and reference files untouched.
+  - Fix: Added `width=1000` to `yaml.safe_dump()`, introduced `files_differ()` with semantic YAML frontmatter parsing and normalized newline comparison (`\r\n` -> `\n`).
+  - Enhanced `apply_skill_diff()`: When `apply_all: True`, writes all candidate files across all installed targets for that skill, marking `has_update = False` permanently.
+  - Verified: `Number of skills with has_update: 0` (All 36 skills 100% synchronized and green).
+- **Community Cloud 2-Tier Ergonomics (Anti-Overflow Layout):**
+  - Root Cause: `.comm-card-actions` crammed 6 buttons into a single horizontal flex line without wrapping, squishing buttons and causing `.btn-install-community` to protrude downward out of the card.
+  - Fix: Redesigned `.comm-card-footer` into a 2-tier ergonomic layout: Tier 1 for auxiliary/author actions (`★ Yêu thích`, `🚩 Báo cáo`, `✏️ Sửa`, `🗑️ Gỡ`), Tier 2 for primary actions (`[👁️ Chi Tiết]` + `[⚡ Tải & Cài Đặt Vào AI]`). Added clean CSS tokens with `min-width: 0`, `gap: 8px`, and smooth hover physics.
+- **Seamless 1-Click In-Place Auto-Update:**
+  - Removed manual GitHub external link from primary action area in `renderUpdateModal()`.
+  - Prominently styled `[⚡ Tự Động Cập Nhật & Khởi Động Lại Ngay (1-Click)]` with live progress polling and silent Inno Setup invocation.
+  - Compiled and published distribution: `dist/AbyssalSkillsD-Setup-v1.1.0.exe` (16.29 MB) and `dist/AbyssalSkillsD-v1.1.0-Portable.zip` (18.75 MB). Retagged `v1.1.0` on GitHub.
