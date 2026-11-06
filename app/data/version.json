@@ -1,18 +1,18 @@
 {
-  "version": "1.1.3",
+  "version": "1.1.4",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
   "release_date": "2026-11-07",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.1.3",
-    "title": "AbyssalSkillsD 1.1.3 — Bản Vá Giao Diện Luxury Studio & Menu Thao Tác",
+    "version": "1.1.4",
+    "title": "AbyssalSkillsD 1.1.4 — Cập Nhật Động & Gỡ Cài Đặt Sạch 100%",
     "highlights": [
-      "Nền Luxury Studio cao cấp: Thay thế toàn bộ hình nền AI nhân tạo bằng quầng sáng cực quang và vải đen Obsidian sang trọng.",
-      "Menu Thao Tác Dự Án dạng danh sách: Gom 4 nút dàn hàng ngang thành 1 nút thả xuống tinh tế.",
-      "Gọn gàng & thoáng mắt: Giảm 50% độ rối thị giác, tăng 40% diện tích hiển thị thẻ kỹ năng.",
-      "Cách ly thanh công cụ: Sửa triệt để lỗi thanh Nguồn và Dự án dính sang Chợ Cloud và Studio."
+      "Tự động tải bản mới nhất: Liên kết README và PowerShell 1-click tự động nhận diện và tải chính xác bản phát hành mới nhất từ GitHub.",
+      "Gỡ cài đặt sạch 100%: Tự động dọn sạch toàn bộ cấu hình, cache và nhật ký (%APPDATA% & %LOCALAPPDATA%) khi gỡ ứng dụng qua Windows.",
+      "Tương thích ngược Community Cloud: Khắc phục triệt để lỗi không tải được chợ kỹ năng khi chạy với bản backend cũ.",
+      "Sửa nút Tải lại Cloud: Hiển thị icon xoay đồng bộ chuẩn xác thay vì nhãn undefined."
     ]
   }
 }

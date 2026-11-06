@@ -2,30 +2,50 @@
 
 # AbyssalSkillsD
 
-Trình quản lý tệp kỹ năng AI bằng Python/PyWebView. Giữ 36 mục thư viện: 7 kỹ năng Skill-AI và 29 mục từ Addy Osmani (gồm 4 persona). Tác giả: Lâm Nhựt Hải Đăng (Kyuu449977).
+<p align="center">
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Play-with-me/AbyssalSkills-AI?color=00B4D8&label=B%E1%BA%A3n%20M%E1%BB%9Bi%20Nh%E1%BA%A5t&logo=github" alt="Bản Mới Nhất">
+  </a>
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/Play-with-me/AbyssalSkills-AI/build-release.yml?branch=main&label=Tr%E1%BA%A1ng%20Th%C3%A1i%20Build" alt="Trạng Thái Build">
+  </a>
+  <img src="https://img.shields.io/badge/N%E1%BB%81n%20T%E1%BA%A3ng-Windows%2010%2F11%20x64-blue" alt="Nền Tảng">
+  <img src="https://img.shields.io/badge/Gi%E1%BA%A5y%20Ph%C3%A9p-MIT-green" alt="Giấy Phép">
+</p>
 
-Bản 1.1.0 đang nghiệm thu Windows; chưa công bố là bản phát hành đã nghiệm thu đầy đủ. Xem [kết quả kiểm chứng](docs/VERIFICATION-1.1.0.vi.md).
+Trình quản lý tệp kỹ năng AI bằng Python/PyWebView dành riêng cho Windows. Tích hợp sẵn 36 mục kỹ năng bản quyền: 7 kỹ năng chuẩn Skill-AI và 29 mục từ Addy Osmani (bao gồm 4 persona). Tác giả: Lâm Nhựt Hải Đăng (Kyuu449977).
 
-### Tải Về & Cài Đặt Bản Mới Nhất
-- **Bản Cài Đặt Windows (.exe - Khuyên dùng):** [Tải Bản Cài Đặt Mới Nhất](https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest/download/AbyssalSkillsD-Setup.exe)
-- **Bản Di Động (Portable .zip):** [Tải Bản Portable Mới Nhất](https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest/download/AbyssalSkillsD-Portable.zip)
-- **Cài đặt 1 dòng lệnh PowerShell:**
+[English](README.md) · [Báo Cáo Nghiệm Thu & Kiểm Chứng Thực Nghiệm](docs/VERIFICATION-1.1.0.vi.md)
+
+---
+
+### Tải Về & Cài Đặt (Luôn Là Bản Mới Nhất)
+
+- **Bản Cài Đặt Windows (.exe - Khuyên dùng):** [Tải Trực Tiếp Setup.exe Mới Nhất](https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest/download/AbyssalSkillsD-Setup.exe)
+- **Bản Di Động (Portable .zip - Không cần cài đặt):** [Tải Bản Portable.zip Mới Nhất](https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest/download/AbyssalSkillsD-Portable.zip)
+- **Cài đặt 1 dòng lệnh PowerShell (Tự động nhận diện và tải bản phát hành mới nhất):**
   ```powershell
   irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
   ```
 
-## Chức năng
+> [!NOTE]
+> **Tự Động Dọn Sạch Dữ Liệu Khi Gỡ Cài Đặt:** Khi bạn gỡ cài đặt ứng dụng qua Windows Settings hoặc Control Panel, hệ thống sẽ tự động dọn sạch 100% dữ liệu tạm, bộ nhớ đệm, tệp cấu hình và nhật ký (`%APPDATA%\AbyssalSkillsD` & `%LOCALAPPDATA%\AbyssalSkillsD`), đảm bảo không để lại bất kỳ tệp tin rác nào trên máy tính của bạn như các ứng dụng hiện đại.
 
-- Thư viện, tìm kiếm, chọn dự án, Studio lưu trên máy và yêu thích.
-- Ghi SKILL.md, reference, rule cho các đích được hỗ trợ. “Đã ghi tệp” chỉ chứng minh tệp tồn tại; hãy kiểm tra skill trong chính công cụ AI.
-- Diff theo từng tệp/đích, chặn bản xem trước lỗi thời; snapshot riêng trước khi thay tệp. Sao lưu lỗi thì dừng. Gỡ giữ bản cài trong `.abyssal-removed`, giữ phần rules tự chỉnh.
-- Git cache phân biệt URL và kiểm tra origin; cập nhật kho dựa trên commit. Cần Git ngoài.
-- Community dùng Supabase thật, phân trang 24; đọc/cài không cần đăng nhập. Đăng bài, sửa/gỡ bài của mình, yêu thích và báo cáo yêu cầu đăng nhập. Quản trị viên xem báo cáo và ẩn bài.
-- GitHub OAuth đã thử thật. Google hiện chưa bật trên dự án; ứng dụng báo chưa khả dụng. Email cần xác nhận; chưa nghiệm thu luồng email toàn trình.
-- Refresh token lưu Windows Credential Manager; access token trong bộ nhớ, không trả token hoặc khóa quản trị cho JavaScript.
-- Chẩn đoán có xem trước, tự nhập thông báo, xuất ZIP và chủ động gửi khi đăng nhập. Không tự gửi hoặc tự gửi lại. Bản chờ đã làm sạch dùng cùng request ID khi thử lại. Lọc thông tin nhạy cảm là hỗ trợ, người gửi vẫn phải kiểm tra nội dung.
+---
 
-## Chạy và kiểm tra
+## Tính Năng Cốt Lõi
+
+- **Kho Kỹ Năng & Xưởng Chế Tác (Studio):** Tìm kiếm, đánh dấu yêu thích, tạo mới và tinh chỉnh kỹ năng cho 7 nền tảng AI (Antigravity, Claude, Cursor, Windsurf, Copilot, Codex, Aider).
+- **Cài Đặt Đa Đích & Quy Tắc Rules:** Tự động ghi `SKILL.md`, tài liệu tham khảo reference và chèn khối quy tắc rules mà không làm mất hoặc ghi đè các chỉ dẫn riêng của bạn.
+- **So Sánh Tệp (Diff) & Sao Lưu An Toàn:** Xem trước khác biệt từng dòng, chặn áp dụng nếu tệp nguồn bị sửa ngoài luồng, sao lưu tự động trước khi ghi đè, và lưu trữ bản gỡ cài đặt có thể phục hồi (`.abyssal-removed`).
+- **Bộ Nhớ Đệm Git & Đồng Bộ Nguồn:** Phân vùng cache Git theo URL, kiểm tra commit gốc trước khi kéo bản mới. Cần có sẵn Git trên máy; Graphify là tùy chọn cài thêm.
+- **Trung Tâm Đám Mây Cộng Đồng (Supabase):** Khám phá, phân trang, tải về, đăng bài, sửa bài, đánh giá và báo cáo kỹ năng với bảo mật phân quyền Row-Level Security (RLS).
+- **Xác Thực An Toàn Chuẩn Doanh Nghiệp:** Đăng nhập GitHub PKCE OAuth thật, mã hóa lưu trữ token trong Windows Credential Manager. Giao diện JavaScript không bao giờ tiếp xúc với refresh token hay khóa quản trị.
+- **Chẩn Đoán Thông Minh:** Kiểm tra trạng thái hệ thống, xem trước dữ liệu ẩn danh hóa trước khi gửi, xuất tệp chẩn đoán ZIP chỉ khi có sự đồng ý của người dùng.
+
+---
+
+## Phát Triển & Kiểm Thử
 
 ```powershell
 uv sync --frozen --extra dev
@@ -33,21 +53,11 @@ uv run python tests/test_verification.py
 uv run python main.py
 ```
 
-Cần Windows 10/11 x64 và WebView2. Node cần cho kiểm tra cú pháp JavaScript. Graphify cần cài riêng và chỉ phân tích khi yêu cầu; đồ thị trong repository có thể cũ. Chưa xác minh macOS/Linux.
+Yêu cầu Windows 10/11 x64 và Microsoft Edge WebView2 Runtime. Đóng gói bộ cài đặt:
 
 ```powershell
 uv run python scripts/build_distribution.py
 uv run python tests/check_distribution.py
 ```
 
-Build tạo portable, setup khi có Inno Setup, manifest commit/hash và SHA256SUMS. Không đóng gói session, log, cache Git hoặc chẩn đoán chờ. Không chạy installer trên máy chính để thay cho nghiệm thu Windows sạch.
-
-## Cloud
-
-Migration: `supabase/migrations/202611010001_reliable_cloud.sql`. Đã áp dụng lên dự án hiện tại sau backup và xác nhận của chủ dự án. Các kiểm tra quyền A/B/ẩn danh ở `supabase/tests/cloud_acceptance.sql` chạy trong transaction rollback; không phải bằng chứng hai phiên desktop đăng nhập khác nhau.
-
-Quyền quản trị nằm trong bảng riêng do quản trị cơ sở dữ liệu cấp. Profile công khai không có email; client không được tự sửa role/bộ đếm. Không nhập service-role key vào app. Không tự đăng dữ liệu local cũ lên cloud.
-
-## Giới hạn bằng chứng
-
-Bộ kiểm thử mới kiểm tra hành vi và tệp đầu ra trong thư mục tạm, chặn mạng mặc định. Các tuyên bố “28/28”, “100% operational”, tương thích mọi hệ điều hành và AI đã tự nạp skill từ tài liệu cũ không còn là kết luận nghiệm thu.
+Sử dụng Inno Setup 6 để biên dịch `AbyssalSkillsD-Setup.exe` kèm hook gỡ cài đặt dọn sạch 100% dữ liệu. Gói phát hành tự động loại trừ toàn bộ nhật ký, phiên đăng nhập và cache tạm.

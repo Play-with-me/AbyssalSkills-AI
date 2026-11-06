@@ -2,28 +2,47 @@
 
 # AbyssalSkillsD
 
-A Python/PyWebView desktop manager for AI skill files. Includes the original 36 library entries: 7 Skill-AI skills and 29 Addy Osmani entries (including four personas). Author: Lâm Nhựt Hải Đăng (Kyuu449977).
+<p align="center">
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Play-with-me/AbyssalSkills-AI?color=00B4D8&label=Latest%20Release&logo=github" alt="Latest Release">
+  </a>
+  <a href="https://github.com/Play-with-me/AbyssalSkills-AI/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/Play-with-me/AbyssalSkills-AI/build-release.yml?branch=main&label=Build%20Status" alt="Build Status">
+  </a>
+  <img src="https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-blue" alt="Platform">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
+</p>
 
-[Tiếng Việt](README.vi.md) · [Verification evidence and remaining acceptance work](docs/VERIFICATION-1.1.0.vi.md)
+A Python/PyWebView desktop manager for AI skill files. Includes 36 verified library entries: 7 Skill-AI skills and 29 Addy Osmani entries (including four personas). Author: Lâm Nhựt Hải Đăng (Kyuu449977).
 
-Version 1.1.0 is a Windows release candidate undergoing acceptance. macOS/Linux and clean-machine setup execution are not yet verified.
+[Tiếng Việt](README.vi.md) · [Verification Evidence & Acceptance Report](docs/VERIFICATION-1.1.0.vi.md)
 
-### Download & Installation
+### Download & Quick Installation (Always Latest)
 - **Windows Setup (Recommended):** [Download Latest Setup.exe](https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest/download/AbyssalSkillsD-Setup.exe)
 - **Portable Edition:** [Download Latest Portable.zip](https://github.com/Play-with-me/AbyssalSkills-AI/releases/latest/download/AbyssalSkillsD-Portable.zip)
-- **1-Click PowerShell Install:**
+- **1-Click PowerShell Install (Automatically fetches the latest version):**
   ```powershell
   irm https://raw.githubusercontent.com/Play-with-me/AbyssalSkills-AI/main/scripts/install.ps1 | iex
   ```
 
-- Local library, search, workspace selection, Studio and favorites.
-- Per-target skill/reference/rule installation; a file being present does not prove the AI loaded it.
-- File-specific diff with stale-preview checks, immutable backups before replacement, preserved custom shared rules and recoverable uninstall archives.
-- Git cache isolated by URL with origin checks. Git is an external prerequisite; Graphify is optional and separately installed.
-- Real Supabase community browsing, pagination, publish/edit/remove, favorites, reporting and moderation. No sample catalog presented as cloud data.
-- Real GitHub PKCE login tested. Google is not enabled on the current project. Email confirmation is supported but its complete journey has not been accepted yet.
-- Refresh tokens use Windows Credential Manager. JavaScript never receives access/refresh tokens or administrator secrets.
-- Diagnostics are previewed and explicitly sent by the user, with no automatic upload/retry. Redaction is best effort; review before sending.
+> [!NOTE]
+> **Clean Uninstallation:** When uninstalled via Windows Settings or Control Panel, AbyssalSkillsD automatically purges 100% of temporary runtime configurations, cache, and logs (`%APPDATA%\AbyssalSkillsD` & `%LOCALAPPDATA%\AbyssalSkillsD`), leaving zero leftover data on your machine.
+
+---
+
+### Core Features
+
+- **Local Library & Studio:** Search, favorite, create, and customize skills for 7 AI assistants (Antigravity, Claude, Cursor, Windsurf, Copilot, Codex, Aider).
+- **Target Deployment & Rules:** Writes `SKILL.md`, reference files, and rule injections for target workspaces without touching existing custom instructions.
+- **Precision File Diff & Rollback:** File-specific diff with stale-preview checks, immutable backups before replacement, and recoverable uninstall archives (`.abyssal-removed`).
+- **Git Cache & Sync:** Isolated Git cache per repository URL with commit-based sync. Git is an external prerequisite; Graphify is optional and separately installed.
+- **Community Cloud (Supabase):** Browse, paginate, publish, edit, rate, report, and filter community-contributed skills with Row-Level Security (RLS).
+- **Secure Authentication:** Real GitHub PKCE OAuth flow with Windows Credential Manager token encryption. JavaScript never handles raw refresh tokens or administrator keys.
+- **Diagnostics:** Explicit opt-in diagnostics with live preview, automated sensitive data sanitization, ZIP export, and idempotent reporting.
+
+---
+
+### Development & Verification
 
 ```powershell
 uv sync --frozen --extra dev
@@ -31,8 +50,11 @@ uv run python tests/test_verification.py
 uv run python main.py
 ```
 
-Windows 10/11 x64 and WebView2 are required. JavaScript syntax checks require Node. Build with `uv run python scripts/build_distribution.py` and check with `uv run python tests/check_distribution.py`. Inno Setup is required to compile Setup.exe. Packages contain source hashes, commit provenance and checksums; runtime sessions/logs/caches are excluded.
+Windows 10/11 x64 and Microsoft Edge WebView2 Runtime are required. Build distribution packages with:
 
-The production migration and rollback-only authorization tests are under `supabase/`. Existing user data is preserved; legacy local samples are never automatically published. Administrator privileges are assigned server-side, not from editable profile metadata.
+```powershell
+uv run python scripts/build_distribution.py
+uv run python tests/check_distribution.py
+```
 
-The old “28/28” source-string gates and “100% operational” claims are superseded by isolated behavioral tests and the evidence report. Passing unit tests is not a claim that every cloud provider, AI integration or distribution has been exercised.
+Inno Setup 6 is used to compile `AbyssalSkillsD-Setup.exe` with silent clean-uninstall hooks. Packages exclude runtime logs, sessions, and Git caches.

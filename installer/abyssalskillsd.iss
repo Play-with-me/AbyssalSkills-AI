@@ -1,10 +1,11 @@
 ; =====================================================================
 ; AbyssalSkillsD - Inno Setup 6 Script
-; Builds Windows standalone installer: AbyssalSkillsD-Setup-v1.1.0.exe
+; Builds Windows standalone installer: AbyssalSkillsD-Setup-v1.1.4.exe
+; Features clean uninstallation (purges %APPDATA% & %LOCALAPPDATA%)
 ; =====================================================================
 
 #define MyAppName "AbyssalSkillsD"
-#define MyAppVersion "1.1.3"
+#define MyAppVersion "1.1.4"
 #define MyAppPublisher "Lâm Nhựt Hải Đăng (Kyuu449977)"
 #define MyAppURL "https://github.com/Play-with-me/AbyssalSkills-AI"
 #define MyAppExeName "AbyssalSkillsD.exe"
@@ -56,3 +57,20 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDi
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}"
+Type: filesandordirs; Name: "{userappdata}\{#MyAppName}"
+Type: filesandordirs; Name: "{localappdata}\{#MyAppName}"
+
+[Code]
+// Tự động dọn sạch 100% dữ liệu người dùng (%APPDATA% & %LOCALAPPDATA%) khi gỡ cài đặt
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    DelTree(ExpandConstant('{userappdata}\{#MyAppName}'), True, True, True);
+    DelTree(ExpandConstant('{localappdata}\{#MyAppName}'), True, True, True);
+    DelTree(ExpandConstant('{app}'), True, True, True);
+  end;
+end;
