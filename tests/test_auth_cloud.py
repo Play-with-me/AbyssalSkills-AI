@@ -1,6 +1,11 @@
 import time
 import unittest
 from unittest.mock import patch
+from pathlib import Path
+import sys
+tests_dir = str(Path(__file__).resolve().parent)
+if tests_dir not in sys.path:
+    sys.path.insert(0, tests_dir)
 import test_reliability as reliability
 
 
@@ -45,9 +50,14 @@ class AuthTests(unittest.TestCase):
                 SecureStorage.read('test')
             return
         project = 'isolated-unit-test-' + uuid.uuid4().hex
-        self.addCleanup(SecureStorage.delete, project)
-        SecureStorage.write(project, 'fake-refresh-token-for-test')
-        self.assertEqual(SecureStorage.read(project), 'fake-refresh-token-for-test')
+        try:
+            SecureStorage.write(project, 'fake-refresh-token-for-test')
+            self.assertEqual(SecureStorage.read(project), 'fake-refresh-token-for-test')
+            SecureStorage.delete(project)
+        except OSError as e:
+            if getattr(e, 'winerror', None) in (1312, 1168) or any(code in str(e) for code in ('1312', '1168')):
+                self.skipTest('Windows Credential Manager logon session unavailable in headless CI')
+            raise
 
     def test_callback_rejects_unrelated_attempt_before_token_exchange(self):
         import io

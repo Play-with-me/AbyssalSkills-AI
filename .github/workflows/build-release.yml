@@ -23,7 +23,16 @@ jobs:
           enable-cache: true
       - run: uv sync --frozen
       - name: Python and JavaScript behavior regressions
-        run: uv run python tests/test_verification.py
+        shell: powershell
+        run: |
+          uv run python tests/test_verification.py 2>&1 | Tee-Object -FilePath test_log.txt
+          if ( -ne 0) {
+            Add-Content -Path  -Value '### Test Failure Log'
+            Add-Content -Path  -Value '`'
+            Get-Content test_log.txt | Add-Content -Path 
+            Add-Content -Path  -Value '`'
+            exit 1
+          }
       - name: Install Inno Setup
         run: choco install innosetup --no-progress
       - name: Build Windows artifacts from this commit
