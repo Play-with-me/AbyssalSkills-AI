@@ -222,9 +222,26 @@ class UpdateEngine:
         merged_list = existing_custom + scanned_skills
         SkillStorage.save_all_skills(merged_list)
 
+        # Tự động cập nhật tệp trên ổ cứng cho toàn bộ kỹ năng đã cài đặt
+        from .installer import SkillInstaller, InstallRequest
+        updated_targets_count = 0
+        for s in merged_list:
+            if s.installed_targets:
+                try:
+                    res = SkillInstaller.install(s, InstallRequest(
+                        skill_id=s.id,
+                        targets=s.installed_targets,
+                        overwrite=True,
+                        backup=True
+                    ))
+                    if res.success:
+                        updated_targets_count += 1
+                except Exception:
+                    pass
+
         return {
             "success": True,
-            "message": f"Đồng bộ thành công! Đã làm mới {len(scanned_skills)} kỹ năng từ kho Addy Osmani.",
+            "message": f"Đồng bộ thành công! Đã làm mới {len(scanned_skills)} kỹ năng từ kho Addy Osmani và cập nhật {updated_targets_count} kỹ năng vào môi trường AI.",
             "skills_count": len(merged_list),
             "updated_items": len(scanned_skills)
         }
@@ -291,7 +308,8 @@ class UpdateEngine:
 
             runner_script = f"""@echo off
 timeout /t 2 /nobreak > nul
-"{temp_setup}" /SILENT /DIR="{target_dir}" /FORCECLOSEAPPLICATIONS /CLOSEAPPLICATIONS
+"{temp_setup}" /VERYSILENT /NORESTART /SUPPRESSMSGBOXES /FORCECLOSEAPPLICATIONS /DIR="{target_dir}"
+timeout /t 2 /nobreak > nul
 start "" "{target_dir}\\AbyssalSkillsD.exe"
 del "%~f0"
 """

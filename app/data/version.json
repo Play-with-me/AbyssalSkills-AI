@@ -1,17 +1,17 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
-  "release_date": "2026-11-01",
+  "release_date": "2026-11-07",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.1.0",
-    "title": "AbyssalSkillsD 1.1.0 — Local reliability and real community cloud",
+    "version": "1.1.1",
+    "title": "AbyssalSkillsD 1.1.1 — 1-Click Silent Auto-Update & Dual-Mode GitHub Import",
     "highlights": [
-      "Bảo vệ tệp tùy biến và báo rõ thao tác thất bại một phần.",
-      "Chợ cloud, xác thực thật và chẩn đoán do người dùng chủ động gửi.",
-      "Bản Windows có manifest nguồn và kiểm thử hành vi cô lập."
+      "Tự động cập nhật 1-Click: Tải ngầm và cài đè an toàn, bảo tồn 100% dữ liệu.",
+      "Đồng bộ thư viện Addy Osmani toàn diện: Sửa triệt để trạng thái kẹt bản cập nhật.",
+      "Thêm kỹ năng GitHub linh hoạt: Lựa chọn Để Riêng hoặc Đăng Lên Chợ Cloud."
     ]
   }
 }
