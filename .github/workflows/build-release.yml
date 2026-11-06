@@ -39,19 +39,14 @@ jobs:
       - run: uv sync
 
       - name: Python and JavaScript behavior regressions
-        shell: cmd
+        shell: powershell
         run: |
-          uv run python tests/test_verification.py > test_log.txt 2>&1
-          set TEST_STATUS=%ERRORLEVEL%
-          type test_log.txt
-          exit /b %TEST_STATUS%
-
-      - name: Upload test log on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-failure-log
-          path: test_log.txt
+          $output = (uv run python tests/test_verification.py 2>&1) | Out-String
+          Write-Host $output
+          if ($LASTEXITCODE -ne 0) {
+            $short = if ($output.Length -gt 3500) { $output.Substring($output.Length - 3500) } else { $output }
+            throw "VERIFICATION_FAILURE: $short"
+          }
 
       - name: Build Windows artifacts from this commit
         run: uv run python scripts/build_distribution.py
