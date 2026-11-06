@@ -187,7 +187,7 @@ class ReliabilityTests(unittest.TestCase):
             api = DesktopAPI()
         api.active_workspace = str(self.workspace)
         view = api.get_skill_diff({'skill_id': self.skill.id, 'file_path': str(reference)})
-        self.assertTrue(any(item['path'] == str(reference) for item in view['files']))
+        self.assertTrue(any(Path(item['path']).resolve() == reference.resolve() for item in view['files']))
         result = api.apply_skill_diff({'skill_id': self.skill.id, 'apply_all': True, 'revision_token': view['revision_token']})
         self.assertTrue(result['success'])
         self.assertEqual(reference.read_text(), 'UPSTREAM')
