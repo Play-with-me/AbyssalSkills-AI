@@ -5222,20 +5222,97 @@ code, pre {
   border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.comm-card-actions {
+/* Community Card Ergonomic Footer (2-Tier Non-Overflow Layout) */
+.comm-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comm-card-sub-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.comm-card-sub-left, .comm-card-sub-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-comm-sub {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  height: 26px !important;
+  line-height: 1 !important;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-physics);
+}
+
+.btn-comm-sub:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--border-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.btn-comm-danger:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #F87171 !important;
+}
+
+.comm-card-main-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
+  width: 100%;
+}
+
+.btn-comm-detail {
+  flex: 1;
+  min-width: 80px;
+  height: 32px;
+  font-size: 11.5px !important;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-physics);
+}
+
+.btn-comm-detail:hover {
+  border-color: var(--ocean-cyan) !important;
+  background: rgba(0, 180, 216, 0.08) !important;
 }
 
 .btn-install-community {
-  flex: 1;
+  flex: 2;
+  min-width: 140px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 0 14px;
   border-radius: var(--radius-sm);
   background: linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%);
   border: none;
@@ -5243,11 +5320,12 @@ code, pre {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
   transition: all var(--duration-fast) var(--ease-physics);
 }
 
 .btn-install-community:hover {
-  opacity: 0.92;
+  opacity: 0.94;
   box-shadow: 0 0 12px rgba(0, 180, 216, 0.4);
   transform: translateY(-1px);
 }

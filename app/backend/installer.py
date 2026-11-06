@@ -55,10 +55,47 @@ class SkillInstaller:
         return payload
 
     @classmethod
+    def normalize_content(cls, text: str) -> str:
+        """Normalizes line endings (CRLF to LF) and trims outer whitespace."""
+        return text.replace('\r\n', '\n').strip()
+
+    @classmethod
+    def files_differ(cls, actual_text: str, expected_text: str, is_skill_md: bool = False) -> bool:
+        """
+        Determines whether two files differ semantically.
+        Handles Windows/Linux line endings and YAML frontmatter line-wrapping variations.
+        """
+        if actual_text == expected_text:
+            return False
+        act_norm = cls.normalize_content(actual_text)
+        exp_norm = cls.normalize_content(expected_text)
+        if act_norm == exp_norm:
+            return False
+        if is_skill_md and act_norm.startswith('---') and exp_norm.startswith('---'):
+            import re
+            m_act = re.match(r'^---\n(.*?)\n---\n?(.*)$', act_norm, re.DOTALL)
+            m_exp = re.match(r'^---\n(.*?)\n---\n?(.*)$', exp_norm, re.DOTALL)
+            if m_act and m_exp:
+                try:
+                    fm_act = yaml.safe_load(m_act.group(1)) or {}
+                    fm_exp = yaml.safe_load(m_exp.group(1)) or {}
+                    if fm_act == fm_exp and cls.normalize_content(m_act.group(2)) == cls.normalize_content(m_exp.group(2)):
+                        return False
+                except Exception:
+                    pass
+        return True
+
+    @classmethod
     def skill_differs_at(cls, skill, directory):
         for name, expected in cls.skill_payload(skill).items():
             path = safe_child(directory, name)
-            if not path.exists() or path.read_text(encoding='utf-8') != expected:
+            if not path.exists():
+                return True
+            try:
+                actual = path.read_text(encoding='utf-8')
+                if cls.files_differ(actual, expected, is_skill_md=(name == 'SKILL.md')):
+                    return True
+            except (OSError, UnicodeDecodeError):
                 return True
         return False
 
@@ -148,7 +185,7 @@ class SkillInstaller:
     def generate_skill_markdown(cls, skill: SkillItem) -> str:
         """Generates the canonical full markdown for a skill (YAML frontmatter + body)."""
         metadata = skill.yaml_frontmatter or {'name': skill.name, 'description': skill.description}
-        return '---\n' + yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False).rstrip() + '\n---\n\n' + skill.skill_content
+        return '---\n' + yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False, width=1000).rstrip() + '\n---\n\n' + skill.skill_content
 
     @classmethod
     def _write_skill_to_dir(cls, skill: SkillItem, dest_dir: Path) -> Path:

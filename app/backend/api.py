@@ -287,9 +287,19 @@ class DesktopAPI:
         new_content = candidates[local_path_str]
         if apply_all:
             try:
-                atomic_write(local_file, new_content, backup=True)
+                updated_count = 0
+                for path_str, exp_content in candidates.items():
+                    fpath = Path(path_str)
+                    atomic_write(fpath, exp_content, backup=True)
+                    updated_count += 1
+                skill.has_update = False
+                SkillStorage.upsert_skill(skill)
                 self._diff_views.pop(view_token, None)
-                return {'success': True, 'status': 'success', 'message': 'Đã cập nhật tệp đang xem và lưu snapshot bản cũ.'}
+                return {
+                    'success': True,
+                    'status': 'success',
+                    'message': f"Đã cập nhật toàn bộ {updated_count} tệp của kỹ năng '{skill.display_title or skill.name}' trên mọi môi trường AI! (Snapshot sao lưu .bak an toàn)"
+                }
             except (OSError, ValueError) as error:
                 return {'success': False, 'status': 'error', 'message': str(error)}
 
@@ -442,11 +452,14 @@ class DesktopAPI:
         source_group = data.get("source_group")
         skill_ids = data.get("skill_ids")
         only_new = data.get("only_new", False)
+        update_only = data.get("update_only", False)
         overwrite = data.get("overwrite", True)
 
         skills = SkillStorage.get_all_skills(workspace_path)
         if skill_ids:
             skills = [s for s in skills if s.id in skill_ids]
+        elif update_only:
+            skills = [s for s in skills if s.has_update]
         elif only_new:
             skills = [s for s in skills if not s.installed_targets]
         elif source_group:

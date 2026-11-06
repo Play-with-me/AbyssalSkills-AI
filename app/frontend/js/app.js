@@ -1891,11 +1891,16 @@ const App = {
     const targetSkills = this.activeSource === "all" 
       ? this.skills 
       : this.skills.filter(s => (s.source_group || "skill_ai") === this.activeSource);
-    const updateSkill = targetSkills.find(s => s.has_update) || this.skills.find(s => s.has_update);
-    if (updateSkill) {
-      this.openDiffReviewModal(updateSkill.id);
+    const updateSkills = targetSkills.filter(s => s.has_update);
+    if (updateSkills.length === 0) {
+      this.showToast("✓ Toàn bộ kỹ năng đều đang ở trạng thái mới nhất!", "success");
+      return;
+    }
+    const wantsBatch = confirm(`Phát hiện ${updateSkills.length} kỹ năng có bản cập nhật mới từ kho nguồn.\n\nBấm [OK] để Tự Động Cập Nhật Toàn Bộ ${updateSkills.length} Kỹ Năng ngay lập tức (Bản cũ được sao lưu .bak an toàn).\nBấm [Cancel] để mở cửa sổ So Sánh Khác Biệt từng dòng.`);
+    if (wantsBatch) {
+      this.handleBatchInstallAll(true);
     } else {
-      this.showToast("Không có kỹ năng nào cần cập nhật.", "info");
+      this.openDiffReviewModal(updateSkills[0].id);
     }
   },
 

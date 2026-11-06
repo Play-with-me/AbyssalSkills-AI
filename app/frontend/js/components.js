@@ -448,15 +448,11 @@ class UIComponents {
                   ${releaseNotes.map(n => `<li>${this.escape(n)}</li>`).join("")}
                 </ul>
                 <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
-                  <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn btn-primary btn-auto-update-app" id="btn-auto-update-app" data-url="${this.escape(data.setup_download_url || '')}">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                      <span id="btn-auto-update-text">⚡ Tự Động Cập Nhật & Khởi Động Lại (1-Click)</span>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button class="btn btn-primary btn-auto-update-app" id="btn-auto-update-app" data-url="${this.escape(data.setup_download_url || '')}" style="width:100%; justify-content:center; padding:10px 16px; font-size:13.5px; font-weight:700; background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%);">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                      <span id="btn-auto-update-text">⚡ Tự Động Cập Nhật & Khởi Động Lại Ngay (1-Click)</span>
                     </button>
-                    <a href="${downloadUrl}" target="_blank" class="btn btn-secondary btn-dl-release" id="btn-dl-release-link">
-                      ${Icons.download}
-                      <span>Tải Thủ Công Từ GitHub</span>
-                    </a>
                   </div>
                   <!-- Safe Overwrite Guarantee Note -->
                   <div style="font-size:11px; color:#10B981; display:flex; align-items:center; gap:5px; background:rgba(16,185,129,0.08); padding:6px 10px; border-radius:6px; border:1px solid rgba(16,185,129,0.25);">
@@ -2098,18 +2094,38 @@ class UIComponents {
                       <span>v${s.version || '1.0.0'}</span>
                     </div>
 
-                    <div class="comm-card-actions">
-                      <button class="btn btn-secondary" data-community-action="favorite" data-id="${this.escape(s.id)}">${s.is_favorite ? 'Bỏ yêu thích' : 'Yêu thích'}</button>
-                      <button class="btn btn-secondary" data-community-action="report" data-id="${this.escape(s.id)}">Báo cáo</button>
-                      ${s.author_id === options.userId ? `<button class="btn btn-secondary" data-community-action="edit" data-id="${this.escape(s.id)}">Sửa</button><button class="btn btn-secondary" data-community-action="remove" data-id="${this.escape(s.id)}">Gỡ công khai</button>` : ''}
+                    <div class="comm-card-footer">
+                      <div class="comm-card-sub-actions">
+                        <div class="comm-card-sub-left">
+                          <button class="btn btn-secondary btn-comm-sub" data-community-action="favorite" data-id="${this.escape(s.id)}" title="${s.is_favorite ? 'Bỏ yêu thích' : 'Yêu thích'}">
+                            <span style="color:#F59E0B;">${s.is_favorite ? '★' : '☆'}</span>
+                            <span>${s.is_favorite ? 'Đã thích' : 'Yêu thích'}</span>
+                          </button>
+                          <button class="btn btn-secondary btn-comm-sub" data-community-action="report" data-id="${this.escape(s.id)}" title="Báo cáo vi phạm">
+                            <span>🚩</span> <span>Báo cáo</span>
+                          </button>
+                        </div>
+                        ${s.author_id === options.userId ? `
+                          <div class="comm-card-sub-right">
+                            <button class="btn btn-secondary btn-comm-sub" data-community-action="edit" data-id="${this.escape(s.id)}" title="Sửa nội dung">
+                              <span>✏️ Sửa</span>
+                            </button>
+                            <button class="btn btn-secondary btn-comm-sub btn-comm-danger" data-community-action="remove" data-id="${this.escape(s.id)}" title="Gỡ khỏi chợ công khai">
+                              <span>🗑️ Gỡ</span>
+                            </button>
+                          </div>
+                        ` : ''}
+                      </div>
 
-                      <button class="btn btn-secondary btn-view-community-skill" data-id="${s.id}" style="font-size:11.5px; padding:6px 10px;">
-                        <span>👁️ Chi Tiết</span>
-                      </button>
-                      <button class="btn-install-community btn-install-community-skill" data-id="${s.id}">
-                        ${Icons.download}
-                        <span>Tải & Cài Đặt</span>
-                      </button>
+                      <div class="comm-card-main-actions">
+                        <button class="btn btn-secondary btn-comm-detail btn-view-community-skill" data-id="${s.id}">
+                          <span>👁️ Chi Tiết</span>
+                        </button>
+                        <button class="btn-install-community btn-install-community-skill" data-id="${s.id}">
+                          ${Icons.download}
+                          <span>Tải & Cài Đặt Vào AI</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2342,7 +2358,7 @@ class UIComponents {
                 ✓ Áp Dụng Phần Đã Chọn (<span id="btn-selected-count">${totalChunks}</span> khối)
               </button>
               <button class="btn btn-primary" id="btn-diff-apply-update" data-id="${diff.skill_id}" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none; font-weight:700;">
-                ⚡ Áp dụng toàn bộ tệp đang xem (${totalChunks} khối)
+                ⚡ Cập Nhật Toàn Bộ Kỹ Năng (Mọi Môi Trường AI)
               </button>
             </div>
           </div>
