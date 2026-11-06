@@ -14,7 +14,7 @@ const App = {
   searchQuery: "",
   selectedSkillId: null,
   activeDocId: "guide",
-  isOnboardingCollapsed: (localStorage.getItem("abyssalskillsd-onboarding-collapsed") ?? localStorage.getItem("skillforge-onboarding-collapsed")) === "true",
+  isOnboardingCollapsed: (localStorage.getItem("abyssalskillsd-onboarding-collapsed") ?? localStorage.getItem("skillforge-onboarding-collapsed")) !== "false",
   authSession: null,
   supabaseConfig: null,
   isUserMenuOpen: false,
@@ -792,6 +792,8 @@ const App = {
     const breadcrumb = document.getElementById("breadcrumb-current");
     const orgBanner = document.getElementById("org-banner-container");
     const filterBar = document.getElementById("catalog-filter-bar");
+    const unifiedToolbar = document.getElementById("catalog-unified-toolbar");
+    const workspaceBar = document.getElementById("workspace-project-bar");
     const bentoGrid = document.getElementById("skills-bento-grid");
     const linearList = document.getElementById("skills-linear-list");
     const guideContainer = document.getElementById("guide-container");
@@ -808,7 +810,9 @@ const App = {
     if (profileContainer) profileContainer.style.display = "none";
 
     if (workspace === "library" || workspace === "installed") {
-      filterBar.style.display = "flex";
+      if (unifiedToolbar) unifiedToolbar.style.display = "flex";
+      if (workspaceBar) workspaceBar.style.display = "flex";
+      if (filterBar) filterBar.style.display = "flex";
       breadcrumb.innerText = (workspace === "library") ? "Kho Kỹ Năng (Skill-AI Suite)" : "Kỹ Năng Đã Kích Hoạt";
       
       // Render or show org banner
@@ -826,22 +830,28 @@ const App = {
       }
       this.applyFilters();
     } else if (workspace === "guide") {
-      orgBanner.style.display = "none";
-      filterBar.style.display = "none";
+      if (orgBanner) orgBanner.style.display = "none";
+      if (filterBar) filterBar.style.display = "none";
+      if (unifiedToolbar) unifiedToolbar.style.display = "none";
+      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Cẩm Nang Sử Dụng A-Z";
       if (guideContainer) {
         guideContainer.style.display = "block";
         guideContainer.innerHTML = UIComponents.renderGuideView();
       }
     } else if (workspace === "studio") {
-      orgBanner.style.display = "none";
-      filterBar.style.display = "none";
+      if (orgBanner) orgBanner.style.display = "none";
+      if (filterBar) filterBar.style.display = "none";
+      if (unifiedToolbar) unifiedToolbar.style.display = "none";
+      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Xưởng Chế Tác Kỹ Năng";
       studioContainer.style.display = "block";
       this.renderStudioView();
     } else if (workspace === "community") {
-      orgBanner.style.display = "none";
-      filterBar.style.display = "none";
+      if (orgBanner) orgBanner.style.display = "none";
+      if (filterBar) filterBar.style.display = "none";
+      if (unifiedToolbar) unifiedToolbar.style.display = "none";
+      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Trung Tâm Đám Mây Cộng Đồng (Supabase RLS)";
       communityContainer.style.display = "block";
       this.loadCommunitySkills().then(() => this.renderCommunityView());
@@ -849,8 +859,10 @@ const App = {
         this.loadCommunitySchema();
       }
     } else if (workspace === "profile") {
-      orgBanner.style.display = "none";
-      filterBar.style.display = "none";
+      if (orgBanner) orgBanner.style.display = "none";
+      if (filterBar) filterBar.style.display = "none";
+      if (unifiedToolbar) unifiedToolbar.style.display = "none";
+      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Hồ Sơ Lập Trình Viên AI & Portfolio";
       if (profileContainer) {
         profileContainer.style.display = "block";
@@ -980,7 +992,7 @@ const App = {
     }).length;
     const updateCount = targetSkills.filter(s => s.has_update).length;
 
-    orgBanner.innerHTML = UIComponents.renderOrgBanner(count, 26, this.activeSource, newCount, updateCount);
+    orgBanner.innerHTML = UIComponents.renderOrgBanner(count, 26, this.activeSource, newCount, updateCount, this.isOnboardingCollapsed);
     document.getElementById("btn-batch-install-all")?.addEventListener("click", () => this.handleBatchInstallAll());
     document.getElementById("btn-batch-review-updates")?.addEventListener("click", () => this.handleReviewFirstUpdate());
     document.getElementById("btn-trigger-quick-help")?.addEventListener("click", () => this.openQuickHelpModal());

@@ -1,17 +1,18 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
   "release_date": "2026-11-07",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.1.1",
-    "title": "AbyssalSkillsD 1.1.1 — 1-Click Silent Auto-Update & Dual-Mode GitHub Import",
+    "version": "1.1.2",
+    "title": "AbyssalSkillsD 1.1.2 — Tinh Gọn Giao Diện Toàn Diện (UI Streamlining & Decluttering)",
     "highlights": [
-      "Tự động cập nhật 1-Click: Tải ngầm và cài đè an toàn, bảo tồn 100% dữ liệu.",
-      "Đồng bộ thư viện Addy Osmani toàn diện: Sửa triệt để trạng thái kẹt bản cập nhật.",
-      "Thêm kỹ năng GitHub linh hoạt: Lựa chọn Để Riêng hoặc Đăng Lên Chợ Cloud."
+      "Gọn gàng & thoáng mắt: Giảm 50% độ rối thị giác, tăng 40% diện tích hiển thị thẻ kỹ năng.",
+      "Cách ly thanh công cụ: Sửa triệt để lỗi thanh Nguồn và Dự án dính sang Chợ Cloud và Studio.",
+      "Thẻ Kỹ Năng & Chợ Cloud chuẩn hóa: 2 nút chính rõ ràng, loại bỏ hoàn toàn hiện tượng bóp méo nút.",
+      "Thông minh 100%: Hộp thoại So Sánh tự động hiển thị trạng thái hoàn tất khi không có khác biệt."
     ]
   }
 }

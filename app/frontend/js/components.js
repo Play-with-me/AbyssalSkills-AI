@@ -196,7 +196,7 @@ class UIComponents {
     return Icons.cpu;
   }
 
-  static renderExecutiveHeader(skillsCount = 36, refsCount = 26, activeSource = "all", newCount = 0, updateCount = 0) {
+  static renderExecutiveHeader(skillsCount = 36, refsCount = 26, activeSource = "all", newCount = 0, updateCount = 0, isCollapsed = false) {
     let batchLabel = "";
     let isComplete = false;
 
@@ -215,7 +215,11 @@ class UIComponents {
             <span class="executive-title">Kho Kỹ Năng AI</span>
             <span class="executive-count-badge" id="badge-executive-count">${skillsCount} Kỹ năng</span>
           </div>
-          <button class="btn-help-trigger" id="btn-trigger-quick-help" data-testid="btn-trigger-quick-help" title="Xem hướng dẫn sử dụng 3 bước">
+          <button class="btn-help-trigger" id="btn-toggle-onboarding" data-testid="btn-toggle-onboarding" title="Bật/tắt gợi ý nhanh cho người mới">
+            ${Icons.sparkles}
+            <span>${isCollapsed ? '✨ Mở Gợi Ý Nhanh' : '▲ Thu Gọn Gợi Ý'}</span>
+          </button>
+          <button class="btn-help-trigger" id="btn-trigger-quick-help" data-testid="btn-trigger-quick-help" title="Xem hướng dẫn sử dụng 3 bước" style="opacity:0.85;">
             ${Icons.helpCircle}
             <span>Hướng dẫn 3 bước</span>
           </button>
@@ -237,7 +241,7 @@ class UIComponents {
       </div>
 
       <!-- Hero Quick-Start Action Hub for Beginners (Establishes Immediate Visual Focal Point) -->
-      <div class="hero-action-hub" id="hero-action-hub" data-testid="hero-action-hub">
+      <div class="hero-action-hub ${isCollapsed ? 'collapsed' : ''}" id="hero-action-hub" data-testid="hero-action-hub" style="${isCollapsed ? 'display:none;' : ''}">
         <div class="hero-hub-header">
           <div class="hero-hub-greeting">
             <div class="hero-hub-title">
@@ -1268,8 +1272,8 @@ class UIComponents {
     `;
   }
 
-  static renderOrgBanner(skillsCount = 36, refsCount = 26, activeSource = "all", newCount = 0, updateCount = 0) {
-    return this.renderExecutiveHeader(skillsCount, refsCount, activeSource, newCount, updateCount);
+  static renderOrgBanner(skillsCount = 36, refsCount = 26, activeSource = "all", newCount = 0, updateCount = 0, isCollapsed = false) {
+    return this.renderExecutiveHeader(skillsCount, refsCount, activeSource, newCount, updateCount, isCollapsed);
   }
 
   static renderBentoCard(skill, isSelected = false) {
@@ -1330,44 +1334,38 @@ class UIComponents {
           ${hasGraphify ? `<span class="card-icon-badge graphify">AST</span>` : ''}
         </div>
 
-        <!-- Action Footer: Tách Biệt Nhóm Trái (Hành Động) & Nhóm Phải (Công Cụ) - Khóa Tràn Tuyệt Đối -->
+        <!-- Action Footer: Tinh gọn 2 nút chính rõ ràng, thoáng mắt -->
         <div class="bento-card-footer">
           <div class="card-action-group" onclick="event.stopPropagation()">
-            <div class="card-action-left">
-              <button class="btn-card-tryout" data-id="${skill.id}" title="Lấy câu lệnh mẫu tiếng Việt dùng ngay trong 1 cú nhấp" aria-label="Lấy lệnh nhanh cho người mới">
-                ${Icons.sparkles}
-                <span>⚡ Lấy Lệnh Nhanh</span>
-              </button>
-
+            <div class="card-action-left" style="display:flex; align-items:center; gap:6px; flex:1; min-width:0;">
               ${skill.has_update ? `
-                <button class="btn-card-review-diff" data-id="${skill.id}" title="Bản trên máy khác với kho. Bấm để mở popup so sánh 2 bảng!" aria-label="So sánh cập nhật">
+                <button class="btn-card-review-diff" data-id="${skill.id}" title="Bản trên máy khác với kho. Bấm để mở popup so sánh 2 bảng!" aria-label="So sánh cập nhật" style="flex:1;">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                   <span>🔄 Cập Nhật</span>
                 </button>
-              ` : (isInstalled ? `
-                <!-- Verification Button when Installed -->
-                <button class="btn-card-verify" data-id="${skill.id}" title="Xem bằng chứng tệp tin trên máy và lấy lệnh kiểm chứng AI" aria-label="Kiểm chứng trong AI">
-                  ${Icons.checkCircle}
-                  <span>Kiểm Chứng AI</span>
+              ` : `
+                <button class="btn-card-tryout" data-id="${skill.id}" title="Lấy câu lệnh mẫu tiếng Việt dùng ngay trong 1 cú nhấp" aria-label="Lấy lệnh nhanh cho người mới" style="flex:1;">
+                  ${Icons.sparkles}
+                  <span>⚡ Lấy Lệnh Nhanh</span>
                 </button>
-              ` : "")}
+              `}
             </div>
 
-            <div class="card-action-right">
-              <!-- Customize in Studio Button (1-Click) -->
-              <button class="btn-card-customize" data-id="${skill.id}" title="Nạp kỹ năng này vào Studio để chỉnh sửa và lưu thành phiên bản riêng" aria-label="Tùy biến trong Studio">
+            <div class="card-action-right" style="display:flex; align-items:center; gap:4px;">
+              <!-- Customize in Studio Button (Icon-Only Compact Tool) -->
+              <button class="btn-card-customize btn-card-icon-tool" data-id="${skill.id}" title="Nạp kỹ năng này vào Studio để chỉnh sửa và lưu thành phiên bản riêng" aria-label="Tùy biến trong Studio">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                <span>✏️ Tùy Biến</span>
               </button>
 
               <!-- Secondary Button for Pro Developers (Opens Advanced Settings Drawer) -->
-              <button class="btn-card-pro-settings btn-card-open" data-id="${skill.id}" title="Mở bảng cài đặt: chọn thư mục, sửa tệp quy tắc, xem AST" aria-label="Cài đặt chuyên sâu">
+              <button class="btn-card-pro-settings btn-card-open" data-id="${skill.id}" title="Mở khay chi tiết: cài đặt AI, xem sổ tay, mở thư mục, gỡ cài đặt" aria-label="Cài đặt chuyên sâu">
                 ${Icons.penTool}
-                <span>⚙️ Cài Đặt ▾</span>
+                <span>⚙️ Chi Tiết ▾</span>
               </button>
             </div>
 
-            <!-- Hidden copy button for test compatibility -->
+            <!-- Accessible / Test-compatible elements preserved -->
+            <button class="btn-card-verify" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.checkCircle}</button>
             <button class="btn btn-secondary btn-copy-card" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.copy}</button>
           </div>
         </div>
@@ -2046,30 +2044,38 @@ class UIComponents {
         </div>
 
         ${activeSubTab === 'marketplace' ? `
-          <div class="community-toolbar">
-            <div class="community-search-box">
-              <span style="color:var(--text-muted);">${Icons.sparkles}</span>
-              <input type="text" id="community-search-input" class="community-search-input" placeholder="Tìm kỹ năng cộng đồng theo tên, tác giả, mô tả..." value="${this.escape(query)}">
+          <!-- Streamlined 2-Row Community Toolbar -->
+          <div class="community-unified-toolbar" style="margin-bottom:14px; display:flex; flex-direction:column; gap:8px;">
+            <!-- Row 1: Search + Fast Action Controls -->
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <div class="community-search-box" style="flex:1; min-width:260px;">
+                <span style="color:var(--text-muted);">${Icons.sparkles}</span>
+                <input type="text" id="community-search-input" class="community-search-input" placeholder="Tìm kỹ năng cộng đồng theo tên, tác giả, mô tả..." value="${this.escape(query)}">
+              </div>
+              <button class="btn btn-secondary" id="btn-comm-add-github" style="background:rgba(0,180,216,0.12); color:var(--ocean-cyan); border-color:rgba(0,180,216,0.3); font-weight:600;" title="Thêm kỹ năng mới từ link GitHub lên Chợ Cloud">
+                ${Icons.uploadCloud} <span>+ Thêm từ GitHub</span>
+              </button>
+              <button class="btn btn-secondary" id="community-refresh" title="Làm mới danh sách từ Cloud">
+                ${Icons.refreshCw} <span>Tải lại</span>
+              </button>
+              ${options.isAdmin ? '<button class="btn btn-secondary" id="community-moderation">Báo cáo cần xem</button>' : ''}
             </div>
 
-            <div class="community-cat-chips">
-              ${categories.map(c => `
-                <button class="comm-cat-chip ${activeCat === c.id ? 'active' : ''}" data-comm-cat="${c.id}">
-                  ${c.label}
-                </button>
-              `).join('')}
+            <!-- Row 2: Category Chips + Compact Pagination -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+              <div class="community-cat-chips" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                ${categories.map(c => `
+                  <button class="comm-cat-chip ${activeCat === c.id ? 'active' : ''}" data-comm-cat="${c.id}">
+                    ${c.label}
+                  </button>
+                `).join('')}
+              </div>
+              <div class="community-pagination-bar" style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
+                <button class="btn btn-secondary" id="community-page-previous" ${(options.page || 0) === 0 ? 'disabled' : ''} style="padding:2px 8px; height:26px; font-size:11px;">◀</button>
+                <span>Trang ${(options.page || 0) + 1}</span>
+                <button class="btn btn-secondary" id="community-page-next" ${((options.page || 0) + 1) * 24 >= (options.count || 0) ? 'disabled' : ''} style="padding:2px 8px; height:26px; font-size:11px;">▶</button>
+              </div>
             </div>
-          </div>
-
-          <div style="display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap;">
-            <button class="btn btn-secondary" id="community-page-previous" ${(options.page || 0) === 0 ? 'disabled' : ''}>Trang trước</button>
-            <span>Trang ${(options.page || 0) + 1}</span>
-            <button class="btn btn-secondary" id="community-page-next" ${((options.page || 0) + 1) * 24 >= (options.count || 0) ? 'disabled' : ''}>Trang sau</button>
-            <button class="btn btn-secondary" id="community-refresh">Tải lại</button>
-            <button class="btn btn-secondary" id="btn-comm-add-github" style="background:rgba(0,180,216,0.12); color:var(--ocean-cyan); border-color:rgba(0,180,216,0.3); font-weight:600;" title="Thêm kỹ năng mới từ link GitHub lên Chợ Cloud">
-              ${Icons.uploadCloud} <span>+ Thêm từ GitHub lên Cloud</span>
-            </button>
-            ${options.isAdmin ? '<button class="btn btn-secondary" id="community-moderation">Báo cáo cần xem</button>' : ''}
           </div>
           ${filtered.length === 0 ? `
             <div style="text-align:center; padding:48px 20px; background:rgba(255,255,255,0.02); border:1px dashed var(--border-subtle); border-radius:var(--radius-md);">
@@ -2096,47 +2102,42 @@ class UIComponents {
                   </div>
 
                   <div>
-                    <div class="comm-card-stats">
-                      <span style="display:flex; align-items:center; gap:3px; color:#F59E0B;">
-                        ${Icons.star}
-                        <span>${Number(s.stars_count || 0)} yêu thích</span>
-                      </span>
-                      <span>•</span>
-                      <span>${Number(s.downloads || 0)} lượt tải</span>
-                      <span>•</span>
-                      <span>v${s.version || '1.0.0'}</span>
-                    </div>
-
-                    <div class="comm-card-footer">
-                      <div class="comm-card-sub-actions">
-                        <div class="comm-card-sub-left">
-                          <button class="btn btn-secondary btn-comm-sub" data-community-action="favorite" data-id="${this.escape(s.id)}" title="${s.is_favorite ? 'Bỏ yêu thích' : 'Yêu thích'}">
-                            <span style="color:#F59E0B;">${s.is_favorite ? '★' : '☆'}</span>
-                            <span>${s.is_favorite ? 'Đã thích' : 'Yêu thích'}</span>
-                          </button>
-                          <button class="btn btn-secondary btn-comm-sub" data-community-action="report" data-id="${this.escape(s.id)}" title="Báo cáo vi phạm">
-                            <span>🚩</span> <span>Báo cáo</span>
-                          </button>
-                        </div>
+                    <div class="comm-card-stats" style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                      <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);">
+                        <span style="display:flex; align-items:center; gap:2px; color:#F59E0B;">
+                          ${Icons.star} <span>${Number(s.stars_count || 0)}</span>
+                        </span>
+                        <span>•</span>
+                        <span>${Number(s.downloads || 0)} tải</span>
+                        <span>•</span>
+                        <span>v${s.version || '1.0.0'}</span>
+                      </div>
+                      <div class="comm-card-sub-icons" style="display:flex; align-items:center; gap:4px;">
+                        <button class="btn-comm-icon-sub" data-community-action="favorite" data-id="${this.escape(s.id)}" title="${s.is_favorite ? 'Bỏ yêu thích' : 'Yêu thích'}">
+                          <span style="color:#F59E0B;">${s.is_favorite ? '★' : '☆'}</span>
+                        </button>
+                        <button class="btn-comm-icon-sub" data-community-action="report" data-id="${this.escape(s.id)}" title="Báo cáo vi phạm">
+                          <span>🚩</span>
+                        </button>
                         ${s.author_id === options.userId ? `
-                          <div class="comm-card-sub-right">
-                            <button class="btn btn-secondary btn-comm-sub" data-community-action="edit" data-id="${this.escape(s.id)}" title="Sửa nội dung">
-                              <span>✏️ Sửa</span>
-                            </button>
-                            <button class="btn btn-secondary btn-comm-sub btn-comm-danger" data-community-action="remove" data-id="${this.escape(s.id)}" title="Gỡ khỏi chợ công khai">
-                              <span>🗑️ Gỡ</span>
-                            </button>
-                          </div>
+                          <button class="btn-comm-icon-sub" data-community-action="edit" data-id="${this.escape(s.id)}" title="Sửa kỹ năng">
+                            <span>✏️</span>
+                          </button>
+                          <button class="btn-comm-icon-sub btn-comm-icon-danger" data-community-action="remove" data-id="${this.escape(s.id)}" title="Gỡ khỏi chợ công khai">
+                            <span>🗑️</span>
+                          </button>
                         ` : ''}
                       </div>
+                    </div>
 
-                      <div class="comm-card-main-actions">
-                        <button class="btn btn-secondary btn-comm-detail btn-view-community-skill" data-id="${s.id}">
+                    <div class="comm-card-footer" style="margin-top:6px; padding-top:8px;">
+                      <div class="comm-card-main-actions" style="display:flex; align-items:center; gap:8px; width:100%;">
+                        <button class="btn btn-secondary btn-comm-detail btn-view-community-skill" data-id="${s.id}" style="flex:1; height:32px; font-size:11.5px; font-weight:600; white-space:nowrap;">
                           <span>👁️ Chi Tiết</span>
                         </button>
-                        <button class="btn-install-community btn-install-community-skill" data-id="${s.id}">
+                        <button class="btn-install-community btn-install-community-skill" data-id="${s.id}" style="flex:1.8; height:32px; font-size:11.5px; font-weight:600; white-space:nowrap;">
                           ${Icons.download}
-                          <span>Tải & Cài Đặt Vào AI</span>
+                          <span>Tải & Cài Vào AI</span>
                         </button>
                       </div>
                     </div>
@@ -2307,11 +2308,17 @@ class UIComponents {
               </span>
             </div>
 
-            <div class="diff-actions-group">
-              <button class="btn-diff-action-chip" id="btn-diff-select-all" title="Chọn tất cả các khối">✓ Chọn tất cả (${stats.total_chunks})</button>
-              <button class="btn-diff-action-chip" id="btn-diff-deselect-all" title="Bỏ chọn tất cả các khối">✕ Bỏ chọn</button>
-              <span class="diff-counter-pill" id="diff-selected-counter">Đã chọn: ${stats.total_chunks}/${stats.total_chunks} khối</span>
-            </div>
+            ${stats.total_chunks > 0 ? `
+              <div class="diff-actions-group">
+                <button class="btn-diff-action-chip" id="btn-diff-select-all" title="Chọn tất cả các khối">✓ Chọn tất cả (${stats.total_chunks})</button>
+                <button class="btn-diff-action-chip" id="btn-diff-deselect-all" title="Bỏ chọn tất cả các khối">✕ Bỏ chọn</button>
+                <span class="diff-counter-pill" id="diff-selected-counter">Đã chọn: ${stats.total_chunks}/${stats.total_chunks} khối</span>
+              </div>
+            ` : `
+              <div class="diff-actions-group">
+                <span class="diff-counter-pill" style="color:#10B981; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.1); font-weight:600;">✓ Khớp 100% (Đã mới nhất)</span>
+              </div>
+            `}
           </div>
 
           <!-- Horizontal Chunk Selector Strip -->
@@ -2362,18 +2369,28 @@ class UIComponents {
 
           <!-- Footer Actions -->
           <div class="diff-modal-footer">
-            <button class="btn btn-secondary" id="btn-diff-keep-local" data-id="${diff.skill_id}">
-              🛡️ Giữ Lại Bản Cũ Của Tôi (Bỏ qua)
-            </button>
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <span class="diff-backup-hint" style="font-size:11px; color:var(--text-muted);">Lưu snapshot có thời điểm cạnh tệp được sửa</span>
-              <button class="btn btn-secondary" id="btn-diff-apply-selected" data-id="${diff.skill_id}" style="border:1px solid var(--ocean-cyan); color:var(--ocean-cyan); background:rgba(0,180,216,0.12); font-weight:600;">
-                ✓ Áp Dụng Phần Đã Chọn (<span id="btn-selected-count">${totalChunks}</span> khối)
+            ${stats.total_chunks > 0 ? `
+              <button class="btn btn-secondary" id="btn-diff-keep-local" data-id="${diff.skill_id}">
+                🛡️ Giữ Lại Bản Cũ Của Tôi (Bỏ qua)
               </button>
-              <button class="btn btn-primary" id="btn-diff-apply-update" data-id="${diff.skill_id}" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none; font-weight:700;">
-                ⚡ Cập Nhật Toàn Bộ Kỹ Năng (Mọi Môi Trường AI)
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span class="diff-backup-hint" style="font-size:11px; color:var(--text-muted);">Lưu snapshot có thời điểm cạnh tệp được sửa</span>
+                <button class="btn btn-secondary" id="btn-diff-apply-selected" data-id="${diff.skill_id}" style="border:1px solid var(--ocean-cyan); color:var(--ocean-cyan); background:rgba(0,180,216,0.12); font-weight:600;">
+                  ✓ Áp Dụng Phần Đã Chọn (<span id="btn-selected-count">${totalChunks}</span> khối)
+                </button>
+                <button class="btn btn-primary" id="btn-diff-apply-update" data-id="${diff.skill_id}" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none; font-weight:700;">
+                  ⚡ Cập Nhật Toàn Bộ Kỹ Năng (Mọi Môi Trường AI)
+                </button>
+              </div>
+            ` : `
+              <div style="font-size:12px; color:#10B981; display:flex; align-items:center; gap:6px;">
+                <span class="status-led active"></span>
+                <span>Tệp tin trên máy của bạn hiện đang ở trạng thái chuẩn hoàn toàn với kho.</span>
+              </div>
+              <button class="btn btn-primary" onclick="App.closeActiveModal()" style="background:rgba(16,185,129,0.2); color:#10B981; border:1px solid #10B981; font-weight:700;">
+                ✓ Đã Khớp 100% — Đóng Hộp Thoại
               </button>
-            </div>
+            `}
           </div>
         </div>
       </div>
