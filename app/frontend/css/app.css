@@ -103,35 +103,65 @@ body {
   transition: background-color var(--duration-fast), color var(--duration-fast);
 }
 
-/* High-End Geometric Blueprint Background Canvas */
+/* Luxury Studio Atmospheric Canvas (Deep Obsidian & Ambient Aurora) */
 .geometric-background-canvas {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #010308;
+  background: radial-gradient(ellipse at 50% 0%, #0A1226 0%, #050814 55%, #02040A 100%);
 }
 
-.sf-geometric-bg-svg {
-  width: 100vw;
-  height: 100vh;
-  min-width: 1100px;
-  min-height: 750px;
-  opacity: 0.32;
-  transition: opacity 0.3s ease;
+.luxury-aurora-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glow-cyan {
+  background: radial-gradient(circle 800px at 15% 10%, rgba(0, 180, 216, 0.055), transparent 70%);
+}
+
+.glow-violet {
+  background: radial-gradient(circle 900px at 85% 15%, rgba(124, 58, 237, 0.045), transparent 75%);
+}
+
+.luxury-dot-matrix {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.065) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at 50% 35%, black 35%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 35%, black 35%, transparent 85%);
+  pointer-events: none;
+}
+
+.luxury-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(2, 4, 9, 0.55) 100%);
+  pointer-events: none;
 }
 
 [data-theme="light"] .geometric-background-canvas {
-  background: #F8FAFC;
+  background: radial-gradient(ellipse at 50% 0%, #FFFFFF 0%, #F8FAFC 60%, #F1F5F9 100%);
 }
 
-[data-theme="light"] .sf-geometric-bg-svg {
-  opacity: 0.12;
-  filter: invert(1);
+[data-theme="light"] .glow-cyan {
+  background: radial-gradient(circle 800px at 15% 10%, rgba(0, 180, 216, 0.045), transparent 70%);
+}
+
+[data-theme="light"] .glow-violet {
+  background: radial-gradient(circle 900px at 85% 15%, rgba(124, 58, 237, 0.035), transparent 75%);
+}
+
+[data-theme="light"] .luxury-dot-matrix {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.045) 1px, transparent 1px);
+}
+
+[data-theme="light"] .luxury-vignette {
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(241, 245, 249, 0.5) 100%);
 }
 
 code, pre {

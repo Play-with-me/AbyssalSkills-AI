@@ -10,66 +10,12 @@
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <!-- High-End Abyssal Sky v2.0 Geometric Blueprint Background Canvas -->
+  <!-- Studio Luxury Ambient Background Canvas (Human-Crafted, Zero Sci-Fi Clutter) -->
   <div class="geometric-background-canvas" id="geometric-background-canvas" aria-hidden="true">
-    <svg class="sf-geometric-bg-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="bgOcean" x1="10%" y1="90%" x2="90%" y2="30%">
-          <stop offset="0%" stop-color="#0077B6" />
-          <stop offset="45%" stop-color="#00B4D8" />
-          <stop offset="100%" stop-color="#06D6A0" />
-        </linearGradient>
-        <linearGradient id="bgSky" x1="20%" y1="85%" x2="88%" y2="12%">
-          <stop offset="0%" stop-color="#4F46E5" />
-          <stop offset="50%" stop-color="#7C3AED" />
-          <stop offset="100%" stop-color="#C084FC" />
-        </linearGradient>
-        <pattern id="bgLinearGrid" width="64" height="64" patternUnits="userSpaceOnUse">
-          <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#1E2D4A" stroke-width="0.75" opacity="0.45" />
-        </pattern>
-        <!-- Radial gradient mask to fade blueprint smoothly into deep void at borders -->
-        <radialGradient id="bgVignette" cx="50%" cy="50%" r="55%">
-          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85" />
-          <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0.45" />
-          <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
-        </radialGradient>
-        <mask id="bgFadeMask">
-          <rect width="1280" height="800" fill="url(#bgVignette)" />
-        </mask>
-      </defs>
-
-      <!-- Grid Layer -->
-      <rect width="1280" height="800" fill="url(#bgLinearGrid)" mask="url(#bgFadeMask)" />
-
-      <!-- Center Blueprint Geometry Construction Rig -->
-      <g transform="translate(640, 400)" mask="url(#bgFadeMask)">
-        <!-- Orbit Rings & Crosshairs -->
-        <circle cx="0" cy="0" r="340" fill="none" stroke="#1E2D4A" stroke-width="1.2" stroke-dasharray="6 6" opacity="0.6" />
-        <circle cx="0" cy="0" r="260" fill="none" stroke="#1E2D4A" stroke-width="1.5" opacity="0.8" />
-        <circle cx="0" cy="0" r="180" fill="none" stroke="#1E2D4A" stroke-width="1" stroke-dasharray="4 4" opacity="0.5" />
-        <circle cx="0" cy="0" r="100" fill="none" stroke="#1E2D4A" stroke-width="1" opacity="0.4" />
-        <line x1="-500" y1="0" x2="500" y2="0" stroke="#1E2D4A" stroke-width="1" opacity="0.5" />
-        <line x1="0" y1="-380" x2="0" y2="380" stroke="#1E2D4A" stroke-width="1" opacity="0.5" />
-        <line x1="-360" y1="-240" x2="360" y2="240" stroke="#1E2D4A" stroke-width="1" stroke-dasharray="4 4" opacity="0.35" />
-        <line x1="-360" y1="240" x2="360" y2="-240" stroke="#1E2D4A" stroke-width="1" stroke-dasharray="4 4" opacity="0.35" />
-
-        <!-- The Abyssal Sky v4.0 Pure Geometric Mark (Centered at 0,0) with Emergent Negative-Space Fox -->
-        <g transform="translate(-170, -170) scale(0.66)">
-          <!-- Sky Prism -->
-          <path d="M 136,248 C 146,168 208,118 392,56 C 420,46 442,68 432,96 C 370,280 320,342 248,352 C 192,358 136,304 136,248 Z" fill="url(#bgSky)" />
-          <!-- Negative-Space Horizon Separation Channels -->
-          <path d="M 96,244 Q 142,240 182,248" fill="none" stroke="#050C1A" stroke-width="26" stroke-linecap="round" />
-          <path d="M 252,334 Q 266,362 292,382" fill="none" stroke="#050C1A" stroke-width="26" stroke-linecap="round" />
-          <!-- Ocean Wave -->
-          <path d="M 68,262 C 68,238 92,222 132,222 C 188,222 228,248 248,308 C 268,366 322,386 378,362 C 406,350 426,328 438,312 C 448,298 468,308 460,328 C 432,404 352,460 254,460 C 142,460 68,374 68,262 Z" fill="url(#bgOcean)" />
-          <!-- Central Negative-space Emergent Fox Silhouette -->
-          <path d="M 192,148 C 214,164 234,184 252,196 C 270,184 290,164 312,148 C 322,182 328,216 326,248 C 306,282 278,312 252,338 C 226,312 198,282 178,248 C 176,216 182,182 192,148 Z" fill="#050C1A" stroke="#050C1A" stroke-width="8" stroke-linejoin="round" />
-          <!-- Horizon Eye Slits -->
-          <path d="M 202,244 Q 220,248 236,260 Q 214,258 202,244 Z" fill="#00B4D8" opacity="0.9" />
-          <path d="M 302,244 Q 284,248 268,260 Q 290,258 302,244 Z" fill="#A855F7" opacity="0.9" />
-        </g>
-      </g>
-    </svg>
+    <div class="luxury-aurora-glow glow-cyan"></div>
+    <div class="luxury-aurora-glow glow-violet"></div>
+    <div class="luxury-dot-matrix"></div>
+    <div class="luxury-vignette"></div>
   </div>
 
   <div class="app-container">

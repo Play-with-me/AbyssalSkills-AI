@@ -1,7 +1,7 @@
 # AbyssalSkillsD — Living Project Memory (`.agents/PROJECT_MEMORY.md`)
 
 ## 1. Product Summary & Active UX Rules
-- **Product:** AbyssalSkillsD (v1.1.2) — Standalone Windows Desktop App for AI Skill Management & Marketplace.
+- **Product:** AbyssalSkillsD (v1.1.2+) — Standalone Windows Desktop App for AI Skill Management & Marketplace.
 - **Brand Identity:** Abyssal Sky v2.0 (`#050C1A` Void, `#00B4D8` Ocean Cyan, `#7C3AED` Aurora Violet, `#1E2D4A` Hairline).
 - **External Asset Integrity Law:** `C:\Logo` remains 100% read-only and untouched.
 - **UI/UX Guardrails:** Anti-overflow CSS (`min-h-0`, `min-w-0`), sub-250ms physics motion, zero blind actions, uncluttered headers, and collapsible guidance hubs.
@@ -18,7 +18,10 @@
 - `UIComponents` (`app/frontend/js/components.js`): Executive header, bento cards, community marketplace, and diff viewer.
 - `App` (`app/frontend/js/app.js`): View state, filtering, auto-update progress listener, and workspace router.
 
-## 3. Recent Completed Changes (v1.1.2)
+## 3. Recent Completed Changes
+- [x] **Project Tools Dropdown List (Consolidated Actions):**
+  - Replaced the 4 horizontal buttons (`Đổi Dự Án`, `Đồng Bộ Tất Cả AI`, `Sinh Rules`, `Chẩn Đoán`) with a single, sleek glowing trigger: `[⚡ Thao Tác Dự Án ▾]`.
+  - Clicking opens a clean vertical list menu with icons and descriptive labels; automatically closes on selection or clicking outside.
 - [x] **UI Decluttering & Header Streamlining:**
   - Collapsed 3-card `hero-action-hub` by default into `[✨ Mở Gợi Ý Nhanh]`, increasing visible card area by 40%.
   - Replaced 7 static non-clickable sidebar rows with sleek `.sidebar-ai-health-card` ("7 Nền Tảng AI Sẵn Sàng").
@@ -30,5 +33,5 @@
 - [x] **Intelligent Diff Modal (0-Diff Clean State):**
   - When differences are 0, confusing bulk selectors and "Áp dụng (0 khối)" buttons are replaced by a clean `[✓ Đã Khớp 100% — Đóng Hộp Thoại]` completion badge.
 - [x] **Verification & Release:**
-  - Verified 100% passing across all 34 automated unit & service tests (`Ran 34 tests in 2.094s, OK`).
-  - Bumped version to `1.1.2`, synced files to installed desktop directory, and pushed release tag `v1.1.2` to GitHub.
+  - Verified 100% passing across all 34 automated unit & service tests (`Ran 34 tests in 2.180s, OK`).
+  - Synced files directly to `C:\Users\kyuu4\AppData\Local\Programs\AbyssalSkillsD\_internal`.

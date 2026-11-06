@@ -31,12 +31,13 @@
 5. **Rãnh Chân Trời (Horizon Diagonal Channels):**
    - Rãnh âm bản rộng `26px` kết nối gò má cáo ra ngoài không gian, ngăn dính nét khi thu nhỏ `16px`.
 
-### B. Persistent Application Geometric Background
+### B. Persistent Luxury Studio Atmospheric Canvas
 - Element: `#geometric-background-canvas` / `.geometric-background-canvas`
 - Structure:
-  - Technical blueprint coordinate grid (`64x64px` major, `16x16px` micro hairpins)
-  - Golden-ratio concentric orbit rings (`r="340"`, `r="260"`, `r="180"`, `r="100"`)
-  - Watermark Abyssal Sky geometric monogram at opacity `0.32` (dark) / `0.18` (light)
+  - Deep Obsidian Void (`#050814` to `#02040A` radial falloff)
+  - Organic Ambient Aurora Mesh (`glow-cyan` 800px at 15% 10%, `glow-violet` 900px at 85% 15%)
+  - Delicate Architectural Studio Dot Matrix (`32px` pitch, `opacity: 0.065`, masked smoothly)
+  - Zero fake sci-fi blueprint rings, zero crosshairs, zero giant watermarks (human-crafted luxury feel)
   - `pointer-events: none` and pinned `fixed inset-0 z-0` so UI interaction is 100% unimpeded.
 
 ---
