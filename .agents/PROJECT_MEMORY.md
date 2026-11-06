@@ -155,3 +155,9 @@ The earlier checked boxes/28-gate claims above are historical implementation not
 - **Cross-Account Community Cloud Sync:** Fixed cache staleness by clearing local cache on publish and triggering `loadCommunitySkills()` automatically upon navigating to the Community tab. Added client-side validation for slug and auth session state.
 - **In-Place Auto-Updater & Version Permanence:** Implemented `download_and_apply_update()` with live progress polling, silent Inno Setup invocation (`/SILENT /DIR /FORCECLOSEAPPLICATIONS /CLOSEAPPLICATIONS`), and safe app restart without losing `%APPDATA%` data. Synced bundle `version.json` into `%APPDATA%` to prevent stale version display.
 - **Automated Verification:** Added 3 new test gates in `tests/test_services.py` verifying multi-target deployment, community cache invalidation, and updater download/progress lifecycle (all 34 tests passing).
+- **Release v1.1.0 Artifact Generation & GitHub Actions Green:**
+  - Resolved Windows 8.3 short-name path comparison in `test_diff_includes_references_and_applies_selected_file`.
+  - Added Windows Credential Manager non-interactive session exception handling in `test_windows_credential_store_roundtrip`.
+  - Fixed test runner import resolution (`sys.path.insert(0, tests)`) and enabled UTF-8 console output for Windows CI runner.
+  - Successfully published official release assets on GitHub (`AbyssalSkillsD-Setup-v1.1.0.exe`, `AbyssalSkillsD-Setup.exe`, `AbyssalSkillsD-v1.1.0-Portable.zip`, `AbyssalSkillsD-Portable.zip`).
+  - Auto-updater endpoint `https://api.github.com/repos/Play-with-me/AbyssalSkills-AI/releases/latest` now points to `v1.1.0`. All client apps automatically receive update notifications (red dot on bell, pulsing badge, 1-click in-place update).
