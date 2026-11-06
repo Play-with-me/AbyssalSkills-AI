@@ -1,6 +1,11 @@
 import json
 import unittest
 from unittest.mock import patch
+from pathlib import Path
+import sys
+tests_dir = str(Path(__file__).resolve().parent)
+if tests_dir not in sys.path:
+    sys.path.insert(0, tests_dir)
 import test_reliability as reliability
 
 
