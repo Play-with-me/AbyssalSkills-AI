@@ -1,18 +1,18 @@
 {
-  "version": "1.1.2",
+  "version": "1.1.3",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
   "release_date": "2026-11-07",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.1.2",
-    "title": "AbyssalSkillsD 1.1.2 — Tinh Gọn Giao Diện Toàn Diện (UI Streamlining & Decluttering)",
+    "version": "1.1.3",
+    "title": "AbyssalSkillsD 1.1.3 — Bản Vá Giao Diện Luxury Studio & Menu Thao Tác",
     "highlights": [
+      "Nền Luxury Studio cao cấp: Thay thế toàn bộ hình nền AI nhân tạo bằng quầng sáng cực quang và vải đen Obsidian sang trọng.",
+      "Menu Thao Tác Dự Án dạng danh sách: Gom 4 nút dàn hàng ngang thành 1 nút thả xuống tinh tế.",
       "Gọn gàng & thoáng mắt: Giảm 50% độ rối thị giác, tăng 40% diện tích hiển thị thẻ kỹ năng.",
-      "Cách ly thanh công cụ: Sửa triệt để lỗi thanh Nguồn và Dự án dính sang Chợ Cloud và Studio.",
-      "Thẻ Kỹ Năng & Chợ Cloud chuẩn hóa: 2 nút chính rõ ràng, loại bỏ hoàn toàn hiện tượng bóp méo nút.",
-      "Thông minh 100%: Hộp thoại So Sánh tự động hiển thị trạng thái hoàn tất khi không có khác biệt."
+      "Cách ly thanh công cụ: Sửa triệt để lỗi thanh Nguồn và Dự án dính sang Chợ Cloud và Studio."
     ]
   }
 }

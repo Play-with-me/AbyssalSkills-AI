@@ -1,6 +1,6 @@
 [project]
 name = "abyssalskillsd"
-version = "1.1.2"
+version = "1.1.3"
 description = "AbyssalSkillsD - Standalone Desktop Application for AI Skill Management & Marketplace"
 readme = "README.md"
 requires-python = ">=3.11"
