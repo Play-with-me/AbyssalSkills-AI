@@ -6,6 +6,9 @@ Supports abort/cancellation and sub-process timeout management.
 import os
 import sys
 import shutil
+import hashlib
+import re
+from .paths import get_data_dir
 import subprocess
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
@@ -13,7 +16,7 @@ from .models import SkillItem
 from .scanner import SkillScanner
 
 class GitSyncEngine:
-    REPOS_DIR = Path("app/data/repos")
+    REPOS_DIR = get_data_dir() / "repos"
 
     @classmethod
     def clone_or_pull(cls, repo_url: str) -> Tuple[bool, str, Path]:
@@ -25,15 +28,20 @@ class GitSyncEngine:
         
         # Determine repo folder name from URL
         clean_url = repo_url.strip().rstrip("/")
-        repo_name = clean_url.split("/")[-1]
+        if clean_url.startswith("-") or not clean_url:
+            return False, "Nguồn Git không hợp lệ.", cls.REPOS_DIR
+        repo_name = re.sub(r"[^a-zA-Z0-9_-]", "-", clean_url.split("/")[-1].removesuffix(".git"))
         if repo_name.endswith(".git"):
             repo_name = repo_name[:-4]
 
-        target_dir = cls.REPOS_DIR / repo_name
+        target_dir = cls.REPOS_DIR / (repo_name + "-" + hashlib.sha256(clean_url.encode()).hexdigest()[:16])
 
         flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
         try:
             if target_dir.exists() and (target_dir / ".git").exists():
+                origin = subprocess.run(["git", "-C", str(target_dir), "remote", "get-url", "origin"], capture_output=True, text=True, timeout=10, creationflags=flags)
+                if origin.returncode or origin.stdout.strip().rstrip("/") != clean_url:
+                    return False, "Nguồn Git trong cache không khớp.", target_dir
                 # Git pull
                 cmd = ["git", "-C", str(target_dir), "pull", "--ff-only"]
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=30, creationflags=flags)
@@ -44,7 +52,7 @@ class GitSyncEngine:
             else:
                 # Git clone
                 if target_dir.exists():
-                    shutil.rmtree(target_dir, ignore_errors=True)
+                    return False, "Thư mục cache đã tồn tại nhưng không phải Git repository.", target_dir
 
                 cmd = ["git", "clone", "--depth", "1", clean_url, str(target_dir)]
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=45, creationflags=flags)

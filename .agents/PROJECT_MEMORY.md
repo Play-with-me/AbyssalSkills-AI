@@ -134,3 +134,24 @@
     - `[⚡ Thay Đổi Toàn Bộ]`: Overwrites entire skill with new version and creates `.bak` backup.
   - [x] Gate 25 Extended: All 28 automated gates verified passing 100%.
 - [x] Knowledge Graph: Updated Graphify AST (499 nodes, 1066 edges, 38 communities).
+
+
+## 2026-11-01 — Reliability and real-cloud correction (authoritative current status)
+
+The earlier checked boxes/28-gate claims above are historical implementation notes, not acceptance proof. Follow `docs/VERIFICATION-1.1.0.vi.md` for current evidence and remaining work.
+
+- User approved Windows-first reliability/cloud blueprint. Preserve branding and original 36 entries; no external skills modified.
+- Supabase project verified `ldzgwlvhbomjmonxutyc`. Versioned migration applied after backup, rollback SQL tests and explicit approval. Existing 2 users/2 profiles/3 reports retained. Market admin assigned to confirmed user UUID `9e36935e-1538-401b-ac2e-9798ac5e784b`; never infer admin from editable metadata.
+- Real GitHub PKCE login works in native Windows source app. Google is disabled server-side. Email and independent desktop A/B journeys remain unaccepted.
+- Studio publish -> independent anonymous search/install -> soft removal exercised on live cloud with a temporary nonpersonal test skill. No local legacy samples seeded into cloud.
+- Atomic writes/backups, safe paths/junction checks, per-target diff/stale protection, preserve custom shared rules, recoverable uninstall, truthful file-presence states, URL-separated Git cache implemented with isolated tests. Corrupt registry fails rather than reseeding.
+- CloudClient/Auth/Community/Telemetry/SecureStorage separated. No admin secrets or tokens returned through bridge. Manual diagnostic preview/retry only; Windows refresh credential stored securely.
+- 30 isolated regression tests currently pass. pip-audit reported no known vulnerabilities in inspected dependencies. Neither fact proves full application acceptance.
+- Candidate version 1.1.0. Windows distribution acceptance still pending; no installer run on user's primary machine. macOS/Linux and Graphify CLI unverified. Old Graphify graph stays navigation-only until regenerated.
+- Private backup/evidence under ignored `build/verification`; never package or commit raw cloud backup/session/logs.
+
+## 2026-11-06 — Multi-IDE Activation, Cross-Account Community Sync & In-Place Auto-Updater
+- **Multi-IDE Activation Repair:** Fixed `handleBatchInstallAll` and `install_all_skills` targets array to explicitly include all 6 supported AI environments: `["antigravity", "cursor", "windsurf", "claude", "copilot", "codex", "workspace"]`. Fixed filter logic so partially missing targets trigger batch deployment. Ensured `workspace_path` and `overwrite=True` with `.bak` snapshots are passed in individual and batch activations.
+- **Cross-Account Community Cloud Sync:** Fixed cache staleness by clearing local cache on publish and triggering `loadCommunitySkills()` automatically upon navigating to the Community tab. Added client-side validation for slug and auth session state.
+- **In-Place Auto-Updater & Version Permanence:** Implemented `download_and_apply_update()` with live progress polling, silent Inno Setup invocation (`/SILENT /DIR /FORCECLOSEAPPLICATIONS /CLOSEAPPLICATIONS`), and safe app restart without losing `%APPDATA%` data. Synced bundle `version.json` into `%APPDATA%` to prevent stale version display.
+- **Automated Verification:** Added 3 new test gates in `tests/test_services.py` verifying multi-target deployment, community cache invalidation, and updater download/progress lifecycle (all 34 tests passing).

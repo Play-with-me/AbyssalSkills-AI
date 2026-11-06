@@ -857,121 +857,26 @@ class SkillScanner:
         Fast-path bulk scanner: Quét toàn bộ thư mục công cụ trong 1 lượt,
         trả về cả danh sách targets lẫn đường dẫn tệp SKILL.md thực tế trên ổ đĩa.
         """
+        from .installer import SkillInstaller
+        from .paths import safe_child
         home = Path.home()
-        antigravity_set = set()
-        paths_map = {}
-
-        # 1. Antigravity targets
-        for base in [home / ".gemini" / "config" / "skills", home / ".gemini" / "antigravity" / "skills"]:
-            if base.exists() and base.is_dir():
-                try:
-                    for p in base.iterdir():
-                        if p.is_dir() and (p / "SKILL.md").exists():
-                            antigravity_set.add(p.name)
-                            if p.name not in paths_map:
-                                paths_map[p.name] = p / "SKILL.md"
-                except Exception:
-                    pass
-
-        # 2. Claude targets
-        claude_set = set()
-        claude_base = home / ".claude" / "skills"
-        if claude_base.exists() and claude_base.is_dir():
+        workspace = Path(workspace_path or Path.cwd())
+        targets, paths = {}, {}
+        for target, (scope, relative) in SkillInstaller.TARGETS.items():
+            root = home if scope == 'home' else workspace
             try:
-                for p in claude_base.iterdir():
-                    if p.is_dir() and (p / "SKILL.md").exists():
-                        claude_set.add(p.name)
-                        if p.name not in paths_map:
-                            paths_map[p.name] = p / "SKILL.md"
-            except Exception:
-                pass
-
-        # 3. Copilot targets
-        copilot_set = set()
-        copilot_base = home / ".copilot" / "skills"
-        if copilot_base.exists() and copilot_base.is_dir():
-            try:
-                for p in copilot_base.iterdir():
-                    if p.is_dir() and (p / "SKILL.md").exists():
-                        copilot_set.add(p.name)
-                        if p.name not in paths_map:
-                            paths_map[p.name] = p / "SKILL.md"
-            except Exception:
-                pass
-
-        # 4. OpenAI Codex targets (Global & Workspace)
-        codex_set = set()
-        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
-        for c_base in [home / ".codex" / "skills", active_ws / ".codex" / "skills"]:
-            if c_base.exists() and c_base.is_dir():
-                try:
-                    for p in c_base.iterdir():
-                        if p.is_dir() and (p / "SKILL.md").exists():
-                            codex_set.add(p.name)
-                            if p.name not in paths_map:
-                                paths_map[p.name] = p / "SKILL.md"
-                except Exception:
-                    pass
-
-        # 5. Cursor AI targets
-        cursor_set = set()
-        cursor_base = active_ws / ".cursor" / "skills"
-        if cursor_base.exists() and cursor_base.is_dir():
-            try:
-                for p in cursor_base.iterdir():
-                    if p.is_dir() and (p / "SKILL.md").exists():
-                        cursor_set.add(p.name)
-                        if p.name not in paths_map:
-                            paths_map[p.name] = p / "SKILL.md"
-            except Exception:
-                pass
-
-        # 6. Windsurf targets
-        windsurf_set = set()
-        windsurf_base = active_ws / ".codeium" / "windsurf" / "skills"
-        if windsurf_base.exists() and windsurf_base.is_dir():
-            try:
-                for p in windsurf_base.iterdir():
-                    if p.is_dir() and (p / "SKILL.md").exists():
-                        windsurf_set.add(p.name)
-                        if p.name not in paths_map:
-                            paths_map[p.name] = p / "SKILL.md"
-            except Exception:
-                pass
-
-        # 7. Active Workspace targets (highest priority for paths)
-        ws_set = set()
-        ws_base = active_ws / ".agents" / "skills"
-        if ws_base.exists() and ws_base.is_dir():
-            try:
-                for p in ws_base.iterdir():
-                    if p.is_dir() and (p / "SKILL.md").exists():
-                        ws_set.add(p.name)
-                        paths_map[p.name] = p / "SKILL.md"
-            except Exception:
-                pass
-
-        all_skill_ids = antigravity_set | claude_set | copilot_set | codex_set | cursor_set | windsurf_set | ws_set
-        targets_result = {}
-        for s_id in all_skill_ids:
-            targets = []
-            if s_id in ws_set:
-                targets.append("workspace")
-            if s_id in antigravity_set:
-                targets.append("antigravity")
-            if s_id in claude_set:
-                targets.append("claude")
-            if s_id in copilot_set:
-                targets.append("copilot")
-            if s_id in codex_set:
-                targets.append("codex")
-            if s_id in cursor_set:
-                targets.append("cursor")
-            if s_id in windsurf_set:
-                targets.append("windsurf")
-            targets_result[s_id] = targets
-
-        return targets_result, paths_map
+                base = safe_child(root, relative)
+                if not base.is_dir():
+                    continue
+                for folder in base.iterdir():
+                    path = safe_child(base, folder.name) / 'SKILL.md'
+                    if folder.is_dir() and path.is_file():
+                        targets.setdefault(folder.name, []).append(target)
+                        if folder.name not in paths or target == 'workspace':
+                            paths[folder.name] = path
+            except (ValueError, OSError):
+                continue
+        return targets, paths
 
     @classmethod
     def get_installed_targets_map(cls, workspace_path: Optional[str] = None) -> Dict[str, List[str]]:
@@ -1085,53 +990,7 @@ class SkillScanner:
 
     @classmethod
     def detect_installed_targets(cls, skill_id: str, workspace_path: Optional[str] = None) -> List[str]:
-        """Detects which tools currently have this skill installed."""
-        targets = []
-        home = Path.home()
-        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
-
-        # 1. Antigravity Global
-        antigravity_paths = [
-            home / ".gemini" / "config" / "skills" / skill_id,
-            home / ".gemini" / "antigravity" / "skills" / skill_id,
-        ]
-        if any(p.exists() and (p / "SKILL.md").exists() for p in antigravity_paths):
-            targets.append("antigravity")
-
-        # 2. Claude Code
-        claude_path = home / ".claude" / "skills" / skill_id
-        if claude_path.exists() and (claude_path / "SKILL.md").exists():
-            targets.append("claude")
-
-        # 3. Copilot CLI
-        copilot_path = home / ".copilot" / "skills" / skill_id
-        if copilot_path.exists() and (copilot_path / "SKILL.md").exists():
-            targets.append("copilot")
-
-        # 4. OpenAI Codex Global & Workspace
-        codex_paths = [
-            home / ".codex" / "skills" / skill_id,
-            active_ws / ".codex" / "skills" / skill_id,
-        ]
-        if any(p.exists() and (p / "SKILL.md").exists() for p in codex_paths):
-            targets.append("codex")
-
-        # 5. Cursor AI
-        cursor_path = active_ws / ".cursor" / "skills" / skill_id
-        if cursor_path.exists() and (cursor_path / "SKILL.md").exists():
-            targets.append("cursor")
-
-        # 6. Windsurf
-        windsurf_path = active_ws / ".codeium" / "windsurf" / "skills" / skill_id
-        if windsurf_path.exists() and (windsurf_path / "SKILL.md").exists():
-            targets.append("windsurf")
-
-        # 7. Current Workspace (Hỗ trợ đường dẫn động)
-        ws_path = active_ws / ".agents" / "skills" / skill_id
-        if ws_path.exists() and (ws_path / "SKILL.md").exists():
-            targets.append("workspace")
-
-        return targets
+        return cls.get_installed_targets_map(workspace_path).get(skill_id, [])
 
     @classmethod
     def detect_always_on_enabled(cls) -> bool:

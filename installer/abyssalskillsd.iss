@@ -1,10 +1,10 @@
 ; =====================================================================
 ; AbyssalSkillsD - Inno Setup 6 Script
-; Builds Windows standalone installer: AbyssalSkillsD-Setup-v1.0.1.exe
+; Builds Windows standalone installer: AbyssalSkillsD-Setup-v1.1.0.exe
 ; =====================================================================
 
 #define MyAppName "AbyssalSkillsD"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Lâm Nhựt Hải Đăng (Kyuu449977)"
 #define MyAppURL "https://github.com/Play-with-me/AbyssalSkills-AI"
 #define MyAppExeName "AbyssalSkillsD.exe"
@@ -38,6 +38,8 @@ WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
+CloseApplications=yes
+RestartApplications=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

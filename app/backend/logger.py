@@ -40,6 +40,13 @@ def sanitize_sensitive_data(raw_text: str) -> str:
     # 2. Mask JWT bearer tokens (eyJ...)
     cleaned = re.sub(r'eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}', '[REDACTED_JWT_TOKEN]', cleaned)
 
+    # Quoted secrets can contain whitespace; redact the entire quoted value first.
+    cleaned = re.sub(r'(?i)(["\']?(?:password|anon_key|service_secret_key|secret_key|api_key|access_token|refresh_token)["\']?\s*[:=]\s*)(["\'])(.*?)\2',
+                     lambda match: match.group(1) + '"[REDACTED_SECRET]"', cleaned)
+    cleaned = re.sub(r'(?i)(Bearer\s+)[a-zA-Z0-9._~+/=-]+', r'\1[REDACTED_TOKEN]', cleaned)
+    cleaned = re.sub(r'(?i)\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b', '[REDACTED_EMAIL]', cleaned)
+    cleaned = re.sub(r'(?<![a-zA-Z0-9])\+?\d[\d ()-]{8,}\d(?![a-zA-Z0-9])', '[REDACTED_PHONE]', cleaned)
+
     # 3. Mask passwords, secret keys, anon keys in JSON or key-value pairs
     cleaned = re.sub(
         r'(anon_key|service_secret_key|secret_key|api_key|password|access_token|refresh_token)["\']?\s*[:=]\s*["\']?([^"\'\s,;]+)',
@@ -114,7 +121,7 @@ def get_recent_logs(line_count: int = 100) -> str:
 def export_diagnostic_zip() -> Dict[str, Any]:
     """
     Packs sanitized log files, system metadata, and workspace configuration into a portable diagnostic zip file.
-    All personal usernames, tokens, and database secrets are scrubbed 100%.
+    Applies best-effort redaction; users must inspect exports before sharing.
     """
     log_dir = get_log_dir()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

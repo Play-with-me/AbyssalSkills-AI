@@ -24,6 +24,21 @@ graphify-out/cache/
 *.log
 app/data/system_error_reports.json
 
+# Generated workspace AI rules & skills
+.agents/rules/
+.agents/skills/
+.codeium/
+.codex/
+.cursor/
+.cursorrules
+.windsurfrules
+.github/copilot-instructions.md
+AGENTS.md
+CODEX.md
+CONVENTIONS.md
+GEMINI.md
+build/verification/
+
 # Operating System files
 Thumbs.db
 ehthumbs.db

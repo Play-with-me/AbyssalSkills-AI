@@ -3,12 +3,12 @@
     AbyssalSkillsD Official Windows Quick Installer
 .DESCRIPTION
     Automated 1-Click installer script for AbyssalSkillsD Enterprise AI Skill Studio.
-    Downloads the standalone installer directly from GitHub and executes setup with integrity verification.
+    Downloads the standalone installer directly from GitHub and executes setup from the official repository.
 #>
 [CmdletBinding()]
 param(
     [switch]$Portable,
-    [string]$Version = "1.0.0"
+    [string]$Version = "1.1.0"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -25,14 +25,14 @@ $tempDir = [System.IO.Path]::GetTempPath()
 
 if ($Portable) {
     $fileName = "AbyssalSkillsD-v$Version-Portable.zip"
-    $targetUrl = "https://raw.githubusercontent.com/$repo/$branch/dist/$fileName"
-    $destPath = Join-Path $tempDir $fileName
-    Write-Host "[*] Downloading Portable Edition ($fileName)..." -ForegroundColor Yellow
+    $targetUrl = "https://github.com/$repo/releases/latest/download/AbyssalSkillsD-Portable.zip"
+    $destPath = Join-Path $tempDir "AbyssalSkillsD-Portable.zip"
+    Write-Host "[*] Downloading latest Portable Edition ($fileName)..." -ForegroundColor Yellow
     try {
         Invoke-WebRequest -Uri $targetUrl -OutFile $destPath -UseBasicParsing
     } catch {
-        $fallbackUrl = "https://github.com/$repo/raw/$branch/dist/$fileName"
-        Write-Host "[*] Retrying via fallback URL..." -ForegroundColor Yellow
+        $fallbackUrl = "https://github.com/$repo/releases/download/v$Version/$fileName"
+        Write-Host "[*] Retrying via fallback URL ($fallbackUrl)..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $fallbackUrl -OutFile $destPath -UseBasicParsing
     }
 
@@ -77,14 +77,14 @@ if ($Portable) {
     }
 } else {
     $fileName = "AbyssalSkillsD-Setup-v$Version.exe"
-    $targetUrl = "https://raw.githubusercontent.com/$repo/$branch/dist/$fileName"
-    $destPath = Join-Path $tempDir $fileName
-    Write-Host "[*] Downloading Windows Setup Installer ($fileName)..." -ForegroundColor Yellow
+    $targetUrl = "https://github.com/$repo/releases/latest/download/AbyssalSkillsD-Setup.exe"
+    $destPath = Join-Path $tempDir "AbyssalSkillsD-Setup.exe"
+    Write-Host "[*] Downloading latest Windows Setup Installer ($fileName)..." -ForegroundColor Yellow
     try {
         Invoke-WebRequest -Uri $targetUrl -OutFile $destPath -UseBasicParsing
     } catch {
-        $fallbackUrl = "https://github.com/$repo/raw/$branch/dist/$fileName"
-        Write-Host "[*] Retrying via fallback URL..." -ForegroundColor Yellow
+        $fallbackUrl = "https://github.com/$repo/releases/download/v$Version/$fileName"
+        Write-Host "[*] Retrying via fallback URL ($fallbackUrl)..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $fallbackUrl -OutFile $destPath -UseBasicParsing
     }
 

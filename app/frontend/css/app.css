@@ -6218,3 +6218,27 @@ code, pre {
 
 
 
+
+/* Keep Studio actions accessible in the native minimum-size window. */
+.studio-container { min-height: 0; min-width: 0; overflow: hidden; }
+.studio-step-banner, .studio-preset-panel { flex-shrink: 0; }
+.studio-split-workbench { min-height: 0; min-width: 0; overflow: hidden; }
+.studio-form-col, .studio-preview-col { min-height: 0; min-width: 0; }
+.studio-form-col > * { flex-shrink: 0; }
+.studio-actions {
+  position: sticky;
+  bottom: -20px;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+  margin-top: 8px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+}
+.studio-actions .form-hint { display: none; }
+.modal-dialog { max-height: calc(100vh - 80px); overflow-y: auto; min-width: 0; }
+.modal-dialog pre { overflow-wrap: anywhere; }

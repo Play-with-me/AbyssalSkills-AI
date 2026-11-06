@@ -24,7 +24,7 @@ def main():
         # High-Performance WebView2 Engine Optimization:
         # Isolates cache in Local AppData (avoids Defender locks in repo) & activates GPU acceleration
         try:
-            webview_data_dir = Path.home() / "AppData" / "Local" / "AbyssalSkillsD" / "WebView2"
+            webview_data_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData" / "Local"))) / "AbyssalSkillsD" / "WebView2"
             webview_data_dir.mkdir(parents=True, exist_ok=True)
             os.environ["WEBVIEW2_USER_DATA_FOLDER"] = str(webview_data_dir)
             os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = (

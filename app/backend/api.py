@@ -12,6 +12,7 @@ import re
 import uuid
 import hashlib
 import subprocess
+import threading
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from .models import SkillItem, InstallRequest
@@ -21,13 +22,15 @@ from .scanner import SkillScanner
 from .git_sync import GitSyncEngine
 from .auth import AuthEngine
 from .updater import UpdateEngine
-from .paths import get_log_dir, assert_safe_workspace_path
+from .paths import get_log_dir, assert_safe_workspace_path, atomic_write, validate_skill_id
 from .logger import get_logger, get_recent_logs, export_diagnostic_zip, sanitize_sensitive_data
 
 class DesktopAPI:
     def __init__(self):
         SkillStorage.initialize()
         self.active_workspace = str(Path.cwd())
+        self._cancel_install = threading.Event()
+        self._batch_lock = threading.Lock()
 
     def get_active_workspace(self) -> Dict[str, Any]:
         """Returns the currently active coding project workspace."""
@@ -93,21 +96,35 @@ class DesktopAPI:
             return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}'"}
 
         from app.backend.installer import SkillInstaller
-        new_content = SkillInstaller.generate_skill_markdown(skill)
-
-        local_content = ""
-        local_path_str = skill.installed_path or ""
-        if local_path_str and Path(local_path_str).exists():
-            try:
-                local_content = Path(local_path_str).read_text(encoding="utf-8", errors="replace")
-            except Exception as e:
-                local_content = f"Lỗi đọc tệp trên máy: {e}"
-        else:
-            local_content = "Chưa có bản cài đặt trên máy."
+        candidates = []
+        for target in skill.installed_targets:
+            if target not in SkillInstaller.TARGETS:
+                continue
+            for path, content in SkillInstaller.target_payload(skill, target, workspace_path).items():
+                candidates.append({'target': target, 'path': str(path), 'content': content,
+                                   'label': target + ' · ' + str(path)})
+        if not candidates:
+            return {'success': False, 'message': 'Chưa có bản cài để xem khác biệt.'}
+        requested = data.get('file_path') if isinstance(data, dict) else None
+        selected = next((item for item in candidates if item['path'] == requested), candidates[0])
+        local_path_str = selected['path']
+        new_content = selected['content']
+        local_file = Path(local_path_str)
+        local_content = local_file.read_text(encoding='utf-8') if local_file.exists() else ''
+        view_token = uuid.uuid4().hex
+        snapshot = {item['path']: hashlib.sha256(Path(item['path']).read_bytes()).hexdigest() if Path(item['path']).exists() else None for item in candidates}
+        if not hasattr(self, '_diff_views'):
+            self._diff_views = {}
+        # Bounded, server-owned snapshots prevent client-supplied hashes from authorizing stale writes.
+        if len(self._diff_views) >= 32:
+            self._diff_views.pop(next(iter(self._diff_views)))
+        self._diff_views[view_token] = {'skill_id': skill_id, 'workspace': workspace_path,
+                                      'files': snapshot, 'expected': {item['path']: hashlib.sha256(item['content'].encode()).hexdigest() for item in candidates}, 'selected': local_path_str,
+                                      'canonical': hashlib.sha256(json.dumps(candidates, sort_keys=True).encode()).hexdigest()}
 
         # Compute line-by-line diff and structured chunks
-        local_lines = local_content.splitlines(keepends=False)
-        new_lines = new_content.splitlines(keepends=False)
+        local_lines = local_content.splitlines(keepends=True)
+        new_lines = new_content.splitlines(keepends=True)
 
         matcher = difflib.SequenceMatcher(None, local_lines, new_lines)
         opcodes = matcher.get_opcodes()
@@ -211,6 +228,8 @@ class DesktopAPI:
             "skill_id": skill.id,
             "display_title": skill.display_title or skill.name,
             "local_path": local_path_str,
+            "revision_token": view_token,
+            "files": [{'path': item['path'], 'label': item['label']} for item in candidates],
             "local_content": local_content,
             "new_content": new_content,
             "new_version": skill.version or "1.0.0",
@@ -246,37 +265,33 @@ class DesktopAPI:
             return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}'"}
 
         from app.backend.installer import SkillInstaller
-        new_content = SkillInstaller.generate_skill_markdown(skill)
-
-        # If applying all changes, execute standard full install with backup
-        if apply_all:
-            install_payload = {
-                "skill_id": skill_id,
-                "targets": skill.installed_targets or ["antigravity"],
-                "workspace_path": workspace_path,
-                "enable_always_on": True,
-                "with_graphify": False
-            }
-            res = self.install_skill(install_payload)
-            if res.get("success"):
-                skill.has_update = False
-                SkillStorage.upsert_skill(skill)
-                return {
-                    "success": True,
-                    "message": f"✓ Đã áp dụng toàn bộ thay đổi cho kỹ năng '{skill.display_title or skill.name}'! (Bản cũ đã lưu tại SKILL.md.bak)"
-                }
-            return res
-
-        # Partial chunk application
-        local_path_str = skill.installed_path or ""
-        if not local_path_str or not Path(local_path_str).exists():
-            return {"success": False, "message": "Không tìm thấy tệp cài đặt trên máy để áp dụng từng phần."}
-
+        view_token = data.get('revision_token')
+        view = getattr(self, '_diff_views', {}).get(view_token)
+        if not view or view['skill_id'] != skill_id or view['workspace'] != workspace_path:
+            return {'success': False, 'status': 'error', 'error_code': 'DIFF_REQUIRED', 'message': 'Vui lòng mở lại so sánh trước khi cập nhật.'}
+        candidates = {}
+        for target in skill.installed_targets:
+            if target in SkillInstaller.TARGETS:
+                candidates.update({str(path): content for path, content in SkillInstaller.target_payload(skill, target, workspace_path).items()})
+        for name, digest in view['files'].items():
+            current = hashlib.sha256(Path(name).read_bytes()).hexdigest() if Path(name).exists() else None
+            if current != digest:
+                return {'success': False, 'status': 'error', 'error_code': 'STALE_DIFF', 'message': 'Tệp đã thay đổi sau khi mở so sánh. Hãy mở lại để bảo vệ chỉnh sửa mới.'}
+        if any(name not in candidates or hashlib.sha256(candidates[name].encode()).hexdigest() != digest for name, digest in view['expected'].items()):
+            return {'success': False, 'status': 'error', 'error_code': 'STALE_REGISTRY', 'message': 'Thư viện đã thay đổi. Hãy mở lại so sánh.'}
+        local_path_str = view['selected']
+        if local_path_str not in candidates:
+            return {'success': False, 'status': 'error', 'message': 'Đích cập nhật đã thay đổi.'}
         local_file = Path(local_path_str)
-        try:
-            local_content = local_file.read_text(encoding="utf-8", errors="replace")
-        except Exception as e:
-            return {"success": False, "message": f"Lỗi đọc tệp trên máy: {e}"}
+        local_content = local_file.read_text(encoding='utf-8') if local_file.exists() else ''
+        new_content = candidates[local_path_str]
+        if apply_all:
+            try:
+                atomic_write(local_file, new_content, backup=True)
+                self._diff_views.pop(view_token, None)
+                return {'success': True, 'status': 'success', 'message': 'Đã cập nhật tệp đang xem và lưu snapshot bản cũ.'}
+            except (OSError, ValueError) as error:
+                return {'success': False, 'status': 'error', 'message': str(error)}
 
         import difflib
         local_lines = local_content.splitlines(keepends=True)
@@ -286,7 +301,8 @@ class DesktopAPI:
         opcodes = matcher.get_opcodes()
 
         selected_set = set(selected_chunks) if isinstance(selected_chunks, (list, set, tuple)) else set()
-        if not selected_set:
+        changes = sum(tag != 'equal' for tag, *_ in opcodes)
+        if not selected_set or not selected_set.issubset(set(range(changes))):
             return {"success": False, "message": "Vui lòng chọn ít nhất một khối thay đổi hoặc bấm 'Giữ Lại Bản Cũ'."}
 
         merged_lines = []
@@ -303,19 +319,10 @@ class DesktopAPI:
 
         merged_content = "".join(merged_lines)
 
-        # 1. Create .bak snapshot
-        bak_file = local_file.with_name(local_file.name + ".bak")
         try:
-            import shutil
-            shutil.copy2(local_file, bak_file)
-        except Exception:
-            pass
-
-        # 2. Write merged file
-        try:
-            local_file.write_text(merged_content, encoding="utf-8")
+            atomic_write(local_file, merged_content, backup=True)
         except Exception as e:
-            return {"success": False, "message": f"Lỗi ghi tệp sau khi hợp nhất: {e}"}
+            return {"success": False, "status": "error", "message": f"Không thể sao lưu hoặc ghi tệp: {e}"}
 
         # 3. Update skill state
         if merged_content.strip() == new_content.strip():
@@ -324,7 +331,7 @@ class DesktopAPI:
 
         return {
             "success": True,
-            "message": f"✓ Đã áp dụng thành công {len(selected_set)} khối thay đổi cho kỹ năng '{skill.display_title or skill.name}'! (Bản cũ đã lưu tại SKILL.md.bak)",
+            "message": f"✓ Đã áp dụng thành công {len(selected_set)} khối thay đổi cho kỹ năng '{skill.display_title or skill.name}'! (Snapshot bản cũ nằm cạnh tệp đã sửa)",
             "applied_chunks": len(selected_set)
         }
 
@@ -366,7 +373,8 @@ class DesktopAPI:
             targets=data.get("targets", ["antigravity"]),
             workspace_path=workspace_path,
             enable_always_on=data.get("enable_always_on", True),
-            with_graphify=data.get("with_graphify", True)
+            with_graphify=data.get("with_graphify", True),
+            overwrite=bool(data.get("overwrite", False))
         )
 
         res = SkillInstaller.install(skill, req)
@@ -377,6 +385,8 @@ class DesktopAPI:
 
         return {
             "success": res.success,
+            "status": res.status,
+            "results": res.results,
             "message": res.message,
             "installed_paths": res.installed_paths,
             "rules_paths": res.rules_paths,
@@ -392,12 +402,23 @@ class DesktopAPI:
         workspace_path = data.get("workspace_path") or getattr(self, "active_workspace", str(Path.cwd()))
         targets = data.get("targets")
         skill_ids = data.get("skill_ids")
+        overwrite = data.get("overwrite", True)
 
         skills = SkillStorage.get_all_skills(workspace_path)
         if skill_ids:
             skills = [s for s in skills if s.id in skill_ids]
 
-        return SkillInstaller.sync_all_ais(skills, targets, workspace_path)
+        if not self._batch_lock.acquire(blocking=False):
+            return {'success': False, 'status': 'error', 'error_code': 'BUSY', 'message': 'Một đợt cài đặt đang chạy.'}
+        try:
+            self._cancel_install.clear()
+            return SkillInstaller.sync_all_ais(skills, targets, workspace_path, self._cancel_install, overwrite=overwrite)
+        finally:
+            self._batch_lock.release()
+
+    def cancel_operation(self):
+        self._cancel_install.set()
+        return {'success': True, 'status': 'cancelled', 'message': 'Sẽ dừng sau mục đang xử lý; kết quả đã ghi vẫn được giữ.'}
 
     def generate_project_rules(self, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -414,13 +435,14 @@ class DesktopAPI:
         """
         Batch-installs skills across targets (supports filtering by source_group or skill_ids).
         """
-        targets = data.get("targets", ["antigravity"])
+        targets = data.get("targets") or ["antigravity", "cursor", "windsurf", "claude", "copilot", "codex", "workspace"]
         enable_always_on = data.get("enable_always_on", True)
         with_graphify = data.get("with_graphify", True)
         workspace_path = data.get("workspace_path", str(Path.cwd()))
         source_group = data.get("source_group")
         skill_ids = data.get("skill_ids")
         only_new = data.get("only_new", False)
+        overwrite = data.get("overwrite", True)
 
         skills = SkillStorage.get_all_skills(workspace_path)
         if skill_ids:
@@ -430,46 +452,15 @@ class DesktopAPI:
         elif source_group:
             skills = [s for s in skills if s.source_group == source_group]
 
-        total_installed = 0
-        total_paths = []
-        errors = []
-
-        for skill in skills:
-            req = InstallRequest(
-                skill_id=skill.id,
-                targets=targets,
-                workspace_path=workspace_path,
-                enable_always_on=enable_always_on,
-                with_graphify=False # Only run graphify once at the end
-            )
-            res = SkillInstaller.install(skill, req)
-            if res.success:
-                total_installed += 1
-                total_paths.extend(res.installed_paths)
-            else:
-                errors.extend(res.errors)
-
-        # Run Graphify once if requested
-        graphify_status = "skipped"
-        if with_graphify:
-            try:
-                g_res = self.run_graphify()
-                graphify_status = "active" if g_res.get("success") else "completed"
-            except Exception as e:
-                graphify_status = f"warning: {str(e)}"
-
-        # Refresh storage status dynamically without rescanning disk repos
-        SkillStorage.get_all_skills(workspace_path)
-
-        return {
-            "success": total_installed > 0,
-            "count": total_installed,
-            "total_skills": len(skills),
-            "message": f"Đã cài đặt thành công trọn bộ {total_installed}/{len(skills)} kỹ năng vào các công cụ AI!",
-            "installed_paths": total_paths,
-            "graphify_status": graphify_status,
-            "errors": errors
-        }
+        if not self._batch_lock.acquire(blocking=False):
+            return {'success': False, 'status': 'error', 'error_code': 'BUSY', 'message': 'Một đợt cài đặt đang chạy.'}
+        try:
+            self._cancel_install.clear()
+            result = SkillInstaller.sync_all_ais(skills, targets, workspace_path, self._cancel_install, enable_always_on, overwrite=overwrite)
+            result['count'] = sum(row['status'] == 'success' for row in result['results'])
+            return result
+        finally:
+            self._batch_lock.release()
 
     def get_community_schema(self) -> Dict[str, Any]:
         """Returns the PostgreSQL & Supabase RLS schema for Phase 2 Community Hub."""
@@ -582,7 +573,7 @@ class DesktopAPI:
         # Fast-guard: never run heavy subprocess in background unless explicitly forced by user
         should_run_cmd = force
         res_output = ""
-        res_success = True
+        res_success = False
 
         if should_run_cmd:
             flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
@@ -599,7 +590,7 @@ class DesktopAPI:
             nodes_count = 0
             edges_count = 0
             communities_count = 0
-            extraction_rate = "94.0%"
+            extraction_rate = None
             god_nodes = []
             report_text = ""
 
@@ -633,12 +624,13 @@ class DesktopAPI:
                     extraction_rate = rate_match.group(1)
 
             return {
-                "success": res_success or report_file.exists(),
-                "message": "Graphify AST đã phân tích xong kiến trúc mã nguồn!",
+                "success": res_success if force else graph_file.exists(),
+                "status": "success" if (res_success if force else graph_file.exists()) else "error",
+                "message": "Đã đọc kết quả Graphify đã lưu." if graph_file.exists() else "Chưa có kết quả phân tích Graphify.",
                 "has_report": report_file.exists(),
-                "nodes_count": nodes_count or 146,
-                "edges_count": edges_count or 325,
-                "communities_count": communities_count or 13,
+                "nodes_count": nodes_count,
+                "edges_count": edges_count,
+                "communities_count": communities_count,
                 "extraction_rate": extraction_rate,
                 "god_nodes": god_nodes,
                 "report_raw": report_text,
@@ -735,42 +727,22 @@ class DesktopAPI:
         installed = [s for s in skills if s.installed_targets]
         favorites = [s for s in skills if s.is_favorite]
 
-        # Check community contributions
-        comm_file = self._get_community_file()
-        comm_skills = []
-        if comm_file.exists():
-            try:
-                comm_skills = json.loads(comm_file.read_text(encoding="utf-8"))
-            except Exception:
-                comm_skills = []
-
-        session = AuthEngine.get_session()
-        current_username = ""
-        if session.get("authenticated") and session.get("user"):
-            current_username = session["user"].get("email", "").split("@")[0].lower()
-
-        contributed = [cs for cs in comm_skills if current_username and current_username in cs.get("author", "").lower()]
-        if not contributed and len(comm_skills) > 0:
-            contributed = comm_skills[:2]
-
-        return {
-            "success": True,
-            "total_skills": len(skills),
-            "installed_count": len(installed),
-            "favorites_count": len(favorites),
-            "contributed_count": max(len(contributed), 1),
-            "installed_skills": [{"id": s.id, "title": s.display_title or s.name, "category": s.category} for s in installed[:6]],
-            "favorite_skills": [{"id": s.id, "title": s.display_title or s.name, "category": s.category} for s in favorites[:6]],
-            "contributed_skills": [
-                {
-                    "id": c.get("id"),
-                    "title": c.get("display_title") or c.get("name"),
-                    "category": c.get("category", "DevOps"),
-                    "downloads": c.get("downloads", 1)
-                }
-                for c in contributed[:4]
-            ]
-        }
+        from .cloud_client import CloudClient, CloudError
+        cloud_profile = {}
+        cloud_available = False
+        try:
+            token = AuthEngine.get_access_token(required=False)
+            if token:
+                cloud_profile = CloudClient(token=token).rpc('get_my_cloud_profile') or {}
+                cloud_available = True
+        except CloudError:
+            pass
+        return {'success': True, 'status': 'success' if cloud_available else 'partial',
+                'cloud_available': cloud_available, 'total_skills': len(skills), 'installed_count': len(installed),
+                'favorites_count': len(favorites), 'contributed_count': cloud_profile.get('contributed_count', 0),
+                'installed_skills': [{'id': s.id, 'title': s.display_title, 'category': s.category} for s in installed[:6]],
+                'favorite_skills': [{'id': s.id, 'title': s.display_title, 'category': s.category} for s in favorites[:6]],
+                'contributed_skills': []}
 
     # =========================================================================
     # Auto-Update Engine (v7.2 Dual-Layer Skills & Application Updates)
@@ -788,6 +760,15 @@ class DesktopAPI:
         """Returns local version metadata and changelog."""
         return UpdateEngine.get_version_info()
 
+    def updater_download_and_apply(self, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Downloads latest setup installer and executes safe in-place upgrade."""
+        data = data or {}
+        return UpdateEngine.download_and_apply_update(download_url=data.get("download_url"))
+
+    def updater_get_progress(self) -> Dict[str, Any]:
+        """Returns live download and installation progress for auto-updater."""
+        return UpdateEngine.get_download_progress()
+
     # =========================================================================
     # Live Verification & Explorer Proof Engine (v1.1)
     # =========================================================================
@@ -798,64 +779,14 @@ class DesktopAPI:
         """
         skill_id = data.get("skill_id", "")
         target = data.get("target", "antigravity")
-        home = Path.home()
-
-        candidate_paths = []
-        if target == "antigravity":
-            candidate_paths.extend([
-                home / ".gemini" / "config" / "skills" / skill_id,
-                home / ".gemini" / "antigravity" / "skills" / skill_id,
-            ])
-        elif target == "claude":
-            candidate_paths.append(home / ".claude" / "skills" / skill_id)
-        elif target == "codex":
-            candidate_paths.extend([
-                home / ".codex" / "skills" / skill_id,
-                Path.cwd() / ".codex" / "skills" / skill_id,
-            ])
-        elif target in ("cursor", "windsurf", "workspace"):
-            candidate_paths.extend([
-                Path.cwd() / ".agents" / "skills" / skill_id,
-                Path.cwd(),
-            ])
-
-        candidate_paths.extend([
-            home / ".gemini" / "config" / "skills" / skill_id,
-            home / ".claude" / "skills" / skill_id,
-            Path.cwd() / ".agents" / "skills" / skill_id,
-            Path.cwd() / "app" / "data" / "repos" / "agent-skills" / "skills" / skill_id,
-        ])
-
-        found_path = None
-        for p in candidate_paths:
-            if p.exists():
-                found_path = p
-                break
-
-        if not found_path:
-            return {
-                "success": False,
-                "message": f"Kỹ năng '{skill_id}' chưa được cài đặt vào thư mục nào trên máy."
-            }
-
         try:
-            if sys.platform == "win32":
-                os.startfile(str(found_path))
-            elif sys.platform == "darwin":
-                subprocess.Popen(["open", str(found_path)])
-            else:
-                subprocess.Popen(["xdg-open", str(found_path)])
-            return {
-                "success": True,
-                "path": str(found_path),
-                "message": f"Đã mở thư mục '{found_path.name}' trong Windows Explorer."
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "path": str(found_path),
-                "message": f"Không thể mở thư mục: {e}"
-            }
+            workspace = data.get('workspace_path') or self.active_workspace
+            paths = SkillInstaller.target_dirs(skill_id, workspace)
+            if target not in paths or not paths[target].is_dir():
+                return {'success': False, 'status': 'error', 'message': 'Không có thư mục cài đặt ở môi trường đã chọn.'}
+            return self.open_folder(str(paths[target]))
+        except (ValueError, OSError) as error:
+            return {'success': False, 'status': 'error', 'message': str(error)}
 
     def verify_skill_active(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -863,71 +794,17 @@ class DesktopAPI:
         and returns verifiable test prompts for the end-user.
         """
         skill_id = data.get("skill_id", "")
-        skill = SkillStorage.get_skill(skill_id)
+        skill = SkillStorage.get_skill(skill_id, data.get("workspace_path") or self.active_workspace)
         if not skill:
             return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}'"}
 
-        home = Path.home()
+        workspace = data.get('workspace_path') or self.active_workspace
         verified_targets = []
-
-        # 1. Antigravity Global
-        antigravity_path = home / ".gemini" / "config" / "skills" / skill_id
-        if antigravity_path.exists() and (antigravity_path / "SKILL.md").exists():
-            verified_targets.append({
-                "target": "antigravity",
-                "label": "Google Antigravity",
-                "path": str(antigravity_path),
-                "skill_file": str(antigravity_path / "SKILL.md"),
-                "status": "active"
-            })
-
-        # 2. Claude Code Global
-        claude_path = home / ".claude" / "skills" / skill_id
-        if claude_path.exists() and (claude_path / "SKILL.md").exists():
-            verified_targets.append({
-                "target": "claude",
-                "label": "Claude Code",
-                "path": str(claude_path),
-                "skill_file": str(claude_path / "SKILL.md"),
-                "status": "active"
-            })
-
-        # 3. Workspace (.agents/skills)
-        ws_path = Path.cwd() / ".agents" / "skills" / skill_id
-        if ws_path.exists() and (ws_path / "SKILL.md").exists():
-            verified_targets.append({
-                "target": "workspace",
-                "label": "Dự án Hiện tại (.agents)",
-                "path": str(ws_path),
-                "skill_file": str(ws_path / "SKILL.md"),
-                "status": "active"
-            })
-
-        # 3b. OpenAI Codex Global (~/.codex/skills)
-        codex_path = home / ".codex" / "skills" / skill_id
-        if codex_path.exists() and (codex_path / "SKILL.md").exists():
-            verified_targets.append({
-                "target": "codex",
-                "label": "OpenAI Codex",
-                "path": str(codex_path),
-                "skill_file": str(codex_path / "SKILL.md"),
-                "status": "active"
-            })
-
-        # 4. Rules files
+        for target, directory in SkillInstaller.target_dirs(skill_id, workspace).items():
+            if (directory / 'SKILL.md').is_file():
+                verified_targets.append({'target': target, 'label': target, 'path': str(directory),
+                                         'skill_file': str(directory / 'SKILL.md'), 'status': 'files_present'})
         rules_found = []
-        rule_candidates = [
-            (home / ".gemini" / "config" / "rules" / "always-on-autopilot.md", "Antigravity Autopilot"),
-            (Path.cwd() / ".cursorrules", "Cursor AI Rule"),
-            (Path.cwd() / ".windsurfrules", "Windsurf Rule"),
-            (Path.cwd() / "CLAUDE.md", "Claude Code Rules"),
-            (Path.cwd() / "CODEX.md", "OpenAI Codex Instructions"),
-            (Path.cwd() / ".codex" / "rules" / "always-on-autopilot.md", "OpenAI Codex Autopilot"),
-            (Path.cwd() / ".agents" / "rules" / "always-on-autopilot.md", "Workspace Autopilot"),
-        ]
-        for rp, rlabel in rule_candidates:
-            if rp.exists():
-                rules_found.append({"label": rlabel, "path": str(rp)})
 
         # Generate starter test prompt based on skill capabilities
         starter_prompt = "Hãy giải thích cách kỹ năng này hoạt động và lập kế hoạch mẫu cho tôi."
@@ -1001,310 +878,48 @@ class DesktopAPI:
         from app.backend.paths import get_data_dir
         return get_data_dir() / "community_skills.json"
 
-    def community_get_skills(self) -> Dict[str, Any]:
-        """
-        Retrieves the catalog of community skills.
-        Seeds high-value initial community skills if not yet seeded.
-        """
-        comm_file = self._get_community_file()
-        skills = []
-        if not comm_file.exists():
-            # Seed curated initial community skills
-            skills = [
-                {
-                    "id": "docker-k8s-devops-autopilot",
-                    "name": "Docker & Kubernetes DevOps Autopilot",
-                    "display_title": "Docker & Kubernetes DevOps Autopilot",
-                    "author": "alex_cloud",
-                    "category": "DevOps & Cloud",
-                    "rating": 4.9,
-                    "downloads": 142,
-                    "description": "Tự động phân tích ứng dụng đa ngôn ngữ, sinh Dockerfile đa tầng tối ưu dung lượng và bộ Helm chart/K8s manifests chuẩn Production.",
-                    "version": "1.0.0",
-                    "tags": ["Docker", "Kubernetes", "DevOps", "CI/CD"],
-                    "content": "---\nname: docker-k8s-devops-autopilot\ndescription: Use when containerizing applications, writing Dockerfile, or crafting Kubernetes manifests.\n---\n# Docker & K8s Autopilot\nLuôn sử dụng multi-stage build để giảm kích thước image. Thiết lập non-root user và cấu hình health checks (liveness/readiness probes)."
-                },
-                {
-                    "id": "fastapi-async-architecture",
-                    "name": "FastAPI Async Enterprise Master",
-                    "display_title": "FastAPI Async Enterprise Master",
-                    "author": "minh_engineer",
-                    "category": "Backend & API",
-                    "rating": 4.8,
-                    "downloads": 118,
-                    "description": "Quy chuẩn kiến trúc FastAPI bất đồng bộ, Pydantic v2 schemas, SQLAlchemy 2.0 AsyncSession và tự động sinh OpenAPI spec chuẩn enterprise.",
-                    "version": "1.1.0",
-                    "tags": ["FastAPI", "Python", "AsyncIO", "Pydantic"],
-                    "content": "---\nname: fastapi-async-architecture\ndescription: Use when developing async Python APIs with FastAPI, Pydantic, and SQLAlchemy.\n---\n# FastAPI Async Master\nTuân thủ async def, tách biệt Routers/Services/Repositories, xử lý ngoại lệ toàn cục qua custom exception handlers."
-                },
-                {
-                    "id": "cloudflare-workers-edge-master",
-                    "name": "Cloudflare Workers & Hono Edge Master",
-                    "display_title": "Cloudflare Workers & Hono Edge Master",
-                    "author": "sarah_edge",
-                    "category": "Edge & Serverless",
-                    "rating": 4.9,
-                    "downloads": 96,
-                    "description": "Xây dựng microservices siêu nhẹ trên Cloudflare Workers kết hợp Hono.js, KV storage, D1 SQL và Durable Objects với độ trễ sub-10ms toàn cầu.",
-                    "version": "1.0.0",
-                    "tags": ["Cloudflare", "Hono", "Edge", "TypeScript"],
-                    "content": "---\nname: cloudflare-workers-edge-master\ndescription: Use when building serverless APIs on Cloudflare Workers and Hono.js.\n---\n# Cloudflare Workers Master\nSử dụng Hono.js cho routing siêu nhẹ, tận dụng KV caching và D1 database cho dữ liệu biên."
-                },
-                {
-                    "id": "pytorch-model-evaluator",
-                    "name": "PyTorch ML Model Evaluator & Benchmark",
-                    "display_title": "PyTorch ML Model Evaluator & Benchmark",
-                    "author": "deep_researcher",
-                    "category": "AI & Data Science",
-                    "rating": 4.7,
-                    "downloads": 84,
-                    "description": "Bộ quy chuẩn kiểm thử mô hình Deep Learning: ma trận đánh giá F1/Precision/Recall, kiểm tra độ trễ GPU TensorRT và phát hiện data leakage.",
-                    "version": "1.0.2",
-                    "tags": ["PyTorch", "Machine Learning", "Benchmark", "CUDA"],
-                    "content": "---\nname: pytorch-model-evaluator\ndescription: Use when training, benchmarking, and evaluating PyTorch machine learning models.\n---\n# PyTorch Evaluator\nĐo lường FLOPs, độ trễ suy luận P99, và tự động vẽ confusion matrix và biểu đồ PR-curve."
-                }
-            ]
-            try:
-                comm_file.write_text(json.dumps(skills, indent=2, ensure_ascii=False), encoding="utf-8")
-            except Exception as e:
-                logger = get_logger()
-                logger.warning(f"Could not persist initial community skills: {e}")
-        else:
-            try:
-                skills = json.loads(comm_file.read_text(encoding="utf-8"))
-            except Exception:
-                skills = []
+    def community_get_skills(self, data=None):
+        from .community import CommunityService
+        data = data or {}
+        return CommunityService.list_skills(data.get('query', ''), data.get('category', ''), data.get('page', 0))
 
-        return {
-            "success": True,
-            "skills": skills,
-            "count": len(skills)
-        }
+    def community_publish_skill(self, skill_data):
+        from .community import CommunityService
+        return CommunityService.publish(skill_data)
 
-    def community_publish_skill(self, skill_data: Any) -> Dict[str, Any]:
-        """
-        Publishes a custom skill from Studio to the Community Cloud repository.
-        """
-        if not isinstance(skill_data, dict):
-            return {"success": False, "message": "Dữ liệu kỹ năng không hợp lệ."}
+    def community_install_skill(self, data):
+        from .community import CommunityService
+        return CommunityService.install(data, self.active_workspace)
 
-        skill_id = (skill_data.get("id") or "").strip().lower()
-        title = (skill_data.get("title") or skill_data.get("display_title") or skill_id).strip()
-        category = skill_data.get("category", "Community")
-        desc = skill_data.get("description") or skill_data.get("desc") or "Kỹ năng được đóng góp từ cộng đồng."
-        author = skill_data.get("author") or "Cộng Đồng Kỹ Sư"
-        content = skill_data.get("content") or f"---\nname: {skill_id}\ndescription: {desc}\n---\n# {title}\n"
+    def community_action(self, data):
+        from .community import CommunityService
+        return CommunityService.action(data.get('action'), data.get('payload') or {})
 
-        if not skill_id:
-            return {"success": False, "message": "ID kỹ năng không được để trống."}
-
-        comm_file = self._get_community_file()
-        current_res = self.community_get_skills()
-        skills = current_res.get("skills", [])
-
-        # Check if already exists; if so, update
-        existing = next((s for s in skills if s.get("id") == skill_id), None)
-        if existing:
-            existing["display_title"] = title
-            existing["name"] = title
-            existing["category"] = category
-            existing["description"] = desc
-            existing["content"] = content
-            existing["author"] = author
-            existing["updated_at"] = sys.platform
-        else:
-            skills.insert(0, {
-                "id": skill_id,
-                "name": title,
-                "display_title": title,
-                "author": author,
-                "category": category,
-                "rating": 5.0,
-                "downloads": 1,
-                "description": desc,
-                "version": "1.0.0",
-                "tags": [category, "Community", "Custom"],
-                "content": content
-            })
-
+    def community_get_skill(self, skill_id):
+        from .community import CommunityService
+        from .cloud_client import CloudError, failure
         try:
-            comm_file.write_text(json.dumps(skills, indent=2, ensure_ascii=False), encoding="utf-8")
-            logger = get_logger()
-            logger.info(f"Published skill '{skill_id}' to Community Cloud by {author}")
-            return {
-                "success": True,
-                "skill_id": skill_id,
-                "message": f"✓ Đã đăng tải kỹ năng '{title}' lên Chợ Cộng Đồng thành công!"
-            }
-        except Exception as e:
-            return {"success": False, "message": f"Lỗi lưu trữ: {str(e)}"}
+            return {'success': True, 'status': 'success', 'skill': CommunityService.get_skill(skill_id)}
+        except (CloudError, ValueError, OSError) as error:
+            return failure(error)
 
-    def community_install_skill(self, data: Any) -> Dict[str, Any]:
-        """
-        Downloads and installs a community skill into specified AI targets and target workspace.
-        """
-        if not isinstance(data, dict):
-            return {"success": False, "message": "Yêu cầu cài đặt không hợp lệ."}
+    def get_pending_diagnostic(self):
+        from .telemetry import TelemetryService
+        return TelemetryService.pending()
 
-        skill_id = data.get("skill_id")
-        targets = data.get("targets") or ["gemini", "claude", "workspace"]
-        workspace_path = data.get("workspace_path") or self.active_workspace
+    def prepare_diagnostic(self, payload):
+        from .telemetry import TelemetryService
+        return TelemetryService.prepare(payload)
 
-        skills_res = self.community_get_skills()
-        skills = skills_res.get("skills", [])
-        skill_item = next((s for s in skills if s.get("id") == skill_id), None)
-        if not skill_item:
-            return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}' trên Chợ Cộng Đồng."}
+    def report_system_error(self, payload):
+        from .telemetry import TelemetryService
+        return TelemetryService.send(payload.get('request_id'))
 
-        # Increment download counter
-        skill_item["downloads"] = (skill_item.get("downloads") or 0) + 1
-        try:
-            self._get_community_file().write_text(json.dumps(skills, indent=2, ensure_ascii=False), encoding="utf-8")
-        except Exception:
-            pass
+    def discard_diagnostic(self):
+        from .telemetry import TelemetryService
+        return TelemetryService.discard()
 
-        # Save to local workspace or targets
-        req = InstallRequest(
-            skill_id=skill_id,
-            targets=targets,
-            workspace_path=workspace_path,
-            enable_always_on=True,
-            with_graphify=False
-        )
-
-        item = SkillItem(
-            id=skill_id,
-            name=skill_item.get("display_title") or skill_id,
-            display_title=skill_item.get("display_title") or skill_id,
-            version=skill_item.get("version", "1.0.0"),
-            description=skill_item.get("description", ""),
-            category=skill_item.get("category", "Community"),
-            source_group="community",
-            skill_content=skill_item.get("content", ""),
-            author=skill_item.get("author", "Community"),
-            when_to_use=skill_item.get("description", ""),
-            starter_prompts=[
-                {"title": "Kích hoạt kiểm tra", "prompt": f"Hãy hướng dẫn tôi sử dụng {skill_id}"}
-            ]
-        )
-
-        res = SkillInstaller.install(item, req)
-        logger = get_logger()
-        logger.info(f"Installed community skill '{skill_id}' to targets {targets}. Success: {res.success}")
-        return {
-            "success": res.success,
-            "installed_paths": res.installed_paths,
-            "message": f"✓ Đã tải và cài đặt '{item.display_title}' vào các công cụ AI đã chọn!" if res.success else res.message
-        }
-
-    # ==========================================
-    # Phase 4: Zero-Trust Security & Error Telemetry
-    # ==========================================
-    def report_system_error(self, payload: Any) -> Dict[str, Any]:
-        """
-        Submits and deduplicates a system error report with PII/secret scrubbing
-        and cryptographic error fingerprinting (Zero-Trust AppSec & Anti-Spam Telemetry).
-        """
-        from datetime import datetime
-        if not isinstance(payload, dict):
-            return {"success": False, "message": "Dữ liệu lỗi không hợp lệ."}
-
-        raw_msg = payload.get("error_message") or "Unknown system error"
-        error_type = payload.get("error_type") or "RuntimeError"
-        module_name = payload.get("module_name") or "core"
-        line_num = int(payload.get("line_number") or 0)
-        raw_trace = payload.get("traceback") or ""
-
-        # 1. Scrub PII and secrets
-        clean_msg = sanitize_sensitive_data(raw_msg)
-        clean_trace = sanitize_sensitive_data(raw_trace)
-
-        # 2. Cryptographic Fingerprint for Deduplication & Anti-Spam (MD5/SHA256)
-        fingerprint_input = f"{error_type}:{module_name}:{line_num}"
-        fingerprint = hashlib.sha256(fingerprint_input.encode()).hexdigest()[:16]
-
-        from app.backend.paths import get_data_dir
-        reports_file = get_data_dir() / "system_error_reports.json"
-        reports = []
-        if reports_file.exists():
-            try:
-                reports = json.loads(reports_file.read_text(encoding="utf-8"))
-            except Exception:
-                reports = []
-
-        now_iso = datetime.now().isoformat()
-        app_version = "1.0.0"
-
-        # Check existing fingerprint to deduplicate (Anti-Spam / Anti-Flood)
-        existing = next((r for r in reports if r.get("fingerprint") == fingerprint and r.get("app_version") == app_version), None)
-        if existing:
-            existing["occurrences"] = (existing.get("occurrences") or 1) + 1
-            existing["last_seen_at"] = now_iso
-            existing["error_message"] = clean_msg
-            count = existing["occurrences"]
-        else:
-            new_record = {
-                "id": str(uuid.uuid4()),
-                "fingerprint": fingerprint,
-                "error_type": error_type,
-                "error_message": clean_msg,
-                "module_name": module_name,
-                "line_number": line_num,
-                "app_version": app_version,
-                "os_info": sys.platform,
-                "occurrences": 1,
-                "status": "new",
-                "first_seen_at": now_iso,
-                "last_seen_at": now_iso,
-                "sanitized_traceback": clean_trace
-            }
-            reports.insert(0, new_record)
-            count = 1
-
-        try:
-            reports_file.write_text(json.dumps(reports, indent=2, ensure_ascii=False), encoding="utf-8")
-        except Exception as e:
-            get_logger().warning(f"Could not write system_error_reports.json: {e}")
-
-        # Cloud Telemetry: sync new reports to Supabase Cloud if configured
-        if count == 1:
-            try:
-                from app.backend.auth import AuthEngine
-                cfg = AuthEngine.get_config()
-                s_url = cfg.get("supabase_url", "")
-                s_key = cfg.get("anon_key", "")
-                if s_url and s_key and "demo" not in s_url and "custom-project" not in s_url:
-                    import threading
-                    import urllib.request
-                    def _push_cloud(rec):
-                        try:
-                            req_url = f"{s_url.rstrip('/')}/rest/v1/system_error_reports"
-                            hdrs = {
-                                "apikey": s_key,
-                                "Authorization": f"Bearer {s_key}",
-                                "Content-Type": "application/json",
-                                "Prefer": "return=minimal"
-                            }
-                            req = urllib.request.Request(req_url, data=json.dumps(rec).encode(), headers=hdrs, method="POST")
-                            with urllib.request.urlopen(req, timeout=5) as resp:
-                                pass
-                        except Exception as err:
-                            get_logger().debug(f"Cloud telemetry push skipped: {err}")
-                    threading.Thread(target=_push_cloud, args=(new_record,), daemon=True).start()
-            except Exception:
-                pass
-
-        logger = get_logger()
-        logger.info(f"System error reported and deduplicated: [{fingerprint}] occurrences={count}")
-
-        if count > 1:
-            msg = f"✓ Báo cáo lỗi trùng khớp đã được gom nhóm tự động (Mã: {fingerprint}, Đã ghi nhận: {count} lần)."
-        else:
-            msg = f"✓ Đã ghi nhận báo cáo lỗi thành công (Mã: {fingerprint})."
-
-        return {
-            "success": True,
-            "fingerprint": fingerprint,
-            "occurrences": count,
-            "message": msg
-        }
+    def auth_cancel_oauth(self):
+        from .auth import OAuthServerManager
+        OAuthServerManager.stop_server()
+        return {'success': True, 'status': 'cancelled', 'message': 'Đã hủy đăng nhập.'}

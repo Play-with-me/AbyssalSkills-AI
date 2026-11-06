@@ -12,397 +12,216 @@ import os
 import sys
 import shutil
 import subprocess
+import json
+import hashlib
+import yaml
+from .paths import safe_child, validate_skill_id, atomic_write, assert_safe_workspace_path
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from .models import SkillItem, InstallRequest, InstallResult
 
 class SkillInstaller:
+    TARGETS = {
+        'antigravity': ('home', '.gemini/config/skills'),
+        'claude': ('home', '.claude/skills'),
+        'copilot': ('home', '.copilot/skills'),
+        'cursor': ('workspace', '.cursor/skills'),
+        'windsurf': ('workspace', '.codeium/windsurf/skills'),
+        'aider': ('workspace', '.aider/skills'),
+        'codex': ('home', '.codex/skills'),
+        'workspace': ('workspace', '.agents/skills'),
+    }
+
+    @classmethod
+    def target_dirs(cls, skill_id, workspace_path=None):
+        validate_skill_id(skill_id)
+        workspace = assert_safe_workspace_path(workspace_path or Path.cwd())
+        return {name: safe_child(Path.home() if scope == 'home' else workspace, relative + '/' + skill_id)
+                for name, (scope, relative) in cls.TARGETS.items()}
+
+    @classmethod
+    def installed_skill_dirs(cls, skill_id, workspace_path=None):
+        return [p for p in cls.target_dirs(skill_id, workspace_path).values() if (p / 'SKILL.md').is_file()]
+
+    @classmethod
+    def skill_payload(cls, skill):
+        validate_skill_id(skill.id)
+        payload = {'SKILL.md': cls.generate_skill_markdown(skill)}
+        for folder, documents in [('references', skill.references), ('rules', skill.rules)]:
+            for doc in documents:
+                # Validation happens before any file is written.
+                safe_child(Path.cwd(), doc.filename)
+                payload[folder + '/' + doc.filename] = doc.content
+        return payload
+
+    @classmethod
+    def skill_differs_at(cls, skill, directory):
+        for name, expected in cls.skill_payload(skill).items():
+            path = safe_child(directory, name)
+            if not path.exists() or path.read_text(encoding='utf-8') != expected:
+                return True
+        return False
+
     @classmethod
     def install(cls, skill: SkillItem, req: InstallRequest) -> InstallResult:
-        installed_paths = []
-        rules_paths = []
-        errors = []
-        home = Path.home()
-
-        # 1. Prepare skill payload content
-        # Write temporary directory or assemble files in memory
-        for target in req.targets:
+        installed, rules, errors, results = [], [], [], []
+        try:
+            destinations = cls.target_dirs(skill.id, req.workspace_path)
+            cls.skill_payload(skill)
+        except (ValueError, OSError) as error:
+            return InstallResult(False, skill.id, message=str(error), errors=[str(error)])
+        workspace = Path(req.workspace_path or Path.cwd())
+        for target in dict.fromkeys(req.targets):
             try:
-                if target == "antigravity":
-                    base_dir = home / ".gemini" / "config" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_antigravity_rules(skill, home)
-                        rules_paths.extend(r_paths)
-
-                elif target == "claude":
-                    base_dir = home / ".claude" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_claude_rules(skill, home)
-                        rules_paths.extend(r_paths)
-
-                elif target == "copilot":
-                    base_dir = home / ".copilot" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                elif target == "cursor":
-                    ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
-                    base_dir = ws / ".cursor" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_cursor_rules(skill, ws, home)
-                        rules_paths.extend(r_paths)
-
-                elif target == "windsurf":
-                    ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
-                    base_dir = ws / ".codeium" / "windsurf" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_windsurf_rules(skill, ws)
-                        rules_paths.extend(r_paths)
-
-                elif target == "aider":
-                    ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
-                    base_dir = ws / ".aider" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_aider_rules(skill, ws)
-                        rules_paths.extend(r_paths)
-
-                elif target == "codex":
-                    ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
-                    base_dir = home / ".codex" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_codex_rules(skill, home, ws)
-                        rules_paths.extend(r_paths)
-
-                elif target == "workspace":
-                    ws = Path(req.workspace_path) if req.workspace_path else Path.cwd()
-                    base_dir = ws / ".agents" / "skills" / skill.id
-                    res_path = cls._write_skill_to_dir(skill, base_dir)
-                    installed_paths.append(str(res_path))
-
-                    if req.enable_always_on:
-                        r_paths = cls._install_workspace_rules(skill, ws)
-                        rules_paths.extend(r_paths)
-
-            except Exception as e:
-                errors.append(f"Target '{target}' failed: {str(e)}")
-
-        # 2. Graphify CLI Integration
-        graphify_status = "skipped"
-        if req.with_graphify and (skill.has_graphify or "workspace" in req.targets):
-            try:
-                g_status = cls._run_graphify_integration(req)
-                graphify_status = g_status
-            except Exception as e:
-                graphify_status = f"warning: {str(e)}"
-
-        success = len(installed_paths) > 0 and len(errors) == 0
-        message = (
-            f"Đã cài đặt thành công '{skill.display_title}' vào {len(installed_paths)} vị trí."
-            if success else f"Cài đặt hoàn tất với cảnh báo ({len(errors)} lỗi)."
-        )
-
-        return InstallResult(
-            success=success,
-            skill_id=skill.id,
-            installed_paths=installed_paths,
-            rules_paths=rules_paths,
-            graphify_status=graphify_status,
-            message=message,
-            errors=errors
-        )
+                if target not in destinations:
+                    raise ValueError('Môi trường AI không được hỗ trợ: ' + str(target))
+                destination = destinations[target]
+                if (destination / 'SKILL.md').exists() and cls.skill_differs_at(skill, destination) and not req.overwrite:
+                    raise ValueError('Nội dung đã tồn tại khác với thư viện. Vui lòng xem khác biệt và xác nhận cập nhật.')
+                payload = {safe_child(destination, name): content for name, content in cls.skill_payload(skill).items()}
+                rule_paths = []
+                if req.enable_always_on:
+                    shared = cls.shared_rule_payload(skill, target, workspace)
+                    payload.update(shared)
+                    rule_paths = [str(path) for path in shared]
+                if not req.overwrite:
+                    for path, content in payload.items():
+                        if path.exists() and path.read_text(encoding='utf-8') != content and path.is_relative_to(destination):
+                            raise ValueError('Nội dung đã thay đổi. Vui lòng xem khác biệt trước khi cập nhật.')
+                        if path.exists() and not path.is_relative_to(destination):
+                            current = path.read_text(encoding='utf-8')
+                            old = cls.rule_block(current, skill.id)
+                            new = cls.rule_block(content, skill.id)
+                            if old and old != new:
+                                raise ValueError('Quy tắc đã thay đổi. Vui lòng xem khác biệt trước khi cập nhật.')
+                manifest = {str(path): hashlib.sha256(cls.rule_block(content, skill.id).encode()).hexdigest()
+                            for path, content in payload.items() if str(path) in rule_paths}
+                payload[safe_child(destination, '.abyssal-install.json')] = json.dumps({'rules': manifest}, ensure_ascii=False)
+                cls.write_payload(payload)
+                installed.append(str(destination))
+                rules.extend(rule_paths)
+                results.append({'target': target, 'status': 'success', 'path': str(destination)})
+            except Exception as error:
+                errors.append(f"{target}: {error}")
+                results.append({'target': target, 'status': 'error', 'message': str(error)})
+        success = bool(installed) and not errors
+        status = 'success' if success else ('partial' if installed else 'error')
+        return InstallResult(success, skill.id, installed_paths=installed, rules_paths=rules,
+                             message=f'Đã ghi tệp ở {len(installed)}/{len(set(req.targets))} môi trường.' + (' Có lỗi cần xử lý.' if errors else ''),
+                             errors=errors, status=status, results=results)
 
     @classmethod
-    def uninstall(cls, skill_id: str, targets: List[str], workspace_path: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Gỡ bỏ sạch sẽ kỹ năng khỏi các công cụ AI được chỉ định.
-        Xóa an toàn thư mục skill và dọn dẹp các liên kết liên quan.
-        """
-        removed_paths = []
-        errors = []
-        home = Path.home()
-        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
-
-        target_dirs = {
-            "antigravity": [
-                home / ".gemini" / "config" / "skills" / skill_id,
-                home / ".gemini" / "antigravity" / "skills" / skill_id
-            ],
-            "claude": [
-                home / ".claude" / "skills" / skill_id
-            ],
-            "copilot": [
-                home / ".copilot" / "skills" / skill_id
-            ],
-            "cursor": [
-                active_ws / ".cursor" / "skills" / skill_id
-            ],
-            "windsurf": [
-                active_ws / ".codeium" / "windsurf" / "skills" / skill_id
-            ],
-            "aider": [
-                active_ws / ".aider" / "skills" / skill_id
-            ],
-            "codex": [
-                home / ".codex" / "skills" / skill_id,
-                active_ws / ".codex" / "skills" / skill_id
-            ],
-            "workspace": [
-                active_ws / ".agents" / "skills" / skill_id
-            ]
-        }
-
-        for target in targets:
-            paths = target_dirs.get(target, [])
-            for p in paths:
-                if p.exists():
-                    try:
-                        if p.is_dir():
-                            shutil.rmtree(p)
-                        else:
-                            p.unlink()
-                        removed_paths.append(str(p))
-                    except Exception as e:
-                        errors.append(f"Không thể xóa {p}: {str(e)}")
-
-        success = len(removed_paths) > 0 or len(errors) == 0
-        return {
-            "success": success,
-            "skill_id": skill_id,
-            "removed_paths": removed_paths,
-            "errors": errors,
-            "message": f"Đã gỡ bỏ thành công khỏi {len(removed_paths)} vị trí." if success else f"Có lỗi khi gỡ bỏ: {'; '.join(errors)}"
-        }
+    def uninstall(cls, skill_id, targets, workspace_path=None):
+        removed, errors = [], []
+        try:
+            destinations = cls.target_dirs(skill_id, workspace_path)
+            for target in dict.fromkeys(targets):
+                if target not in destinations:
+                    raise ValueError('Môi trường không được hỗ trợ: ' + str(target))
+                destination = destinations[target]
+                if destination.exists():
+                    manifest_file = destination / '.abyssal-install.json'
+                    if manifest_file.is_file():
+                        manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
+                        allowed = {str(path): path for paths in cls.rule_locations(target, workspace_path or Path.cwd()).values() for path in paths}
+                        for name, expected_hash in manifest.get('rules', {}).items():
+                            if name not in allowed or not allowed[name].is_file():
+                                continue
+                            path = safe_child(allowed[name].parent, allowed[name].name)
+                            text = path.read_text(encoding='utf-8')
+                            block = cls.rule_block(text, skill_id)
+                            if block and hashlib.sha256(block.encode()).hexdigest() == expected_hash:
+                                atomic_write(path, text.replace(block, '', 1), backup=True)
+                    # Preserve the complete installation in a recoverable sibling archive.
+                    import time
+                    archive = safe_child(destination.parent, ".abyssal-removed/" + skill_id + "-" + str(time.time_ns()))
+                    archive.parent.mkdir(parents=True, exist_ok=True)
+                    destination.replace(archive)
+                    removed.append(str(destination))
+        except (ValueError, OSError) as error:
+            errors.append(str(error))
+        return {'success': not errors, 'status': 'error' if errors else 'success', 'skill_id': skill_id,
+                'removed_paths': removed, 'errors': errors,
+                'message': f'Đã gỡ thư mục skill tại {len(removed)} vị trí. Giữ lại nội dung tùy biến và các snapshot ngoài thư mục skill.' if not errors else '; '.join(errors)}
 
     @classmethod
     def generate_skill_markdown(cls, skill: SkillItem) -> str:
         """Generates the canonical full markdown for a skill (YAML frontmatter + body)."""
-        content_lines = ["---"]
-        for k, v in skill.yaml_frontmatter.items():
-            if isinstance(v, list):
-                content_lines.append(f"{k}:")
-                for item in v:
-                    content_lines.append(f"  - {item}")
-            else:
-                content_lines.append(f"{k}: {v}")
-        if not skill.yaml_frontmatter:
-            content_lines.append(f"name: {skill.name}")
-            content_lines.append(f"description: {skill.description}")
-        content_lines.append("---")
-        content_lines.append("")
-        content_lines.append(skill.skill_content)
-        return "\n".join(content_lines)
+        metadata = skill.yaml_frontmatter or {'name': skill.name, 'description': skill.description}
+        return '---\n' + yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False).rstrip() + '\n---\n\n' + skill.skill_content
 
     @classmethod
     def _write_skill_to_dir(cls, skill: SkillItem, dest_dir: Path) -> Path:
-        dest_dir.mkdir(parents=True, exist_ok=True)
-
-        # Safe Backup: If SKILL.md already exists, create snapshot .bak
-        skill_file = dest_dir / "SKILL.md"
-        if skill_file.exists():
-            try:
-                bak_file = dest_dir / "SKILL.md.bak"
-                shutil.copy2(skill_file, bak_file)
-            except Exception:
-                pass
-
-        full_content = cls.generate_skill_markdown(skill)
-        skill_file.write_text(full_content, encoding="utf-8")
-
-        # Write references/
-        if skill.references:
-            ref_dir = dest_dir / "references"
-            ref_dir.mkdir(parents=True, exist_ok=True)
-            for ref in skill.references:
-                ref_file = ref_dir / ref.filename
-                ref_file.write_text(ref.content, encoding="utf-8")
-
-        # Write rules/
-        if skill.rules:
-            rule_dir = dest_dir / "rules"
-            rule_dir.mkdir(parents=True, exist_ok=True)
-            for rule in skill.rules:
-                rule_file = rule_dir / rule.filename
-                rule_file.write_text(rule.content, encoding="utf-8")
-
+        payload = {safe_child(dest_dir, name): content for name, content in cls.skill_payload(skill).items()}
+        cls.write_payload(payload)
         return dest_dir
 
     @staticmethod
-    def _install_antigravity_rules(skill: SkillItem, home: Path) -> List[str]:
-        installed = []
-        rules_dir = home / ".gemini" / "config" / "rules"
-        rules_dir.mkdir(parents=True, exist_ok=True)
-
-        for rule in skill.rules:
-            if "always-on" in rule.filename:
-                target = rules_dir / "always-on-autopilot.md"
-                target.write_text(rule.content, encoding="utf-8")
-                installed.append(str(target))
-            elif "GEMINI" in rule.filename:
-                # Copy to ~/.gemini/GEMINI.md and ~/.gemini/config/GEMINI.md
-                t1 = home / ".gemini" / "GEMINI.md"
-                t2 = home / ".gemini" / "config" / "GEMINI.md"
-                t1.parent.mkdir(parents=True, exist_ok=True)
-                t2.parent.mkdir(parents=True, exist_ok=True)
-                t1.write_text(rule.content, encoding="utf-8")
-                t2.write_text(rule.content, encoding="utf-8")
-                installed.extend([str(t1), str(t2)])
-
-        return installed
+    def rule_block(content, skill_id):
+        import re
+        pattern = r'<!-- AbyssalSkillsD:' + re.escape(skill_id) + r' -->[\s\S]*?<!-- /AbyssalSkillsD:' + re.escape(skill_id) + r' -->'
+        match = re.search(pattern, content)
+        return match.group(0) if match else ''
 
     @staticmethod
-    def _install_claude_rules(skill: SkillItem, home: Path) -> List[str]:
-        installed = []
-        claude_dir = home / ".claude"
-        claude_dir.mkdir(parents=True, exist_ok=True)
+    def rule_locations(target, workspace):
+        home, ws = Path.home(), Path(workspace)
+        locations = {
+            'antigravity': {'always': [home / '.gemini/config/rules/always-on-autopilot.md'], 'context': [home / '.gemini/GEMINI.md', home / '.gemini/config/GEMINI.md']},
+            'claude': {'context': [home / '.claude/CLAUDE.md']},
+            'cursor': {'always': [ws / '.cursorrules', ws / '.cursor/rules/always-on-autopilot.mdc']},
+            'windsurf': {'always': [ws / '.windsurfrules']},
+            'aider': {'always': [ws / 'CONVENTIONS.md']},
+            'codex': {'always': [home / '.codex/rules/always-on-autopilot.md', ws / 'CODEX.md', ws / '.codex/rules/always-on-autopilot.md']},
+            'workspace': {'always': [ws / '.agents/rules/always-on-autopilot.md', ws / '.cursorrules', ws / '.cursor/rules/always-on-autopilot.mdc', ws / '.windsurfrules', ws / '.github/copilot-instructions.md', ws / 'CONVENTIONS.md', ws / 'CODEX.md', ws / '.codex/rules/always-on-autopilot.md'], 'context': [ws / 'GEMINI.md', ws / 'AGENTS.md']},
+        }
+        return locations.get(target, {})
 
+    @classmethod
+    def shared_rule_payload(cls, skill, target, workspace):
+        payload = {}
         for rule in skill.rules:
-            if "GEMINI" in rule.filename or "CLAUDE" in rule.filename:
-                target = claude_dir / "CLAUDE.md"
-                target.write_text(rule.content, encoding="utf-8")
-                installed.append(str(target))
-        return installed
+            kind = 'always' if 'always-on' in rule.filename else 'context' if ('GEMINI' in rule.filename or 'CLAUDE' in rule.filename) else None
+            for path in cls.rule_locations(target, workspace).get(kind, []):
+                # Validate linked parents before reading or creating directories.
+                safe_child(Path.home() if path.is_relative_to(Path.home()) and not path.is_relative_to(Path(workspace)) else Path(workspace), path.relative_to(Path.home() if path.is_relative_to(Path.home()) and not path.is_relative_to(Path(workspace)) else Path(workspace)).as_posix())
+                old = payload.get(path, path.read_text(encoding='utf-8') if path.exists() else '')
+                block = f'<!-- AbyssalSkillsD:{skill.id} -->\n{rule.content}\n<!-- /AbyssalSkillsD:{skill.id} -->'
+                previous = cls.rule_block(old, skill.id)
+                payload[path] = old.replace(previous, block, 1) if previous else old.rstrip() + ('\n\n' if old else '') + block + '\n'
+        return payload
+
+    @classmethod
+    def target_payload(cls, skill, target, workspace):
+        destination = cls.target_dirs(skill.id, workspace)[target]
+        return {**{safe_child(destination, name): content for name, content in cls.skill_payload(skill).items()},
+                **cls.shared_rule_payload(skill, target, Path(workspace))}
 
     @staticmethod
-    def _install_workspace_rules(skill: SkillItem, ws: Path) -> List[str]:
-        installed = []
-        ws_rules = ws / ".agents" / "rules"
-        ws_rules.mkdir(parents=True, exist_ok=True)
-
-        for rule in skill.rules:
-            if "always-on" in rule.filename:
-                # 1. Antigravity & Generic Workspace Agent rule
-                target = ws_rules / "always-on-autopilot.md"
-                target.write_text(rule.content, encoding="utf-8")
-                installed.append(str(target))
-
-                # 2. Cursor AI (.cursorrules & .cursor/rules/*.mdc)
-                cursor_file = ws / ".cursorrules"
-                cursor_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(cursor_file))
-
-                cursor_mdc_dir = ws / ".cursor" / "rules"
-                cursor_mdc_dir.mkdir(parents=True, exist_ok=True)
-                cursor_mdc = cursor_mdc_dir / "always-on-autopilot.mdc"
-                cursor_mdc.write_text(rule.content, encoding="utf-8")
-                installed.append(str(cursor_mdc))
-
-                # 3. Windsurf (.windsurfrules)
-                windsurf_file = ws / ".windsurfrules"
-                windsurf_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(windsurf_file))
-
-                # 4. GitHub Copilot (.github/copilot-instructions.md)
-                copilot_dir = ws / ".github"
-                copilot_dir.mkdir(parents=True, exist_ok=True)
-                copilot_file = copilot_dir / "copilot-instructions.md"
-                copilot_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(copilot_file))
-
-                # 5. Aider (CONVENTIONS.md)
-                aider_file = ws / "CONVENTIONS.md"
-                aider_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(aider_file))
-
-                # 6. OpenAI Codex (CODEX.md & .codex/rules/always-on-autopilot.md)
-                codex_file = ws / "CODEX.md"
-                codex_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(codex_file))
-
-                codex_md_dir = ws / ".codex" / "rules"
-                codex_md_dir.mkdir(parents=True, exist_ok=True)
-                codex_rule = codex_md_dir / "always-on-autopilot.md"
-                codex_rule.write_text(rule.content, encoding="utf-8")
-                installed.append(str(codex_rule))
-
-            elif "GEMINI" in rule.filename:
-                t1 = ws / "GEMINI.md"
-                t2 = ws / "AGENTS.md"
-                t1.write_text(rule.content, encoding="utf-8")
-                t2.write_text(rule.content, encoding="utf-8")
-                installed.extend([str(t1), str(t2)])
-        return installed
-
-    @staticmethod
-    def _install_cursor_rules(skill: SkillItem, ws: Path, home: Path) -> List[str]:
-        installed = []
-        for rule in skill.rules:
-            if "always-on" in rule.filename:
-                c_file = ws / ".cursorrules"
-                c_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(c_file))
-
-                c_mdc_dir = ws / ".cursor" / "rules"
-                c_mdc_dir.mkdir(parents=True, exist_ok=True)
-                c_mdc = c_mdc_dir / "always-on-autopilot.mdc"
-                c_mdc.write_text(rule.content, encoding="utf-8")
-                installed.append(str(c_mdc))
-        return installed
-
-    @staticmethod
-    def _install_windsurf_rules(skill: SkillItem, ws: Path) -> List[str]:
-        installed = []
-        for rule in skill.rules:
-            if "always-on" in rule.filename:
-                w_file = ws / ".windsurfrules"
-                w_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(w_file))
-        return installed
-
-    @staticmethod
-    def _install_aider_rules(skill: SkillItem, ws: Path) -> List[str]:
-        installed = []
-        for rule in skill.rules:
-            if "always-on" in rule.filename:
-                a_file = ws / "CONVENTIONS.md"
-                a_file.write_text(rule.content, encoding="utf-8")
-                installed.append(str(a_file))
-        return installed
-
-    @staticmethod
-    def _install_codex_rules(skill: SkillItem, home: Path, ws: Path) -> List[str]:
-        installed = []
-        # 1. Global ~/.codex/rules/
-        global_codex_rules = home / ".codex" / "rules"
-        global_codex_rules.mkdir(parents=True, exist_ok=True)
-        # 2. Workspace .codex/rules/
-        ws_codex_rules = ws / ".codex" / "rules"
-        ws_codex_rules.mkdir(parents=True, exist_ok=True)
-
-        for rule in skill.rules:
-            if "always-on" in rule.filename:
-                # Global always-on rule
-                g_target = global_codex_rules / "always-on-autopilot.md"
-                g_target.write_text(rule.content, encoding="utf-8")
-                installed.append(str(g_target))
-
-                # Workspace root CODEX.md instructions
-                w_target = ws / "CODEX.md"
-                w_target.write_text(rule.content, encoding="utf-8")
-                installed.append(str(w_target))
-
-                # Workspace .codex/rules/
-                w_rule = ws_codex_rules / "always-on-autopilot.md"
-                w_rule.write_text(rule.content, encoding="utf-8")
-                installed.append(str(w_rule))
-        return installed
+    def write_payload(payload):
+        """Snapshot all changed files first, then replace; restore on write failure."""
+        import time
+        changed = {path: text for path, text in payload.items() if not path.exists() or path.read_text(encoding='utf-8') != text}
+        original, snapshots = {}, {}
+        for path in changed:
+            safe_child(path.parent, path.name)
+            original[path] = path.read_text(encoding='utf-8') if path.exists() else None
+            if path.exists():
+                snapshot = path.with_name(f'{path.name}.{time.time_ns()}.bak')
+                shutil.copy2(path, snapshot)
+                snapshots[path] = snapshot
+        written = []
+        try:
+            for path, text in changed.items():
+                atomic_write(path, text)
+                written.append(path)
+        except OSError:
+            for path in reversed(written):
+                if original[path] is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    atomic_write(path, original[path])
+            raise
 
     @staticmethod
     def _run_graphify_integration(req: InstallRequest) -> str:
@@ -425,7 +244,10 @@ class SkillInstaller:
         cls, 
         skills: List[SkillItem], 
         targets: Optional[List[str]] = None, 
-        workspace_path: Optional[str] = None
+        workspace_path: Optional[str] = None,
+        cancel_event=None,
+        enable_always_on=True,
+        overwrite: bool = True
     ) -> Dict[str, Any]:
         """
         Đồng bộ toàn bộ kho kỹ năng cho tất cả các công cụ AI được chỉ định.
@@ -434,51 +256,26 @@ class SkillInstaller:
         if not targets:
             targets = ["antigravity", "claude", "copilot", "cursor", "windsurf", "codex", "workspace"]
 
-        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
-        target_counts = {t: 0 for t in targets}
-        all_installed_paths = []
-        errors = []
-
+        active_ws = assert_safe_workspace_path(workspace_path or Path.cwd())
+        counts = {target: 0 for target in targets}
+        results, errors, installed = [], [], []
         for skill in skills:
-            req = InstallRequest(
-                skill_id=skill.id,
-                targets=targets,
-                workspace_path=str(active_ws),
-                enable_always_on=True,
-                with_graphify=False
-            )
-            res = cls.install(skill, req)
-            if res.success:
-                for p in res.installed_paths:
-                    all_installed_paths.append(p)
-                    p_lower = p.lower()
-                    if ".gemini" in p_lower:
-                        target_counts["antigravity"] = target_counts.get("antigravity", 0) + 1
-                    elif ".claude" in p_lower:
-                        target_counts["claude"] = target_counts.get("claude", 0) + 1
-                    elif ".copilot" in p_lower:
-                        target_counts["copilot"] = target_counts.get("copilot", 0) + 1
-                    elif ".cursor" in p_lower:
-                        target_counts["cursor"] = target_counts.get("cursor", 0) + 1
-                    elif ".codeium" in p_lower or "windsurf" in p_lower:
-                        target_counts["windsurf"] = target_counts.get("windsurf", 0) + 1
-                    elif ".codex" in p_lower or "codex" in p_lower:
-                        target_counts["codex"] = target_counts.get("codex", 0) + 1
-                    elif ".agents" in p_lower:
-                        target_counts["workspace"] = target_counts.get("workspace", 0) + 1
-            if res.errors:
-                errors.extend(res.errors)
-
-        return {
-            "success": len(errors) == 0 or len(all_installed_paths) > 0,
-            "total_skills": len(skills),
-            "targets": targets,
-            "target_counts": target_counts,
-            "total_installed_files": len(all_installed_paths),
-            "workspace_path": str(active_ws),
-            "errors": errors[:5],
-            "message": f"Đã đồng bộ thành công {len(skills)} kỹ năng vào {len(targets)} môi trường AI!"
-        }
+            if cancel_event is not None and cancel_event.is_set():
+                break
+            result = cls.install(skill, InstallRequest(skill.id, targets, str(active_ws), enable_always_on, False, overwrite=overwrite))
+            installed.extend(result.installed_paths)
+            errors.extend(result.errors)
+            results.append({'skill_id': skill.id, 'status': result.status, 'results': result.results})
+            for item in result.results:
+                if item['status'] == 'success':
+                    counts[item['target']] += 1
+        cancelled = cancel_event is not None and cancel_event.is_set()
+        success = bool(installed) and not errors and not cancelled
+        return {'success': success, 'status': 'cancelled' if cancelled else ('success' if success else ('partial' if installed else 'error')),
+                'total_skills': len(skills), 'targets': targets, 'target_counts': counts,
+                'total_installed_files': sum(sum(1 for f in Path(p).rglob('*') if f.is_file() and not f.name.endswith('.bak')) for p in installed),
+                'workspace_path': str(active_ws), 'results': results, 'errors': errors,
+                'message': f'Đã ghi {len(installed)} bản cài. {len(errors)} lỗi; xem chi tiết trước khi thử lại.'}
 
     @classmethod
     def generate_rule_scaffold(
@@ -490,9 +287,7 @@ class SkillInstaller:
         """
         Tự động sinh giàn giáo tệp quy tắc cho dự án (Cursor, Windsurf, Claude, Copilot, Antigravity, Codex).
         """
-        active_ws = Path(workspace_path) if workspace_path else Path.cwd()
-        if not active_ws.exists():
-            active_ws.mkdir(parents=True, exist_ok=True)
+        active_ws = assert_safe_workspace_path(workspace_path or Path.cwd())
 
         if not rule_types:
             rule_types = ["cursorrules", "windsurfrules", "claude", "copilot", "agent_rules", "codex"]
@@ -523,51 +318,33 @@ class SkillInstaller:
 {skills_bullet}
 """
 
+        locations = {
+            'cursorrules': ['.cursorrules'], 'windsurfrules': ['.windsurfrules'],
+            'claude': ['CLAUDE.md'], 'copilot': ['.github/copilot-instructions.md'],
+            'agent_rules': ['.agents/rules/always-on-autopilot.md'],
+            'codex': ['CODEX.md', '.codex/rules/always-on-autopilot.md'],
+        }
         try:
-            if "cursorrules" in rule_types:
-                c_file = active_ws / ".cursorrules"
-                c_file.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(c_file))
-
-            if "windsurfrules" in rule_types:
-                w_file = active_ws / ".windsurfrules"
-                w_file.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(w_file))
-
-            if "claude" in rule_types:
-                cl_file = active_ws / "CLAUDE.md"
-                cl_file.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(cl_file))
-
-            if "copilot" in rule_types:
-                gh_dir = active_ws / ".github"
-                gh_dir.mkdir(parents=True, exist_ok=True)
-                cp_file = gh_dir / "copilot-instructions.md"
-                cp_file.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(cp_file))
-
-            if "agent_rules" in rule_types:
-                ag_dir = active_ws / ".agents" / "rules"
-                ag_dir.mkdir(parents=True, exist_ok=True)
-                ar_file = ag_dir / "always-on-autopilot.md"
-                ar_file.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(ar_file))
-
-            if "codex" in rule_types:
-                cx_file = active_ws / "CODEX.md"
-                cx_file.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(cx_file))
-
-                cx_dir = active_ws / ".codex" / "rules"
-                cx_dir.mkdir(parents=True, exist_ok=True)
-                cx_rule = cx_dir / "always-on-autopilot.md"
-                cx_rule.write_text(rule_content, encoding="utf-8")
-                created_files.append(str(cx_rule))
-        except Exception as e:
-            errors.append(str(e))
+            payload = {}
+            for kind in rule_types:
+                if kind not in locations:
+                    raise ValueError('Loại quy tắc không được hỗ trợ: ' + str(kind))
+                for relative in locations[kind]:
+                    path = safe_child(active_ws, relative)
+                    existing = path.read_text(encoding='utf-8') if path.exists() else ''
+                    block = '<!-- AbyssalSkillsD:project-scaffold -->\n' + rule_content + '\n<!-- /AbyssalSkillsD:project-scaffold -->'
+                    previous = cls.rule_block(existing, 'project-scaffold')
+                    if previous and previous != block:
+                        raise ValueError('Quy tắc đã có thay đổi. Hãy xem và sao lưu trước khi thay thế: ' + str(path))
+                    payload[path] = existing if previous else existing + ('\n\n' if existing else '') + block + '\n'
+            cls.write_payload(payload)
+            created_files = [str(path) for path in payload]
+        except (OSError, ValueError) as error:
+            errors.append(str(error))
 
         return {
             "success": len(created_files) > 0 and len(errors) == 0,
+            "status": "error" if errors else "success",
             "created_files": created_files,
             "workspace_path": str(active_ws),
             "errors": errors,

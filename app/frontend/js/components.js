@@ -131,13 +131,13 @@ const Icons = {
 class MarkdownRenderer {
   static render(text) {
     if (!text) return "";
-    let html = text;
+    let html = this.escapeHtml(String(text));
 
     html = html.replace(/```([a-zA-Z0-9_\-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-      return `<pre><div style="font-size:10.5px; color:#64748B; margin-bottom:6px; font-weight:600; text-transform:uppercase;">${lang || 'code'}</div><code>${this.escapeHtml(code.trim())}</code></pre>`;
+      return `<pre><div style="font-size:10.5px; color:#64748B; margin-bottom:6px; font-weight:600; text-transform:uppercase;">${lang || 'code'}</div><code>${code.trim()}</code></pre>`;
     });
 
-    html = html.replace(/`([^`]+)`/g, (match, code) => `<code>${this.escapeHtml(code)}</code>`);
+    html = html.replace(/`([^`]+)`/g, (match, code) => `<code>${code}</code>`);
 
     html = html.replace(/((?:\|[^\n]+\|\n)+)/g, (match) => {
       const rows = match.trim().split("\n");
@@ -201,7 +201,7 @@ class UIComponents {
     let isComplete = false;
 
     if (newCount > 0) {
-      batchLabel = `⚡ Kích Hoạt ${newCount} Kỹ Năng Mới (1-Click)`;
+      batchLabel = `⚡ Kích Hoạt ${newCount} Kỹ Năng Vào 6 IDE (1-Click)`;
     } else {
       isComplete = true;
       batchLabel = `✓ Đã Kích Hoạt Đầy Đủ (${skillsCount}/${skillsCount})`;
@@ -284,10 +284,10 @@ class UIComponents {
           <div class="hero-goal-card goal-card-all" id="hero-goal-all" role="button" tabindex="0" title="Bấm để kích hoạt toàn bộ kỹ năng vào máy tính">
             <div class="goal-card-header">
               <div class="goal-card-icon-wrap">${Icons.sparkles}</div>
-              <div class="goal-card-title">Kích Hoạt Vào Máy Tính</div>
+              <div class="goal-card-title">Cài Tệp Vào Công Cụ AI</div>
             </div>
             <div class="goal-card-desc">
-              Tự động nạp quy tắc vào Cursor, Windsurf, Claude Code, Copilot và Antigravity.
+              Ghi tệp cho công cụ đã chọn; việc AI nạp tệp cần kiểm tra riêng.
             </div>
             <div class="goal-card-cta">
               <span>⚡ Kích hoạt 1-Click ngay</span>
@@ -397,7 +397,7 @@ class UIComponents {
           "Tự động nạp quy tắc vào Cursor, Windsurf, Claude Code, GitHub Copilot, Google Antigravity.",
           "Tích hợp 29 kỹ năng và chuyên gia AI từ Addy Osmani (Google) với 100% trích dẫn minh bạch."
         ];
-    const totalSkills = data.total_skills_installed || 36;
+    const totalSkills = data.total_skills_installed ?? 0;
     const downloadUrl = data.download_url || "https://github.com/kyuu4/abyssalskillsd/releases";
     const isOffline = !!data.is_offline;
     const checkedAt = data.checked_at || "Vừa xong";
@@ -447,11 +447,32 @@ class UIComponents {
                 <ul class="changelog-list">
                   ${releaseNotes.map(n => `<li>${this.escape(n)}</li>`).join("")}
                 </ul>
-                <div style="margin-top:14px; display:flex; gap:10px;">
-                  <a href="${downloadUrl}" target="_blank" class="btn btn-primary btn-dl-release" id="btn-dl-release-link">
-                    ${Icons.download}
-                    <span>Tải Bản v${latestVer} Từ GitHub</span>
-                  </a>
+                <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+                  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary btn-auto-update-app" id="btn-auto-update-app" data-url="${this.escape(data.setup_download_url || '')}">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                      <span id="btn-auto-update-text">⚡ Tự Động Cập Nhật & Khởi Động Lại (1-Click)</span>
+                    </button>
+                    <a href="${downloadUrl}" target="_blank" class="btn btn-secondary btn-dl-release" id="btn-dl-release-link">
+                      ${Icons.download}
+                      <span>Tải Thủ Công Từ GitHub</span>
+                    </a>
+                  </div>
+                  <!-- Safe Overwrite Guarantee Note -->
+                  <div style="font-size:11px; color:#10B981; display:flex; align-items:center; gap:5px; background:rgba(16,185,129,0.08); padding:6px 10px; border-radius:6px; border:1px solid rgba(16,185,129,0.25);">
+                    <span>🛡️</span>
+                    <span>Toàn bộ dữ liệu cá nhân, token đăng nhập và kỹ năng trong %APPDATA% được bảo vệ 100% nguyên vẹn.</span>
+                  </div>
+                  <!-- Live Download Progress Bar (Hidden by default) -->
+                  <div id="update-download-progress-container" style="display:none; background:var(--bg-elevated, #0B132B); padding:10px; border-radius:8px; border:1px solid var(--border-color, rgba(255,255,255,0.08));">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+                      <span id="update-download-status-label" style="color:var(--ocean-cyan, #00B4D8); font-weight:600;">Đang tải gói cài đặt mới...</span>
+                      <span id="update-download-percent" style="color:var(--text-primary); font-family:var(--font-mono, monospace);">0%</span>
+                    </div>
+                    <div style="width:100%; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
+                      <div id="update-download-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #00B4D8, #7C3AED); transition:width 0.2s ease;"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ` : `
@@ -576,7 +597,7 @@ class UIComponents {
             <div class="tryout-action-bar">
               <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
                 <span class="status-led active"></span>
-                <span>Tương thích 100% với Cursor, Claude, Antigravity, Copilot</span>
+                <span>Có hướng dẫn cấu hình cho Cursor, Claude, Antigravity, Copilot</span>
               </div>
               <div style="display:flex; gap:8px;">
                 <button class="btn btn-secondary" onclick="App.closeActiveModal()">Đóng</button>
@@ -632,7 +653,7 @@ class UIComponents {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; padding-top:14px; border-top:1px solid var(--border-subtle);">
               <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
                 <span class="status-led active"></span>
-                <span>Tự động cấu hình Always-On Autopilot & Graphify AST.</span>
+                <span>Cài tệp skill và quy tắc theo đích đã chọn.</span>
               </span>
               <div style="display:flex; gap:8px;">
                 <button class="btn btn-secondary" onclick="App.closeActiveModal()">Đã hiểu</button>
@@ -1277,11 +1298,11 @@ class UIComponents {
               <span>${this.escape(skill.display_title || skill.name)}</span>
               <span class="version-tag">v${skill.version || '1.0'}</span>
               ${skill.has_update ? `<span class="badge-skill-update btn-card-review-diff" data-id="${skill.id}" style="background:rgba(245,158,11,0.18); color:#FBBF24; font-size:10px; font-weight:600; padding:1px 6px; border-radius:4px; border:1px solid rgba(245,158,11,0.4); cursor:pointer;" title="Bản trên máy khác với kho. Bấm để so sánh!">🔄 Có cập nhật</span>` : ''}
-              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Kỹ năng đã nạp vào AI (${this.escape(installedListStr || 'Đã kích hoạt')}). Bấm để xem bằng chứng và lệnh kiểm chứng">● Đã vào AI</span>` : ''}
+              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Tệp kỹ năng đã được ghi (${this.escape(installedListStr || 'Đã ghi tệp')}). Bấm để xem bằng chứng và lệnh kiểm chứng">● Đã ghi tệp</span>` : ''}
             </div>
             <div class="bento-card-category">${this.escape(skill.use_case_group || skill.category || 'Chuyên gia')}</div>
           </div>
-          <div class="card-status-indicator" title="${isInstalled ? 'Đã kích hoạt vào công cụ AI' : 'Sẵn sàng kích hoạt'}">
+          <div class="card-status-indicator" title="${isInstalled ? 'Đã ghi tệp vào công cụ AI' : 'Sẵn sàng kích hoạt'}">
             <span class="status-led ${isInstalled ? 'active' : 'ready'}"></span>
           </div>
         </div>
@@ -1395,9 +1416,9 @@ class UIComponents {
 
         <div class="linear-col-status">
           ${isInstalled ? `
-            <span class="pill-tag installed btn-card-verify" data-id="${skill.id}" style="cursor:pointer;" title="Đã nạp vào: ${this.escape(installedListStr || 'Đã kích hoạt')}. Bấm để kiểm chứng tệp và câu lệnh trong AI">
+            <span class="pill-tag installed btn-card-verify" data-id="${skill.id}" style="cursor:pointer;" title="Đã nạp vào: ${this.escape(installedListStr || 'Đã ghi tệp')}. Bấm để kiểm chứng tệp và câu lệnh trong AI">
               <span class="status-led active"></span>
-              <span>Đã vào AI</span>
+              <span>Đã ghi tệp</span>
             </span>
           ` : `
             <span class="pill-tag">
@@ -1816,7 +1837,7 @@ class UIComponents {
               <span class="switch-desc">Đồng bộ đồ thị mã</span>
             </div>
             <label class="toggle-switch">
-              <input type="checkbox" id="sw-graphify" checked aria-label="Toggle Graphify">
+              <input type="checkbox" id="sw-graphify" disabled aria-label="Phân tích Graphify riêng trong thẻ AST">
               <span class="switch-slider"></span>
             </label>
           </div>
@@ -1962,7 +1983,7 @@ class UIComponents {
               <span>Cơ chế Graphify AST của AI hoạt động như thế nào?</span>
             </div>
             <div class="faq-answer">
-              Graphify là hệ thống lập bản đồ tri thức AST độc quyền dành riêng cho AI. Toàn bộ cây cú pháp và mạng lưới liên kết mã nguồn được lưu trữ tại <code>graphify-out/</code> để AI tự động tra cứu phạm vi ảnh hưởng (blast-radius) và các điểm nút trọng yếu (God Nodes) mỗi khi lập trình. Hệ thống tự động cập nhật ngầm mà không làm tốn dung lượng hay làm chậm ứng dụng của bạn.
+              Graphify là công cụ ngoài dùng để lập bản đồ quan hệ mã nguồn. Toàn bộ cây cú pháp và mạng lưới liên kết mã nguồn được lưu trữ tại <code>graphify-out/</code> để AI tự động tra cứu phạm vi ảnh hưởng (blast-radius) và các điểm nút trọng yếu (God Nodes) mỗi khi lập trình. Phân tích chỉ chạy khi bạn yêu cầu và đã cài công cụ ngoài. Kết quả cũ được ghi rõ là bản đã lưu.
             </div>
           </div>
         </div>
@@ -2004,7 +2025,7 @@ class UIComponents {
           <div class="community-subtabs">
             <button class="subtab-btn ${activeSubTab === 'marketplace' ? 'active' : ''}" id="btn-subtab-marketplace">
               <span>${Icons.sparkles}</span>
-              <span>Chợ Kỹ Năng Đám Mây (${communitySkills.length})</span>
+              <span>Chợ Kỹ Năng Đám Mây (${options.count ?? communitySkills.length})</span>
             </button>
             <button class="subtab-btn ${activeSubTab === 'schema' ? 'active' : ''}" id="btn-subtab-schema">
               <span>${Icons.brandSupabase}</span>
@@ -2014,7 +2035,7 @@ class UIComponents {
 
           <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
             <span class="status-led active" style="width:6px;height:6px;"></span>
-            <span>Cloud Hub v1.2.0 • Live Enterprise Registry</span>
+            <span>${this.escape(options.source === 'cache' ? 'Bản đã lưu · chưa tải được cloud' : options.source === 'cloud' ? 'Đã tải từ cloud' : 'Chưa kết nối cloud')}</span>
           </div>
         </div>
 
@@ -2034,6 +2055,13 @@ class UIComponents {
             </div>
           </div>
 
+          <div style="display:flex;gap:8px;align-items:center;margin:12px 0">
+            <button class="btn btn-secondary" id="community-page-previous" ${(options.page || 0) === 0 ? 'disabled' : ''}>Trang trước</button>
+            <span>Trang ${(options.page || 0) + 1}</span>
+            <button class="btn btn-secondary" id="community-page-next" ${((options.page || 0) + 1) * 24 >= (options.count || 0) ? 'disabled' : ''}>Trang sau</button>
+            <button class="btn btn-secondary" id="community-refresh">Tải lại</button>
+            ${options.isAdmin ? '<button class="btn btn-secondary" id="community-moderation">Báo cáo cần xem</button>' : ''}
+          </div>
           ${filtered.length === 0 ? `
             <div style="text-align:center; padding:48px 20px; background:rgba(255,255,255,0.02); border:1px dashed var(--border-subtle); border-radius:var(--radius-md);">
               <div style="font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Chưa tìm thấy kỹ năng phù hợp</div>
@@ -2062,15 +2090,19 @@ class UIComponents {
                     <div class="comm-card-stats">
                       <span style="display:flex; align-items:center; gap:3px; color:#F59E0B;">
                         ${Icons.star}
-                        <span>${s.rating || '5.0'}</span>
+                        <span>${Number(s.stars_count || 0)} yêu thích</span>
                       </span>
                       <span>•</span>
-                      <span>${s.downloads || 1} lượt tải</span>
+                      <span>${Number(s.downloads || 0)} lượt tải</span>
                       <span>•</span>
                       <span>v${s.version || '1.0.0'}</span>
                     </div>
 
                     <div class="comm-card-actions">
+                      <button class="btn btn-secondary" data-community-action="favorite" data-id="${this.escape(s.id)}">${s.is_favorite ? 'Bỏ yêu thích' : 'Yêu thích'}</button>
+                      <button class="btn btn-secondary" data-community-action="report" data-id="${this.escape(s.id)}">Báo cáo</button>
+                      ${s.author_id === options.userId ? `<button class="btn btn-secondary" data-community-action="edit" data-id="${this.escape(s.id)}">Sửa</button><button class="btn btn-secondary" data-community-action="remove" data-id="${this.escape(s.id)}">Gỡ công khai</button>` : ''}
+
                       <button class="btn btn-secondary btn-view-community-skill" data-id="${s.id}" style="font-size:11.5px; padding:6px 10px;">
                         <span>👁️ Chi Tiết</span>
                       </button>
@@ -2085,56 +2117,7 @@ class UIComponents {
             </div>
           `}
         ` : `
-          <div class="info-callout-banner">
-            <span>${Icons.sparkles}</span>
-            <span><strong>Trung tâm kiến trúc cộng đồng:</strong> Đây là bản thiết kế cơ sở dữ liệu Supabase PostgreSQL chuẩn bị cho Phase 2 để đồng bộ và chia sẻ kỹ năng trực tuyến bảo mật bằng Row Level Security (RLS). Bạn có thể bấm nút bên dưới để sao chép mã SQL và tạo ngay trên Supabase Dashboard của bạn.</span>
-          </div>
-
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px;">
-            <div>
-              <h2 style="font-size:18px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
-                <span>${Icons.brandSupabase}</span>
-                <span>Trung Tâm Kiến Trúc Đám Mây Cộng Đồng (Phase 2 Hub)</span>
-              </h2>
-              <p style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">
-                Thiết kế cơ sở dữ liệu Supabase PostgreSQL với Row Level Security (RLS) & GIN Full-Text Search.
-              </p>
-            </div>
-
-            <button class="btn btn-primary" id="btn-copy-community-sql">
-              ${Icons.copy}
-              <span>Sao chép Toàn bộ SQL Schema</span>
-            </button>
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top:16px;">
-            <div class="metric-card">
-              <div class="metric-label">Bảo mật RLS Granular</div>
-              <div class="metric-value" style="color:var(--led-success); font-size:18px;">Kích hoạt 100%</div>
-              <div class="metric-sub">auth.uid() phân quyền tuyệt đối</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Chỉ mục GIN Full-Text</div>
-              <div class="metric-value" style="color:var(--accent-primary); font-size:18px;">to_tsvector</div>
-              <div class="metric-sub">Tìm kiếm tức thời sub-5ms</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Bảng Dữ liệu Chuẩn</div>
-              <div class="metric-value" style="font-size:18px;">3 Bảng Quan hệ</div>
-              <div class="metric-sub">profiles, skills, skill_references</div>
-            </div>
-          </div>
-
-          <div class="community-schema-box" style="margin-top:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted);">
-                PostgreSQL Schema Definition (app/data/supabase_community_schema.sql)
-              </div>
-              <span class="version-tag">supabase-backend-architect</span>
-            </div>
-
-            <pre style="background:var(--bg-canvas); border:1px solid var(--border-subtle); padding:14px; border-radius:var(--radius-sm); font-size:12px; max-height:420px; overflow-y:auto;"><code class="language-sql">${this.escape(sql)}</code></pre>
-          </div>
+          <div class="info-callout-banner"><span>Cloud lưu các skill đã công khai, hồ sơ và báo cáo do bạn chủ động gửi. Tệp cài đặt và bản nháp vẫn nằm trên máy. Thông tin trạng thái kết nối được hiển thị ở đầu chợ.</span></div>
         `}
       </div>
     `;
@@ -2188,7 +2171,7 @@ class UIComponents {
 
           <div class="info-callout-banner" style="margin:0; padding:8px 12px; font-size:11.5px; border-color:rgba(16, 185, 129, 0.3); background:rgba(16, 185, 129, 0.08);">
             <span style="color:#10B981;">${Icons.lock}</span>
-            <span><strong>Bảo Vệ Quyền Riêng Tư (Zero-Trust):</strong> Tự động che mờ đường dẫn thư mục cá nhân (<code>C:\\Users\\&lt;user&gt;</code>) và các khóa API/Tokens trước khi gửi.</span>
+            <span><strong>Bảo Vệ Quyền Riêng Tư (Zero-Trust):</strong> Hãy kiểm tra nội dung xem trước trước khi gửi. App có che một số mẫu đường dẫn thư mục cá nhân (<code>C:\\Users\\&lt;user&gt;</code>) và các khóa API/Tokens trước khi gửi.</span>
           </div>
 
           <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:12px;">
@@ -2202,8 +2185,8 @@ class UIComponents {
                 ${Icons.download}
                 <span>Xuất File ZIP</span>
               </button>
-              <button class="btn btn-primary" id="btn-submit-cloud-error" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none;">
-                <span>🚀 Gửi Báo Cáo Lên Cloud</span>
+              <label for="diagnostic-manual-message">Thông báo tự nhập (để trống để xem chẩn đoán từ log)</label><textarea id="diagnostic-manual-message" class="form-control" placeholder="Nội dung kiểm tra; khi tự nhập sẽ không đính kèm log."></textarea><button class="btn btn-primary" id="btn-submit-cloud-error" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none;">
+                <span>Xem trước báo cáo</span>
               </button>
             </div>
           </div>
@@ -2275,6 +2258,8 @@ class UIComponents {
             </div>
             <button class="btn-close-modal" onclick="App.closeActiveModal()" title="Đóng cửa sổ">✕</button>
           </div>
+
+          <label for="diff-file-select">Môi trường và tệp đang xem</label><select class="form-select" id="diff-file-select">${(diff.files || []).map(file => `<option value="${this.escape(file.path)}" ${file.path === diff.local_path ? 'selected' : ''}>${this.escape(file.label)}</option>`).join('')}</select>
 
           <!-- Diff Toolbar & Stats Bar -->
           <div class="diff-toolbar">
@@ -2352,19 +2337,18 @@ class UIComponents {
               🛡️ Giữ Lại Bản Cũ Của Tôi (Bỏ qua)
             </button>
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <span class="diff-backup-hint" style="font-size:11px; color:var(--text-muted);">Tự động sao lưu bản cũ vào SKILL.md.bak</span>
+              <span class="diff-backup-hint" style="font-size:11px; color:var(--text-muted);">Lưu snapshot có thời điểm cạnh tệp được sửa</span>
               <button class="btn btn-secondary" id="btn-diff-apply-selected" data-id="${diff.skill_id}" style="border:1px solid var(--ocean-cyan); color:var(--ocean-cyan); background:rgba(0,180,216,0.12); font-weight:600;">
                 ✓ Áp Dụng Phần Đã Chọn (<span id="btn-selected-count">${totalChunks}</span> khối)
               </button>
               <button class="btn btn-primary" id="btn-diff-apply-update" data-id="${diff.skill_id}" style="background:linear-gradient(135deg, #00B4D8 0%, #7C3AED 100%); border:none; font-weight:700;">
-                ⚡ Thay Đổi Toàn Bộ (${totalChunks} khối)
+                ⚡ Áp dụng toàn bộ tệp đang xem (${totalChunks} khối)
               </button>
             </div>
           </div>
         </div>
       </div>
     `;
-  }
   }
 
   static renderCommunitySkillDetailModal(skill, targetWorkspace) {
@@ -2403,10 +2387,10 @@ class UIComponents {
                   </div>
                 </label>
                 <label class="uninstall-target-item">
-                  <input type="checkbox" class="comm-target-checkbox" value="gemini" checked>
+                  <input type="checkbox" class="comm-target-checkbox" value="antigravity" checked>
                   <div>
                     <div style="font-weight:600; font-size:12.5px;">Google Antigravity (~/.gemini)</div>
-                    <div style="font-size:11px; color:var(--text-muted);">Tự động kích hoạt khi mở Antigravity</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Ghi tệp vào cấu hình Antigravity; cần kiểm tra trong công cụ</div>
                   </div>
                 </label>
                 <label class="uninstall-target-item">
@@ -2629,7 +2613,7 @@ class UIComponents {
               <textarea id="studio-content" class="form-textarea" style="flex:1; min-height:260px;" placeholder="---&#10;name: your-skill-name&#10;description: Khi nào AI nên kích hoạt kỹ năng này...&#10;---&#10;&#10;# Tên Kỹ Năng&#10;&#10;## Quy trình thực hiện Senior Engineer:&#10;1. Bước một...&#10;2. Bước hai...&#10;&#10;## Bảng Chống Bao Biện (Anti-Rationalization):&#10;| Lời bao biện | Hành động bắt buộc |&#10;| :--- | :--- |&#10;| 'Tính năng nhỏ khỏi viết test' | Vẫn phải viết tối thiểu 1 unit test |">${this.escape(draft.content || '')}</textarea>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <div class="studio-actions">
               <span class="form-hint">Định dạng hỗ trợ: YAML Frontmatter, Tiêu đề, Bảng Markdown, Code block.</span>
               <div style="display:flex; align-items:center; gap:8px;">
                 <button class="btn btn-secondary" id="btn-publish-to-community" title="Đăng tải kỹ năng này lên Chợ Cộng Đồng">
@@ -2885,24 +2869,7 @@ class UIComponents {
                   <textarea id="cfg-anon-key" class="form-textarea" style="height:55px; font-family:monospace; font-size:11px;" placeholder="eyJhbGciOiJIUzI1Ni...">${this.escape(config.anon_key || '')}</textarea>
                 </div>
 
-                <div class="form-group">
-                  <label class="form-label">Khóa quản trị bí mật (Service Secret Key — Tùy chọn)</label>
-                  <input type="password" id="cfg-secret-key" class="form-input" value="${this.escape(config.service_secret_key || '')}" placeholder="Khóa Service Role bí mật">
-                </div>
-
-                ${jwtToken ? `
-                  <div class="form-group">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-                      <label class="form-label" style="margin:0;">Mã Access Token hiện tại (JWT)</label>
-                      <button class="btn btn-secondary btn-icon" id="btn-modal-copy-token" title="Sao chép Token" style="padding:2px 6px; font-size:11px;">
-                        ${Icons.copy}
-                        <span>Sao chép</span>
-                      </button>
-                    </div>
-                    <div class="token-viewer-box">${this.escape(jwtToken)}</div>
-                  </div>
-                ` : ''}
-
+                <p>Ứng dụng chỉ dùng khóa công khai. Phiên đăng nhập được bảo vệ bởi Windows.</p>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
                   <button class="btn btn-ghost" id="btn-reset-supabase-config" style="font-size:11.5px; color:var(--text-muted);">
                     ${Icons.refresh}
@@ -3115,7 +3082,7 @@ class UIComponents {
             </div>
 
             <div class="profile-portfolio-list">
-              <div class="portfolio-section-title">Kỹ năng đang hoạt động trong dự án:</div>
+              <div class="portfolio-section-title">Skill có tệp cài đặt trong dự án:</div>
               <div class="portfolio-chips-grid">
                 ${statsData.installed_skills.length > 0 ? statsData.installed_skills.map(s => `
                   <div class="portfolio-skill-chip" data-skill-id="${s.id}">
@@ -3133,7 +3100,7 @@ class UIComponents {
                     <div style="font-weight:600; color:var(--text-primary); font-size:13px; margin-bottom:4px;">${this.escape(c.title)}</div>
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-muted);">
                       <span>Chủ đề: ${this.escape(c.category)}</span>
-                      <span style="color:var(--ocean-cyan);">⬇ ${c.downloads || 1} lượt tải</span>
+                      <span style="color:var(--ocean-cyan);">⬇ ${Number(c.downloads || 0)} lượt tải</span>
                     </div>
                   </div>
                 `).join('') : ''}

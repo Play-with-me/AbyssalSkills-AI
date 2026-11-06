@@ -1,18 +1,17 @@
 {
-  "version": "1.0.1",
+  "version": "1.1.0",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
   "release_date": "2026-11-01",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.0.1",
-    "title": "AbyssalSkillsD v1.0.1 — Bản Vá Lỗi Toàn Diện OpenAI Codex (Hotfix)",
+    "version": "1.1.0",
+    "title": "AbyssalSkillsD 1.1.0 — Local reliability and real community cloud",
     "highlights": [
-      "Vá lỗi triệt để: Đưa OpenAI Codex vào từng thẻ kỹ năng riêng lẻ (Pro Settings).",
-      "Bổ sung công tắc Codex trong bảng thanh tra Inspector và khay gỡ cài đặt.",
-      "Nâng cấp bộ quét SkillScanner nhận diện sâu thư mục ~/.codex/skills/ trên máy.",
-      "Cơ chế tự động kiểm tra bản vá lỗi dự phòng kép không làm gián đoạn người dùng."
+      "Bảo vệ tệp tùy biến và báo rõ thao tác thất bại một phần.",
+      "Chợ cloud, xác thực thật và chẩn đoán do người dùng chủ động gửi.",
+      "Bản Windows có manifest nguồn và kiểm thử hành vi cô lập."
     ]
   }
 }

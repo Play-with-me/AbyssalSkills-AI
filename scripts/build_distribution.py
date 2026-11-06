@@ -1,7 +1,7 @@
 """
 AbyssalSkillsD - Standalone Distribution Packager
 Compiles the application into a self-contained Windows executable and portable ZIP distribution.
-Requires no Python or Git on client machines.
+Bundles Python; Git and Graphify integrations require their own external tools.
 """
 import sys
 import os
@@ -28,7 +28,7 @@ def main():
     exe_file = app_output_dir / "AbyssalSkillsD.exe"
 
     print("=" * 70)
-    print(" AbyssalSkillsD v1.0.0 — Standalone Distribution Packager")
+    print(" AbyssalSkillsD v1.1.0 — Standalone Distribution Packager")
     print("=" * 70)
     print(f"[*] Workspace Root: {repo_root}")
     print(f"[*] Spec File:      {spec_file}")
@@ -38,9 +38,12 @@ def main():
     if app_output_dir.exists():
         print("[*] Cleaning previous distribution build...")
         try:
-            shutil.rmtree(app_output_dir)
+            resolved = app_output_dir.resolve()
+            if resolved.parent != dist_dir.resolve() or app_output_dir.is_symlink() or app_output_dir.is_junction():
+                raise ValueError('Unsafe build cleanup target')
+            shutil.rmtree(resolved)
         except Exception as e:
-            print(f"[!] Warning cleaning dist: {e}")
+            raise RuntimeError(f"Cannot safely clean distribution: {e}") from e
 
     # 2. Invoke PyInstaller
     cmd = [
@@ -89,10 +92,10 @@ def main():
         "=========================================================\n\n"
         "1. Cách khởi động:\n"
         "   - Nhấp đúp vào tệp 'AbyssalSkillsD.exe' để mở ứng dụng.\n"
-        "   - Ứng dụng đã được đóng gói đầy đủ, không cần cài Python hay Git.\n\n"
+        "   - Ứng dụng đã được đóng gói đầy đủ, không cần cài Python. Nhập kho Git cần Git; Graphify cần uv và Graphify.\n\n"
         "2. Yêu cầu hệ thống:\n"
         "   - Windows 10 hoặc Windows 11 (64-bit).\n"
-        "   - Microsoft Edge WebView2 Runtime (đã tích hợp sẵn trên Win 10/11).\n\n"
+        "   - Microsoft Edge WebView2 Runtime cần có trên máy.\n\n"
         "3. Hỗ trợ & Cập nhật:\n"
         "   - GitHub: https://github.com/Play-with-me/AbyssalSkills-AI\n"
         "   - Báo lỗi: https://github.com/Play-with-me/AbyssalSkills-AI/issues\n",
@@ -118,6 +121,10 @@ def main():
     print(f"[+] Portable ZIP Created: {zip_output_path.name} ({zip_size_mb:.2f} MB)")
     print(f"    SHA256: {zip_sha256}")
 
+    # Also make a generic latest copy for direct releases/latest/download links
+    generic_zip = dist_dir / "AbyssalSkillsD-Portable.zip"
+    shutil.copy2(zip_output_path, generic_zip)
+
     # 5. Check for Inno Setup compiler (ISCC)
     iscc_paths = [
         shutil.which("iscc"),
@@ -134,17 +141,25 @@ def main():
         if iss_res.returncode == 0:
             setup_exe = dist_dir / f"AbyssalSkillsD-Setup-v{version}.exe"
             if setup_exe.exists():
+                generic_setup = dist_dir / "AbyssalSkillsD-Setup.exe"
+                shutil.copy2(setup_exe, generic_setup)
                 setup_mb = setup_exe.stat().st_size / (1024 * 1024)
                 print(f"[+] Standalone Installer: {setup_exe.name} ({setup_mb:.2f} MB)")
                 print(f"    SHA256: {get_file_sha256(setup_exe)}")
         else:
-            print(f"[!] ISCC warning: {iss_res.stderr}")
+            raise RuntimeError(f"ISCC failed: {iss_res.stderr}")
     else:
         print(f"[*] Inno Setup script prepared at: {iss_file}")
         print("    (Run `iscc installer/abyssalskillsd.iss` when Inno Setup is available to build Setup.exe)")
 
+    artifacts = [zip_output_path]
+    setup = dist_dir / f'AbyssalSkillsD-Setup-v{version}.exe'
+    if setup.is_file():
+        artifacts.append(setup)
+    (dist_dir / f'SHA256SUMS-v{version}.txt').write_text(''.join(f'{get_file_sha256(file)}  {file.name}\n' for file in artifacts), encoding='utf-8')
+
     print("\n" + "=" * 70)
-    print(" [OK] Distribution Package Ready for Deployment!")
+    print(" [OK] Distribution candidate built; runtime acceptance is still required.")
     print(f"  - App Directory: {app_output_dir}")
     print(f"  - Portable ZIP:  {zip_output_path}")
     print("=" * 70)

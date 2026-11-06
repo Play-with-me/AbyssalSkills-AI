@@ -271,6 +271,7 @@ const App = {
   },
 
   handleCustomizeInStudio(skillId) {
+    this.studioCloudId = null; this.studioCloudDocuments = null;
     const skill = this.skills.find(s => s.id === skillId);
     if (!skill) return;
 
@@ -324,16 +325,18 @@ const App = {
 
       if (confirmBtn) confirmBtn.disabled = true;
       if (progressBox) progressBox.style.display = "block";
-      if (progressBar) progressBar.style.width = "40%";
+      if (progressBar) progressBar.style.display = "none";
       if (progressText) progressText.innerText = `Đang đồng bộ ${this.skills.length} kỹ năng vào ${selectedTargets.length} môi trường AI...`;
 
       try {
+        this._operationPending = true;
         const res = await DesktopBridge.syncAllAIs({
           targets: selectedTargets,
           workspace_path: this.activeWorkspaceProject || null
         });
 
-        if (progressBar) progressBar.style.width = "100%";
+        this._operationPending = false;
+        if (progressText) progressText.textContent = res?.message || "Đã nhận kết quả.";
 
         setTimeout(async () => {
           this.closeActiveModal();
@@ -345,6 +348,7 @@ const App = {
           }
         }, 600);
       } catch (err) {
+        this._operationPending = false;
         this.closeActiveModal();
         this.showToast("Lỗi đồng bộ: " + (err.message || err), "error");
       }
@@ -406,7 +410,7 @@ const App = {
       const sys = await DesktopBridge.getSystemInfo();
       const txt = document.getElementById("footer-status-text");
       if (txt) {
-        txt.innerHTML = `Đã đồng bộ ${this.skills.length} kỹ năng (7 Skill-AI • 29 Addy Osmani) • Sẵn sàng đa nền tảng`;
+        txt.textContent = `${this.skills.length} mục trong thư viện · ${this.skills.filter(s => s.installed_targets?.length).length} mục có tệp cài đặt`;
       }
     } catch (e) {}
   },
@@ -570,21 +574,21 @@ const App = {
 
     document.getElementById("btn-submit-signin")?.addEventListener("click", async () => {
       const email = document.getElementById("auth-signin-email")?.value.trim();
-      const password = document.getElementById("auth-signin-password")?.value.trim();
+      const password = document.getElementById("auth-signin-password")?.value;
       await this.handleSignIn(email, password);
     });
 
     document.getElementById("btn-submit-signup")?.addEventListener("click", async () => {
       const fullName = document.getElementById("auth-signup-name")?.value.trim();
       const email = document.getElementById("auth-signup-email")?.value.trim();
-      const password = document.getElementById("auth-signup-password")?.value.trim();
+      const password = document.getElementById("auth-signup-password")?.value;
       await this.handleSignUp(email, password, fullName);
     });
 
     document.getElementById("btn-save-supabase-config")?.addEventListener("click", async () => {
       const url = document.getElementById("cfg-supabase-url")?.value.trim();
       const anonKey = document.getElementById("cfg-anon-key")?.value.trim();
-      const secretKey = document.getElementById("cfg-secret-key")?.value.trim();
+      const secretKey = document.getElementById("cfg-secret-key")?.value.trim() || "";
       await this.handleSaveSupabaseConfig(url, anonKey, secretKey);
     });
 
@@ -840,11 +844,9 @@ const App = {
       filterBar.style.display = "none";
       breadcrumb.innerText = "Trung Tâm Đám Mây Cộng Đồng (Supabase RLS)";
       communityContainer.style.display = "block";
+      this.loadCommunitySkills().then(() => this.renderCommunityView());
       if (!this.communitySchema) {
-        this.renderCommunityView();
-        this.loadCommunitySchema().then(() => this.renderCommunityView());
-      } else {
-        this.renderCommunityView();
+        this.loadCommunitySchema();
       }
     } else if (workspace === "profile") {
       orgBanner.style.display = "none";
@@ -971,7 +973,11 @@ const App = {
       ? this.skills 
       : this.skills.filter(s => (s.source_group || "skill_ai") === this.activeSource);
     const count = targetSkills.length;
-    const newCount = targetSkills.filter(s => !s.installed_targets || s.installed_targets.length === 0).length;
+    const allAITargets = ["antigravity", "cursor", "windsurf", "claude", "copilot", "codex", "workspace"];
+    const newCount = targetSkills.filter(s => {
+      if (!s.installed_targets || s.installed_targets.length === 0) return true;
+      return allAITargets.some(t => !s.installed_targets.includes(t));
+    }).length;
     const updateCount = targetSkills.filter(s => s.has_update).length;
 
     orgBanner.innerHTML = UIComponents.renderOrgBanner(count, 26, this.activeSource, newCount, updateCount);
@@ -1140,7 +1146,7 @@ const App = {
     mount.innerHTML = UIComponents.renderSkillsUpdateBanner(
       data.skills_summary,
       data.update_signature,
-      data.new_skills_count || 3
+      data.new_skills_count ?? 0
     );
 
     document.getElementById("btn-banner-sync-skills")?.addEventListener("click", async () => {
@@ -1292,9 +1298,68 @@ const App = {
       await this.handleSyncSkills();
     });
 
+    document.getElementById("btn-auto-update-app")?.addEventListener("click", async () => {
+      await this.handleAutoUpdateApp();
+    });
+
     document.getElementById("btn-recheck-updates")?.addEventListener("click", async () => {
       await this.checkAppUpdates(true);
     });
+  },
+
+  async handleAutoUpdateApp() {
+    const btn = document.getElementById("btn-auto-update-app");
+    const btnText = document.getElementById("btn-auto-update-text");
+    const url = btn?.getAttribute("data-url") || null;
+    const progressBox = document.getElementById("update-download-progress-container");
+    const progressBar = document.getElementById("update-download-bar");
+    const progressPercent = document.getElementById("update-download-percent");
+    const progressLabel = document.getElementById("update-download-status-label");
+
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.innerText = "Đang chuẩn bị tải gói...";
+    if (progressBox) progressBox.style.display = "block";
+
+    const progressInterval = setInterval(async () => {
+      try {
+        const p = await DesktopBridge.updaterGetProgress();
+        if (p && p.status === "downloading") {
+          const pct = p.percent || 0;
+          if (progressBar) progressBar.style.width = pct + "%";
+          if (progressPercent) progressPercent.innerText = pct + "%";
+          const mb = (p.bytes_downloaded / (1024 * 1024)).toFixed(1);
+          const totalMb = (p.total_bytes / (1024 * 1024)).toFixed(1);
+          if (progressLabel) progressLabel.innerText = `Đang tải gói nâng cấp: ${mb} MB / ${totalMb} MB...`;
+        } else if (p && p.status === "ready_to_install") {
+          if (progressBar) progressBar.style.width = "100%";
+          if (progressPercent) progressPercent.innerText = "100%";
+          if (progressLabel) progressLabel.innerText = "Đang khởi chạy cài đặt và khởi động lại app...";
+        }
+      } catch (err) {}
+    }, 200);
+
+    try {
+      const res = await DesktopBridge.updaterDownloadAndApply({ download_url: url });
+      clearInterval(progressInterval);
+      if (res && res.success) {
+        if (progressBar) progressBar.style.width = "100%";
+        if (progressPercent) progressPercent.innerText = "100%";
+        if (progressLabel) progressLabel.innerText = res.message || "Đã khởi chạy cập nhật. App đang khởi động lại...";
+        if (btnText) btnText.innerText = "✓ Đang Khởi Động Lại...";
+        this.showToast(res.message || "Đang cài đặt và khởi động lại phiên bản mới!", "success");
+      } else {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.innerText = "Thử lại";
+        if (progressLabel) progressLabel.innerText = res?.message || "Lỗi tải bản cập nhật.";
+        this.showToast(res?.message || "Lỗi cập nhật ứng dụng.", "error");
+      }
+    } catch (e) {
+      clearInterval(progressInterval);
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.innerText = "Thử lại";
+      if (progressLabel) progressLabel.innerText = "Lỗi: " + e.message;
+      this.showToast("Lỗi cập nhật: " + e.message, "error");
+    }
   },
 
   async handleSyncSkills() {
@@ -1701,8 +1766,10 @@ const App = {
       const res = await DesktopBridge.installSkill({
         skill_id: skillId,
         targets: targets,
+        workspace_path: this.activeWorkspaceProject || null,
         enable_always_on: enableAlwaysOn,
-        with_graphify: withGraphify
+        with_graphify: withGraphify,
+        overwrite: true
       });
 
       if (res && res.success) {
@@ -1737,9 +1804,14 @@ const App = {
       ? this.skills 
       : this.skills.filter(s => (s.source_group || "skill_ai") === this.activeSource);
     
-    // Only install skills that are NEW (uninstalled)
-    // Updated skills require user review in Diff Modal to protect personal edits!
-    const newSkills = targetSkills.filter(s => !s.installed_targets || s.installed_targets.length === 0);
+    const allAITargets = ["antigravity", "cursor", "windsurf", "claude", "copilot", "codex", "workspace"];
+
+    // A skill is considered needing installation if it hasn't been installed at all,
+    // OR if any of the target AI environments are missing this skill!
+    const newSkills = targetSkills.filter(s => {
+      if (!s.installed_targets || s.installed_targets.length === 0) return true;
+      return allAITargets.some(t => !s.installed_targets.includes(t));
+    });
     const updateSkills = targetSkills.filter(s => s.has_update);
 
     if (newSkills.length === 0 && !forceAll) {
@@ -1757,12 +1829,12 @@ const App = {
 
     const collectiveSkill = {
       id: "batch-all",
-      display_title: `Trọn Bộ ${count} Kỹ Năng Mới`,
-      name: `Trọn Bộ ${count} Kỹ Năng Mới`,
+      display_title: `Trọn Bộ ${count} Kỹ Năng`,
+      name: `Trọn Bộ ${count} Kỹ Năng`,
       category: "Suite Chuyên Gia"
     };
 
-    const targets = ["antigravity", "cursor", "claude"];
+    const targets = allAITargets;
 
     // 1. Neural Stream Step 1
     this.openActivationModal(collectiveSkill, targets, {
@@ -1782,12 +1854,14 @@ const App = {
 
     try {
       const payload = {
-        targets: ["antigravity", "claude"],
+        targets: allAITargets,
         enable_always_on: true,
         with_graphify: true,
-        workspace_path: this.activeWorkspaceProject,
-        skill_ids: toInstall.map(s => s.id)
+        workspace_path: this.activeWorkspaceProject || null,
+        skill_ids: toInstall.map(s => s.id),
+        overwrite: true
       };
+      this._operationPending = true;
       const res = await DesktopBridge.installAllSkills(payload);
 
       if (res && res.success) {
@@ -1798,6 +1872,7 @@ const App = {
           isComplete: true,
           testPrompt: "Hãy lập kế hoạch thiết kế và lập trình giao diện chuẩn /plan"
         });
+      this._operationPending = false;
 
         await this.loadSkills();
         await this.updateSystemStatus();
@@ -1824,11 +1899,11 @@ const App = {
     }
   },
 
-  async openDiffReviewModal(skillId) {
+  async openDiffReviewModal(skillId, filePath = null) {
     const root = document.getElementById("modal-root");
     if (!root) return;
     try {
-      const diff = await DesktopBridge.getSkillDiff(skillId, this.activeWorkspaceProject);
+      const diff = await DesktopBridge.getSkillDiff(skillId, this.activeWorkspaceProject, filePath);
       root.innerHTML = UIComponents.renderDiffReviewModal(diff);
 
       const chunks = diff.chunks || [];
@@ -1904,6 +1979,8 @@ const App = {
         });
       }
 
+      document.getElementById('diff-file-select')?.addEventListener('change', event => this.openDiffReviewModal(skillId, event.target.value));
+
       // 2. Interactive Checkbox Handlers
       document.querySelectorAll(".diff-chunk-checkbox").forEach(chk => {
         chk.addEventListener("change", (e) => {
@@ -1968,6 +2045,7 @@ const App = {
             skill_id: skillId,
             selected_chunks: Array.from(selectedChunkIds),
             apply_all: isAll,
+            revision_token: diff.revision_token,
             workspace_path: this.activeWorkspaceProject
           };
           const res = await DesktopBridge.applySkillDiff(payload);
@@ -1997,6 +2075,7 @@ const App = {
           const payload = {
             skill_id: skillId,
             apply_all: true,
+            revision_token: diff.revision_token,
             workspace_path: this.activeWorkspaceProject
           };
           const res = await DesktopBridge.applySkillDiff(payload);
@@ -2208,6 +2287,7 @@ phase: build-and-polish
     const container = document.getElementById("studio-container");
     if (!container) return;
 
+    this.studioCloudId = null; this.studioCloudDocuments = null;
     container.innerHTML = UIComponents.renderStudioView();
 
     const titleInput = document.getElementById("studio-title");
@@ -2321,6 +2401,18 @@ phase: build-and-polish
         return;
       }
 
+      const validSlug = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(id);
+      if (!validSlug) {
+        this.showToast("Mã định danh (ID) chỉ được chứa chữ cái, số, gạch nối (-) hoặc gạch dưới (_).", "error");
+        return;
+      }
+
+      if (!this.authSession || !this.authSession.authenticated) {
+        this.showToast("Vui lòng đăng nhập GitHub để đăng tải kỹ năng lên Chợ Cloud!", "warning");
+        this.openAuthModal();
+        return;
+      }
+
       const publishBtn = document.getElementById("btn-publish-to-community");
       if (publishBtn) {
         publishBtn.disabled = true;
@@ -2330,6 +2422,9 @@ phase: build-and-polish
       try {
         const res = await DesktopBridge.communityPublishSkill({
           id: id,
+          cloud_id: this.studioCloudId || null,
+          references: this.studioCloudDocuments?.references || [],
+          rules: this.studioCloudDocuments?.rules || [],
           title: title,
           category: category,
           description: desc,
@@ -2357,12 +2452,13 @@ phase: build-and-polish
 
   async loadCommunitySkills() {
     try {
-      const res = await DesktopBridge.communityGetSkills();
-      if (res && res.success) {
-        this.communitySkills = res.skills || [];
-      }
+      const res = await DesktopBridge.communityGetSkills({query: this.communitySearchQuery, category: this.communityFilterCat === 'all' ? '' : this.communityFilterCat, page: this.communityPage || 0});
+      this.communitySkills = res?.skills || [];
+      this.communityResult = res || {source: 'unavailable', count: 0};
+      if (!res?.success) this.showToast(res?.message || 'Không tải được cloud.', 'error');
     } catch (e) {
-      console.warn("loadCommunitySkills error:", e);
+      this.communityResult = {source: 'unavailable', count: 0};
+      this.showToast('Không tải được cloud: ' + e.message, 'error');
     }
   },
 
@@ -2370,7 +2466,7 @@ phase: build-and-polish
     const container = document.getElementById("community-container");
     if (!container) return;
 
-    if (this.communitySkills.length === 0) {
+    if (!this.communityResult) {
       await this.loadCommunitySkills();
     }
 
@@ -2380,9 +2476,21 @@ phase: build-and-polish
       {
         activeTab: this.communitySubTab,
         activeCat: this.communityFilterCat,
-        query: this.communitySearchQuery
+        query: this.communitySearchQuery,
+        source: this.communityResult?.source,
+        count: this.communityResult?.count || 0,
+        page: this.communityPage || 0,
+        userId: this.authSession?.user?.id,
+        isAdmin: this.authSession?.user?.role === 'admin'
       }
     );
+
+    document.getElementById('community-refresh')?.addEventListener('click', async () => { await this.loadCommunitySkills(); await this.renderCommunityView(); });
+    for (const [id, step] of [['community-page-previous', -1], ['community-page-next', 1]]) {
+      document.getElementById(id)?.addEventListener('click', async () => { this.communityPage = Math.max(0, (this.communityPage || 0) + step); await this.loadCommunitySkills(); await this.renderCommunityView(); });
+    }
+    container.querySelectorAll('[data-community-action]').forEach(button => button.addEventListener('click', () => this.handleCommunityAction(button.dataset.communityAction, button.dataset.id)));
+    document.getElementById('community-moderation')?.addEventListener('click', () => this.openModeration());
 
     document.getElementById("btn-subtab-marketplace")?.addEventListener("click", () => {
       this.communitySubTab = "marketplace";
@@ -2397,7 +2505,8 @@ phase: build-and-polish
     container.querySelectorAll(".comm-cat-chip").forEach(chip => {
       chip.addEventListener("click", () => {
         this.communityFilterCat = chip.getAttribute("data-comm-cat") || "all";
-        this.renderCommunityView();
+        this.communityPage = 0;
+        this.loadCommunitySkills().then(() => this.renderCommunityView());
       });
     });
 
@@ -2406,7 +2515,7 @@ phase: build-and-polish
       searchInput.addEventListener("input", (e) => {
         this.communitySearchQuery = e.target.value;
         clearTimeout(this._commSearchTimer);
-        this._commSearchTimer = setTimeout(() => this.renderCommunityView(), 220);
+        this._commSearchTimer = setTimeout(async () => { this.communityPage = 0; await this.loadCommunitySkills(); await this.renderCommunityView(); }, 220);
       });
     }
 
@@ -2430,7 +2539,7 @@ phase: build-and-polish
           await navigator.clipboard.writeText(this.communitySchema.sql);
           this.showToast("Đã sao chép Supabase SQL Schema vào bộ nhớ tạm!", "success");
         } catch (e) {
-          this.showToast("Đã sao chép SQL Schema!", "success");
+          this.showToast("Không sao chép được vào bộ nhớ tạm.", "error");
         }
       }
     });
@@ -2439,16 +2548,74 @@ phase: build-and-polish
   resetCommunityFilters() {
     this.communityFilterCat = "all";
     this.communitySearchQuery = "";
-    this.renderCommunityView();
+    this.communityPage = 0;
+    this.loadCommunitySkills().then(() => this.renderCommunityView());
   },
 
-  openCommunityDetailModal(skillId) {
-    const skill = this.communitySkills.find(s => s.id === skillId);
+  async handleCommunityAction(action, id) {
+    if (!this.authSession?.authenticated) { this.openAuthModal('signin', 'Đăng nhập để thực hiện thao tác này.'); return; }
+    const skill = this.communitySkills.find(item => item.id === id);
+    if (!skill) return;
+    if (action === 'favorite') {
+      const result = await DesktopBridge.communityAction('favorite', {p_id: id, p_enabled: !skill.is_favorite});
+      this.showToast(result?.message || 'Chưa lưu được.', result?.success ? 'success' : 'error');
+      await this.loadCommunitySkills(); await this.renderCommunityView(); return;
+    }
+    if (action === 'edit') {
+      const result = await DesktopBridge.communityGetSkill(id);
+      if (!result?.success) { this.showToast(result?.message || 'Không tải được nội dung.', 'error'); return; }
+      const item = result.skill;
+      this.switchWorkspace('studio');
+      this.studioCloudId = id;
+      this.studioCloudDocuments = item;
+      for (const [field, value] of Object.entries({'studio-id': item.slug || item.name, 'studio-title': item.display_title, 'studio-desc': item.description, 'studio-content': item.content, 'studio-category': item.category})) {
+        const input = document.getElementById(field);
+        if (input) { input.value = value || ''; input.dispatchEvent(new Event('input', {bubbles: true})); }
+      }
+      return;
+    }
+    this.openCommunityActionForm(action, id);
+  },
+
+  openCommunityActionForm(action, id) {
+    const root = document.getElementById('modal-root');
+    const title = action === 'remove' ? 'Gỡ skill khỏi chợ công khai' : action === 'moderate' ? 'Ẩn nội dung vi phạm' : 'Báo cáo nội dung';
+    root.innerHTML = `<div class="modal-backdrop"><div class="modal-dialog"><h2>${title}</h2><p>${action === 'remove' ? 'Bản đã cài trên máy khác vẫn được giữ lại. Bạn có thể đăng lại sau.' : 'Ghi rõ lý do để xử lý nội dung.'}</p>${action === 'remove' ? '' : '<label for="community-action-reason">Lý do (ít nhất 5 ký tự)</label><textarea id="community-action-reason" class="form-textarea"></textarea>'}<p id="community-action-status"></p><button class="btn btn-secondary" id="community-action-cancel">Hủy</button><button class="btn btn-primary" id="community-action-confirm">Xác nhận</button></div></div>`;
+    document.getElementById('community-action-cancel').onclick = () => this.closeActiveModal();
+    const confirm = document.getElementById('community-action-confirm');
+    confirm.onclick = async () => {
+      const reason = document.getElementById('community-action-reason')?.value.trim();
+      if (action !== 'remove' && (!reason || reason.length < 5)) { document.getElementById('community-action-status').textContent = 'Vui lòng nhập lý do ít nhất 5 ký tự.'; return; }
+      confirm.disabled = true;
+      try {
+        const payload = {p_id: id}; if (reason) payload.p_reason = reason;
+        const result = await DesktopBridge.communityAction(action, payload);
+        if (result?.success) { this.closeActiveModal(); await this.loadCommunitySkills(); await this.renderCommunityView(); }
+        else { document.getElementById('community-action-status').textContent = result?.message || 'Chưa lưu được.'; confirm.disabled = false; }
+      } catch (error) { document.getElementById('community-action-status').textContent = error.message; confirm.disabled = false; }
+    };
+  },
+
+  async openModeration() {
+    const result = await DesktopBridge.communityAction('reports', {});
+    if (!result?.success) { this.showToast(result?.message || 'Không tải được báo cáo.', 'error'); return; }
+    const root = document.getElementById('modal-root');
+    root.innerHTML = `<div class="modal-backdrop"><div class="modal-dialog"><h2>Báo cáo nội dung</h2>${(result.result || []).map(report => `<article><strong>${UIComponents.escape(report.display_title)}</strong><p>${UIComponents.escape(report.reason)}</p><button class="btn btn-secondary" data-moderate-id="${UIComponents.escape(report.skill_id)}">Ẩn nội dung</button></article>`).join('') || '<p>Chưa có báo cáo.</p>'}<button class="btn btn-secondary" id="moderation-close">Đóng</button></div></div>`;
+    root.querySelectorAll('[data-moderate-id]').forEach(button => button.onclick = () => this.openCommunityActionForm('moderate', button.dataset.moderateId));
+    document.getElementById('moderation-close').onclick = () => this.closeActiveModal();
+  },
+
+  async openCommunityDetailModal(skillId) {
+    const result = await DesktopBridge.communityGetSkill(skillId);
+    if (!result?.success) { this.showToast(result?.message || 'Không tải được skill.', 'error'); return; }
+    const skill = result.skill;
     if (!skill) return;
     const root = document.getElementById("modal-root");
     if (!root) return;
 
     root.innerHTML = UIComponents.renderCommunitySkillDetailModal(skill, this.activeWorkspaceProject);
+    const body = root.querySelector('.modal-body');
+    if (body) body.insertAdjacentHTML('afterbegin', `<details><summary>Xem nội dung trước khi cài</summary><pre style="max-height:280px;overflow:auto;white-space:pre-wrap">${UIComponents.escape(skill.content || '')}</pre></details>`);
 
     root.querySelector(".btn-confirm-comm-install")?.addEventListener("click", async () => {
       const checkedBoxes = Array.from(root.querySelectorAll(".comm-target-checkbox:checked"));
@@ -2525,74 +2692,29 @@ phase: build-and-polish
         }
       });
 
-      // Submit Cloud Error Telemetry with Anti-Spam Cooldown & Zero-Trust Sanitization
-      document.getElementById("btn-submit-cloud-error")?.addEventListener("click", async () => {
-        const btn = document.getElementById("btn-submit-cloud-error");
-        const COOLDOWN_MS = 180 * 1000;
-        const lastSentStr = localStorage.getItem("abyssalskillsd-last-error-submit");
-        if (lastSentStr) {
-          const lastSent = parseInt(lastSentStr, 10);
-          const elapsed = Date.now() - lastSent;
-          if (elapsed < COOLDOWN_MS) {
-            const remSec = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
-            this.showToast(`🛡️ Vui lòng chờ ${remSec}s trước khi gửi báo cáo tiếp theo (chống spam flood).`, "warning");
-            return;
-          }
-        }
-
-        if (btn) {
-          btn.disabled = true;
-          btn.innerHTML = `<span>Đang gửi báo cáo an toàn...</span>`;
-        }
-
+      document.getElementById('btn-submit-cloud-error')?.addEventListener('click', async () => {
+        const lines = String(data.logs || '').split(/\r?\n/);
+        const lastError = [...lines].reverse().find(line => /ERROR|Traceback|Exception|Error:/.test(line)) || 'Người dùng gửi chẩn đoán';
         try {
-          const logsList = data.logs || [];
-          let lastErrorLine = "Người dùng chủ động gửi chẩn đoán hệ thống";
-          let moduleName = "app_runtime";
-          let lineNum = 0;
-
-          for (let i = logsList.length - 1; i >= 0; i--) {
-            const l = logsList[i];
-            if (l.includes("[ERROR]") || l.includes("Traceback") || l.includes("Error:") || l.includes("Exception")) {
-              lastErrorLine = l;
-              break;
-            }
-          }
-
-          const payload = {
-            error_message: lastErrorLine,
-            error_type: lastErrorLine.includes("Error") ? "SystemError" : "DiagnosticTelemetry",
-            stack_trace: logsList.slice(-15).join("\n"),
-            module_name: moduleName,
-            line_number: lineNum,
-            metadata: {
-              app_version: "2.4.0",
-              os: data.system_info?.os || "Windows",
-              active_workspace: data.system_info?.active_workspace || ""
-            }
+          const manual = document.getElementById('diagnostic-manual-message')?.value.trim();
+          const pending = await DesktopBridge.getPendingDiagnostic();
+          const preview = pending?.request_id ? pending : await DesktopBridge.prepareDiagnostic({error_type: 'Diagnostic', error_message: manual || lastError, module_name: 'app_runtime', traceback: manual ? '' : lines.slice(-15).join('\n')});
+          if (!preview?.success) { this.showToast(preview?.message || 'Không tạo được bản xem trước.', 'error'); return; }
+          root.innerHTML = `<div class="modal-backdrop"><div class="modal-dialog" style="max-width:700px"><h2>Xem trước nội dung gửi</h2><p>Kiểm tra và hủy nếu còn thông tin riêng tư. Chỉ dữ liệu bên dưới sẽ được gửi.</p><pre style="max-height:400px;overflow:auto;white-space:pre-wrap">${UIComponents.escape(JSON.stringify(preview.payload, null, 2))}</pre><p id="diagnostic-send-status">Chưa gửi dữ liệu.</p><button class="btn btn-secondary" id="diagnostic-discard">Xóa bản chờ</button><button class="btn btn-primary" id="diagnostic-send">Gửi báo cáo</button><button class="btn btn-secondary" id="diagnostic-close">Đóng</button></div></div>`;
+          document.getElementById('diagnostic-close').onclick = () => this.closeActiveModal();
+          document.getElementById('diagnostic-discard').onclick = async () => { await DesktopBridge.discardDiagnostic(); this.closeActiveModal(); };
+          const send = document.getElementById('diagnostic-send');
+          send.onclick = async () => {
+            send.disabled = true;
+            const status = document.getElementById('diagnostic-send-status');
+            status.textContent = 'Đang chờ máy chủ xác nhận…';
+            try {
+              const result = await DesktopBridge.reportSystemError({request_id: preview.request_id});
+              status.textContent = result?.message || 'Chưa nhận được xác nhận.';
+              if (!result?.success) { send.textContent = 'Gửi lại'; send.disabled = false; }
+            } catch (error) { status.textContent = 'Chưa gửi được: ' + error.message; send.textContent = 'Gửi lại'; send.disabled = false; }
           };
-
-          const reportRes = await DesktopBridge.reportSystemError(payload);
-          if (reportRes && reportRes.success) {
-            localStorage.setItem("abyssalskillsd-last-error-submit", Date.now().toString());
-            this.showToast(`✓ ${reportRes.message || "Báo cáo lỗi đã được gửi an toàn!"}`, "success");
-            if (btn) {
-              btn.innerHTML = `<span>✓ Đã tiếp nhận (${reportRes.occurrences || 1} lần)</span>`;
-            }
-          } else {
-            this.showToast(reportRes ? reportRes.message : "Không thể gửi báo cáo lỗi.", "error");
-            if (btn) {
-              btn.disabled = false;
-              btn.innerHTML = `<span>🚀 Gửi Báo Cáo Lên Cloud</span>`;
-            }
-          }
-        } catch (e) {
-          this.showToast("Lỗi gửi báo cáo: " + e.message, "error");
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = `<span>🚀 Gửi Báo Cáo Lên Cloud</span>`;
-          }
-        }
+        } catch (error) { this.showToast(error.message, 'error'); }
       });
     } catch (err) {
       this.showToast("Lỗi tải thông tin chẩn đoán: " + err.message, "error");
@@ -2767,6 +2889,15 @@ phase: build-and-polish
   },
 
   closeActiveModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    if (this._operationPending) {
+      DesktopBridge.cancelOperation().catch(console.warn);
+      this._operationPending = false;
+    }
+    if (this._oauthPollInterval) {
+      clearInterval(this._oauthPollInterval); this._oauthPollInterval = null;
+      DesktopBridge.authCancelOAuth().catch(console.warn);
+    }
     if (event && event.target && !event.target.classList.contains("modal-backdrop")) {
       return;
     }

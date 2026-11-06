@@ -68,8 +68,8 @@ class DesktopBridge {
     return await this.call("get_skill", skillId, workspacePath);
   }
 
-  static async getSkillDiff(skillId, workspacePath = null) {
-    return await this.call("get_skill_diff", { skill_id: skillId, workspace_path: workspacePath });
+  static async getSkillDiff(skillId, workspacePath = null, filePath = null) {
+    return await this.call("get_skill_diff", { skill_id: skillId, workspace_path: workspacePath, file_path: filePath });
   }
 
   static async applySkillDiff(payload) {
@@ -92,6 +92,10 @@ class DesktopBridge {
     return await this.call("set_active_workspace", path);
   }
 
+  static async cancelOperation() {
+    return this.call('cancel_operation');
+  }
+
   static async syncAllAIs(payload = {}) {
     return await this.call("sync_all_ais", payload);
   }
@@ -109,8 +113,30 @@ class DesktopBridge {
   }
 
   /* Phase 3: Community Cloud & Diagnostic Logger */
-  static async communityGetSkills() {
-    return await this.call("community_get_skills");
+  static async communityGetSkills(data = {}) {
+    return await this.call("community_get_skills", data);
+  }
+
+  static async communityAction(action, payload) {
+    return this.call('community_action', {action, payload});
+  }
+
+  static async communityGetSkill(id) {
+    return this.call('community_get_skill', id);
+  }
+
+  static async getPendingDiagnostic() { return this.call('get_pending_diagnostic'); }
+
+  static async prepareDiagnostic(payload) {
+    return this.call('prepare_diagnostic', payload);
+  }
+
+  static async discardDiagnostic() {
+    return this.call('discard_diagnostic');
+  }
+
+  static async authCancelOAuth() {
+    return this.call('auth_cancel_oauth');
   }
 
   static async communityPublishSkill(skillData) {
@@ -232,6 +258,14 @@ class DesktopBridge {
 
   static async updaterGetInfo() {
     return await this.call("updater_get_info");
+  }
+
+  static async updaterDownloadAndApply(data = {}) {
+    return await this.call("updater_download_and_apply", data);
+  }
+
+  static async updaterGetProgress() {
+    return await this.call("updater_get_progress");
   }
 
   // =========================================================================

@@ -5,8 +5,59 @@ and icon files across development mode and packaged frozen PyInstaller executabl
 """
 import sys
 import os
+import re
+import shutil
+import tempfile
+import time
 from pathlib import Path
 from typing import Any, Optional, Union, Dict, List, Tuple
+
+
+def validate_skill_id(value: str) -> str:
+    if not isinstance(value, str) or not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}', value):
+        raise ValueError('Mã kỹ năng chỉ được chứa chữ, số, dấu gạch ngang và gạch dưới.')
+    if value.split('.')[0].upper() in {'CON', 'PRN', 'AUX', 'NUL', *(f'COM{i}' for i in range(1, 10)), *(f'LPT{i}' for i in range(1, 10))}:
+        raise ValueError('Mã kỹ năng là tên dành riêng của hệ điều hành.')
+    return value
+
+
+def safe_child(root: Path, relative: str) -> Path:
+    """Reject traversal and any existing symlink/junction, including parents."""
+    rel = Path(relative)
+    if rel.is_absolute() or rel.drive or not relative or any(p in ('..', '.') for p in rel.parts) or ':' in relative or '\\' in relative:
+        raise ValueError('Đường dẫn tệp không an toàn.')
+    reserved = {'CON', 'PRN', 'AUX', 'NUL', *(f'COM{i}' for i in range(1, 10)), *(f'LPT{i}' for i in range(1, 10))}
+    if any(part.endswith((' ', '.')) or part.split('.')[0].upper() in reserved or any(c in part for c in '<>"|?*') for part in rel.parts):
+        raise ValueError('Tên tệp không hợp lệ trên Windows.')
+    candidate = root / rel
+    for part in (candidate, *candidate.parents):
+        if part.is_symlink() or (hasattr(part, 'is_junction') and part.is_junction()):
+            raise ValueError('Không ghi hoặc xóa qua liên kết thư mục.')
+    if not candidate.resolve().is_relative_to(root.resolve()):
+        raise ValueError('Tệp nằm ngoài thư mục đích.')
+    return candidate
+
+
+def atomic_write(path: Path, content: str, backup: bool = False) -> None:
+    """Backup must succeed before replacing a file. Never fall back to truncation."""
+    for parent in (path, *path.parents):
+        if parent.is_symlink() or (hasattr(parent, 'is_junction') and parent.is_junction()):
+            raise ValueError('Không ghi qua liên kết thư mục.')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if backup and path.exists():
+        previous = path.read_text(encoding='utf-8')
+        if previous == content:
+            return
+        shutil.copy2(path, path.with_name(f'{path.name}.{time.time_ns()}.bak'))
+    fd, temporary = tempfile.mkstemp(prefix=f'.{path.name}.', suffix='.tmp', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8', newline='') as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        Path(temporary).replace(path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 def get_app_root() -> Path:
     """
@@ -25,50 +76,31 @@ def get_app_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent
 
 def get_data_dir() -> Path:
-    """
-    Returns the persistent data directory for skills, configs, and sessions.
-    Creates the directory if it does not exist.
-    In frozen mode, gracefully falls back to %APPDATA%/AbyssalSkillsD/data
-    if installed in a read-only directory like C:\\Program Files.
-    """
-    root = get_app_root()
-    data_dir = root / "app" / "data"
-
-    if getattr(sys, "frozen", False):
-        try:
-            data_dir.mkdir(parents=True, exist_ok=True)
-            test_file = data_dir / ".write_test"
-            test_file.touch()
-            test_file.unlink()
-            return data_dir
-        except (PermissionError, OSError):
-            if sys.platform == "win32":
-                app_data = os.environ.get("APPDATA")
-                if app_data:
-                    user_data_dir = Path(app_data) / "AbyssalSkillsD" / "data"
-                else:
-                    user_data_dir = Path.home() / ".abyssalskillsd" / "data"
-            elif sys.platform == "darwin":
-                user_data_dir = Path.home() / "Library" / "Application Support" / "AbyssalSkillsD" / "data"
+    """Writable user state is separate from the read-only application bundle."""
+    import json
+    override = os.environ.get('ABYSSAL_DATA_DIR')
+    if override:
+        directory = Path(override).resolve()
+    elif sys.platform == 'win32':
+        directory = Path(os.environ.get('APPDATA', str(Path.home() / 'AppData/Roaming'))) / 'AbyssalSkillsD/data'
+    else:
+        directory = Path.home() / '.local/share/AbyssalSkillsD/data'
+    directory.mkdir(parents=True, exist_ok=True)
+    bundled = get_app_root() / 'app/data'
+    if (bundled / 'version.json').is_file():
+        atomic_write(directory / 'version.json', (bundled / 'version.json').read_text(encoding='utf-8'))
+    for name in ('skills_registry.json', 'supabase_config.json', 'auth_session.json'):
+        source, destination = bundled / name, directory / name
+        if source.is_file() and not destination.exists():
+            # Credentials from an older installation are validated and moved by AuthEngine.
+            if name == 'supabase_config.json':
+                config = json.loads(source.read_text(encoding='utf-8'))
+                config = {key: config.get(key, '') for key in ('supabase_url', 'anon_key', 'project_name')}
+                atomic_write(destination, json.dumps(config, ensure_ascii=False))
             else:
-                xdg_data = os.environ.get("XDG_DATA_HOME") or (Path.home() / ".local" / "share")
-                user_data_dir = Path(xdg_data) / "AbyssalSkillsD" / "data"
+                atomic_write(destination, source.read_text(encoding='utf-8'))
+    return directory
 
-            user_data_dir.mkdir(parents=True, exist_ok=True)
-            for item in data_dir.glob("*.json"):
-                dest = user_data_dir / item.name
-                # Always sync version.json so new app versions reflect immediately in UI
-                # For all other json files (user data, configs), only copy if not present
-                if item.name == "version.json" or not dest.exists():
-                    try:
-                        import shutil
-                        shutil.copy2(item, dest)
-                    except Exception:
-                        pass
-            return user_data_dir
-
-    data_dir.mkdir(parents=True, exist_ok=True)
-    return data_dir
 
 def get_frontend_html() -> Path:
     """Returns the absolute path to the main frontend index.html."""

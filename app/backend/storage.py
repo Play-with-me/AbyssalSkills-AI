@@ -7,17 +7,29 @@ Maintains app/data/skills_registry.json and seeds both:
 import os
 import json
 import time
+import threading
+from functools import wraps
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 from .models import SkillItem, ReferenceDoc, RuleDoc
 from .scanner import SkillScanner
-from .paths import get_data_dir
+from .paths import get_data_dir, atomic_write, validate_skill_id
+
+def serialized(method):
+    @wraps(method)
+    def call(cls, *args, **kwargs):
+        with cls._lock:
+            return method(cls, *args, **kwargs)
+    return call
+
 
 class SkillStorage:
+    _lock = threading.RLock()
     DATA_DIR = get_data_dir()
     REGISTRY_FILE = DATA_DIR / "skills_registry.json"
 
     @classmethod
+    @serialized
     def initialize(cls):
         """Initializes storage directory and seeds skills if missing or incomplete."""
         cls.DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -35,6 +47,7 @@ class SkillStorage:
                     cls.sync_all_local_skills()
 
     @classmethod
+    @serialized
     def sync_all_local_skills(cls) -> List[SkillItem]:
         """Scans ~/.gemini/config/skills and app/data/repos/agent-skills while preserving pre-seeded registry items."""
         skills: List[SkillItem] = []
@@ -42,8 +55,8 @@ class SkillStorage:
             try:
                 raw = json.loads(cls.REGISTRY_FILE.read_text(encoding="utf-8"))
                 skills = [SkillItem.from_dict(item) for item in raw]
-            except Exception:
-                skills = []
+            except (ValueError, TypeError, KeyError) as error:
+                raise ValueError('Registry không đọc được; giữ nguyên tệp để phục hồi.') from error
 
         def merge_or_append(s: SkillItem):
             for i, existing in enumerate(skills):
@@ -81,6 +94,7 @@ class SkillStorage:
         return skills
 
     @classmethod
+    @serialized
     def get_all_skills(cls, workspace_path: Optional[str] = None) -> List[SkillItem]:
         try:
             if not cls.REGISTRY_FILE.exists():
@@ -90,31 +104,29 @@ class SkillStorage:
             # Refresh installation markers with single-pass batch map (Zero I/O Thrashing)
             from app.backend.installer import SkillInstaller
             targets_map, paths_map = SkillScanner.get_installed_targets_and_paths(workspace_path)
-            always_on = SkillScanner.detect_always_on_enabled()
             for s in skills:
                 s.installed_targets = targets_map.get(s.id, [])
-                s.always_on_enabled = always_on
+                s.always_on_enabled = any(
+                    (directory / '.abyssal-install.json').is_file()
+                    and bool(json.loads((directory / '.abyssal-install.json').read_text(encoding='utf-8')).get('rules'))
+                    for directory in SkillInstaller.installed_skill_dirs(s.id, workspace_path)
+                )
                 disk_path = paths_map.get(s.id)
                 if disk_path and disk_path.exists():
                     s.installed_path = str(disk_path)
                     try:
-                        disk_content = disk_path.read_text(encoding="utf-8", errors="replace").strip()
-                        canonical_repo = SkillInstaller.generate_skill_markdown(s).strip()
-                        s.has_update = (disk_content != canonical_repo)
-                    except Exception:
-                        s.has_update = False
+                        s.has_update = any(
+                            SkillInstaller.skill_differs_at(s, Path(p))
+                            for p in SkillInstaller.installed_skill_dirs(s.id, workspace_path)
+                        )
+                    except (OSError, ValueError):
+                        s.has_update = True
                 else:
                     s.installed_path = None
                     s.has_update = False
             return skills
-        except Exception:
-            try:
-                if cls.REGISTRY_FILE.exists():
-                    raw = json.loads(cls.REGISTRY_FILE.read_text(encoding="utf-8"))
-                    return [SkillItem.from_dict(item) for item in raw]
-            except Exception:
-                pass
-            return cls.sync_all_local_skills()
+        except (ValueError, TypeError, KeyError) as error:
+            raise ValueError('Registry không đọc được; giữ nguyên tệp để phục hồi.') from error
 
     @classmethod
     def get_skill(cls, skill_id: str, workspace_path: Optional[str] = None) -> Optional[SkillItem]:
@@ -125,30 +137,17 @@ class SkillStorage:
         return None
 
     @classmethod
+    @serialized
     def save_all_skills(cls, skills: List[SkillItem]):
         cls.DATA_DIR.mkdir(parents=True, exist_ok=True)
         data = [s.to_dict() for s in skills]
         payload = json.dumps(data, indent=2, ensure_ascii=False)
-        temp_file = cls.DATA_DIR / f"skills_registry_{os.getpid()}_{time.time_ns()}.tmp"
-        try:
-            temp_file.write_text(payload, encoding="utf-8")
-            temp_file.replace(cls.REGISTRY_FILE)
-        except Exception:
-            for attempt in range(3):
-                try:
-                    cls.REGISTRY_FILE.write_text(payload, encoding="utf-8")
-                    break
-                except Exception:
-                    time.sleep(0.05)
-        finally:
-            if temp_file.exists():
-                try:
-                    temp_file.unlink()
-                except Exception:
-                    pass
+        atomic_write(cls.REGISTRY_FILE, payload)
 
     @classmethod
+    @serialized
     def upsert_skill(cls, skill: SkillItem) -> SkillItem:
+        validate_skill_id(skill.id)
         skills = cls.get_all_skills()
         found = False
         for i, s in enumerate(skills):
@@ -165,6 +164,18 @@ class SkillStorage:
         return skill
 
     @classmethod
+    @serialized
+    def toggle_favorite(cls, skill_id: str) -> bool:
+        skills = cls.get_all_skills()
+        skill = next((item for item in skills if item.id == skill_id), None)
+        if skill is None:
+            raise ValueError('Không tìm thấy kỹ năng.')
+        skill.is_favorite = not skill.is_favorite
+        cls.save_all_skills(skills)
+        return skill.is_favorite
+
+    @classmethod
+    @serialized
     def delete_skill(cls, skill_id: str) -> bool:
         skills = cls.get_all_skills()
         new_list = [s for s in skills if s.id != skill_id]

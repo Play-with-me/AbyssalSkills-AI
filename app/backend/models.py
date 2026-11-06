@@ -52,6 +52,7 @@ class SkillItem:
     source_group: str = "skill_ai"  # "skill_ai", "addy_osmani", "community"
     is_persona: bool = False
     license: str = "MIT"
+    cloud_id: Optional[str] = None
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
 
@@ -64,6 +65,15 @@ class SkillItem:
         rules = [RuleDoc(**r) if isinstance(r, dict) else r for r in data.get("rules", [])]
         field_names = {f.name for f in cls.__dataclass_fields__.values()}
         clean_data = {k: v for k, v in data.items() if k in field_names and k not in ["references", "rules"]}
+        content = clean_data.get('skill_content', '')
+        if content.startswith('---\n') and '\n---\n' in content[4:]:
+            import yaml
+            frontmatter, body = content[4:].split('\n---\n', 1)
+            metadata = yaml.safe_load(frontmatter)
+            if not isinstance(metadata, dict):
+                raise ValueError('Frontmatter phải là một bảng thuộc tính YAML.')
+            clean_data['yaml_frontmatter'] = clean_data.get('yaml_frontmatter') or metadata
+            clean_data['skill_content'] = body.lstrip('\n')
         return cls(references=refs, rules=rules, **clean_data)
 
 @dataclass
@@ -73,6 +83,7 @@ class InstallRequest:
     workspace_path: Optional[str] = None
     enable_always_on: bool = True
     with_graphify: bool = True
+    overwrite: bool = False
 
 @dataclass
 class InstallResult:
@@ -83,3 +94,5 @@ class InstallResult:
     graphify_status: str = "skipped" # success, skipped, error
     message: str = ""
     errors: List[str] = field(default_factory=list)
+    status: str = 'error'
+    results: List[Dict[str, Any]] = field(default_factory=list)
