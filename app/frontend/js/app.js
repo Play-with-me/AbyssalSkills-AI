@@ -3244,21 +3244,44 @@ phase: build-and-polish
       }
     });
 
+    // Project Tools Dropdown Menu Controller (List View for Project Actions)
+    const projectToolsBtn = document.getElementById("btn-project-tools-dropdown");
+    const projectToolsMenu = document.getElementById("project-tools-dropdown-menu");
+    projectToolsBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (projectToolsMenu) {
+        const isHidden = projectToolsMenu.style.display === "none";
+        projectToolsMenu.style.display = isHidden ? "flex" : "none";
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (projectToolsMenu && projectToolsMenu.style.display !== "none") {
+        if (!projectToolsMenu.contains(e.target) && !projectToolsBtn?.contains(e.target)) {
+          projectToolsMenu.style.display = "none";
+        }
+      }
+    });
+
     // Dynamic Active Workspace Project Selector
     document.getElementById("btn-change-workspace")?.addEventListener("click", () => {
+      if (projectToolsMenu) projectToolsMenu.style.display = "none";
       this.handleSelectWorkspaceProject();
     });
 
     // 1-Click Multi-AI Global Sync & Rules Generator
     document.getElementById("btn-sync-all-ais")?.addEventListener("click", () => {
+      if (projectToolsMenu) projectToolsMenu.style.display = "none";
       this.openSyncAllModal();
     });
 
     document.getElementById("btn-generate-project-rules")?.addEventListener("click", () => {
+      if (projectToolsMenu) projectToolsMenu.style.display = "none";
       this.openGenerateRulesModal();
     });
 
     document.getElementById("btn-open-diagnostics")?.addEventListener("click", () => {
+      if (projectToolsMenu) projectToolsMenu.style.display = "none";
       this.openDiagnosticsModal();
     });
 
