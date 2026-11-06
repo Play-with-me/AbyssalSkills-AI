@@ -179,3 +179,6 @@ The earlier checked boxes/28-gate claims above are historical implementation not
   - Removed manual GitHub external link from primary action area in `renderUpdateModal()`.
   - Prominently styled `[⚡ Tự Động Cập Nhật & Khởi Động Lại Ngay (1-Click)]` with live progress polling and silent Inno Setup invocation.
   - Compiled and published distribution: `dist/AbyssalSkillsD-Setup-v1.1.0.exe` (16.29 MB) and `dist/AbyssalSkillsD-v1.1.0-Portable.zip` (18.75 MB). Retagged `v1.1.0` on GitHub.
+- **Standard Desktop Launch & Status Clarity:**
+  - Clarified standard desktop launch workflow: Normal users double-click Desktop shortcut `AbyssalSkillsD` (pointing to `C:\Users\kyuu4\AppData\Local\Programs\AbyssalSkillsD\AbyssalSkillsD.exe`) and never touch installer `.exe` files manually.
+  - In `renderUpdateModal()`, when `skills_need_update == 0`, explicitly shows `✓ 100% Đã mới nhất` with green status and message `Toàn bộ 36 kỹ năng trong máy của bạn đều khớp hoàn toàn với kho chuẩn`, eliminating user confusion between total library size (36 skills) and pending updates.
