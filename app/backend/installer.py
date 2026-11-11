@@ -15,6 +15,8 @@ import subprocess
 import json
 import hashlib
 import yaml
+import re
+import time
 from .paths import safe_child, validate_skill_id, atomic_write, assert_safe_workspace_path
 from pathlib import Path
 from typing import List, Optional, Dict, Any
@@ -100,28 +102,247 @@ class SkillInstaller:
         return False
 
     @classmethod
+    def clean_nested_skills(cls, root_dir: Path) -> List[str]:
+        """
+        Phát hiện và dọn dẹp các thư mục kỹ năng bị lồng nhau.
+        Ví dụ: root/strict-architect-coder/ui-ux-design-master/SKILL.md
+        Lưu trữ thư mục bị lồng vào .abyssal-removed để khôi phục khi cần.
+        """
+        cleaned = []
+        if not root_dir.exists() or not root_dir.is_dir():
+            return cleaned
+        for skill_dir in list(root_dir.iterdir()):
+            if not skill_dir.is_dir() or skill_dir.name.startswith('.'):
+                continue
+            if not (skill_dir / 'SKILL.md').is_file():
+                continue
+            for sub in list(skill_dir.iterdir()):
+                if not sub.is_dir() or sub.name in {'examples', 'templates', 'scratch', 'references', 'rules', 'scripts', '.abyssal-removed'}:
+                    continue
+                if (sub / 'SKILL.md').is_file():
+                    archive_dir = root_dir / '.abyssal-removed' / f"nested-{skill_dir.name}-{sub.name}-{time.time_ns()}"
+                    archive_dir.parent.mkdir(parents=True, exist_ok=True)
+                    try:
+                        shutil.move(str(sub), str(archive_dir))
+                        cleaned.append(f"Lồng nhau: đã chuyển '{sub.name}' trong '{skill_dir.name}' vào {archive_dir.name}")
+                    except Exception as e:
+                        cleaned.append(f"Lỗi dọn thư mục lồng '{sub.name}': {e}")
+        return cleaned
+
+    @classmethod
+    def deduplicate_target_dir(cls, target_root: Path) -> List[str]:
+        """
+        Dọn trùng lặp trong một thư mục đích:
+        1. Dọn thư mục kỹ năng bị lồng.
+        2. Hợp nhất các thư mục UUID hoặc trùng tên YAML frontmatter name vào slug chuẩn,
+           chuyển thư mục trùng vào .abyssal-removed.
+        """
+        cleaned = cls.clean_nested_skills(target_root)
+        if not target_root.exists() or not target_root.is_dir():
+            return cleaned
+
+        folder_info = []
+        for folder in list(target_root.iterdir()):
+            if not folder.is_dir() or folder.name.startswith('.'):
+                continue
+            skill_md = folder / 'SKILL.md'
+            if not skill_md.is_file():
+                continue
+
+            skill_name = folder.name
+            cloud_id = None
+            try:
+                content = skill_md.read_text(encoding='utf-8')
+                if content.startswith('---'):
+                    parts = content.split('---', 2)
+                    if len(parts) >= 3:
+                        meta = yaml.safe_load(parts[1])
+                        if isinstance(meta, dict) and meta.get('name'):
+                            skill_name = str(meta['name']).strip()
+            except Exception:
+                pass
+
+            install_meta = folder / '.abyssal-install.json'
+            if install_meta.is_file():
+                try:
+                    meta_json = json.loads(install_meta.read_text(encoding='utf-8'))
+                    cloud_id = meta_json.get('cloud_id')
+                except Exception:
+                    pass
+
+            is_uuid = bool(re.match(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$', folder.name))
+            norm_name = re.sub(r'[^a-zA-Z0-9_-]', '-', skill_name.lower()).strip('-')
+
+            folder_info.append({
+                'folder': folder,
+                'name': skill_name,
+                'norm_name': norm_name,
+                'is_uuid': is_uuid,
+                'cloud_id': cloud_id
+            })
+
+        grouped = {}
+        for item in folder_info:
+            grouped.setdefault(item['norm_name'], []).append(item)
+
+        for norm_name, items in grouped.items():
+            if len(items) > 1:
+                items.sort(key=lambda x: (x['is_uuid'], x['folder'].name != norm_name))
+                for duplicate in items[1:]:
+                    archive = target_root / '.abyssal-removed' / f"dup-{duplicate['folder'].name}-{time.time_ns()}"
+                    archive.parent.mkdir(parents=True, exist_ok=True)
+                    try:
+                        shutil.move(str(duplicate['folder']), str(archive))
+                        cleaned.append(f"Trùng lặp: đã lưu trữ thư mục '{duplicate['folder'].name}' (kỹ năng '{norm_name}')")
+                    except Exception as e:
+                        cleaned.append(f"Lỗi lưu trữ '{duplicate['folder'].name}': {e}")
+            elif len(items) == 1 and items[0]['is_uuid'] and items[0]['norm_name']:
+                candidate = target_root / items[0]['norm_name']
+                if not candidate.exists():
+                    try:
+                        items[0]['folder'].rename(candidate)
+                        cleaned.append(f"Chuẩn hóa tên: '{items[0]['folder'].name}' -> '{items[0]['norm_name']}'")
+                    except Exception:
+                        pass
+        return cleaned
+
+    @classmethod
+    def deduplicate_all_targets(cls, workspace_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Quét và dọn sạch trùng lặp toàn diện trên toàn bộ các môi trường AI và thư mục người dùng:
+        - Dọn các thư mục lồng nhau, thư mục UUID và thư mục trùng tên.
+        - Xử lý xung đột giữa ~/.agents/skills và thư mục công cụ cá nhân (~/.gemini, ~/.codex, ~/.claude).
+        """
+        home = Path.home()
+        ws = assert_safe_workspace_path(workspace_path or Path.cwd())
+        all_roots = [
+            home / '.gemini' / 'config' / 'skills',
+            home / '.claude' / 'skills',
+            home / '.copilot' / 'skills',
+            home / '.codex' / 'skills',
+            ws / '.cursor' / 'skills',
+            ws / '.codeium' / 'windsurf' / 'skills',
+            ws / '.aider' / 'skills',
+            ws / '.agents' / 'skills',
+        ]
+        home_agents = home / '.agents' / 'skills'
+
+        cleaned_actions = []
+        for root in dict.fromkeys(all_roots):
+            if root.exists() and root.is_dir():
+                actions = cls.deduplicate_target_dir(root)
+                cleaned_actions.extend(actions)
+
+        # Xử lý đụng độ ~/.agents/skills vs thư mục cá nhân của từng công cụ
+        if home_agents.exists() and home_agents.is_dir() and ws.resolve() != home.resolve():
+            tool_roots = [
+                home / '.gemini' / 'config' / 'skills',
+                home / '.codex' / 'skills',
+                home / '.claude' / 'skills',
+            ]
+            installed_in_tools = set()
+            for tr in tool_roots:
+                if tr.exists():
+                    for f in tr.iterdir():
+                        if f.is_dir() and (f / 'SKILL.md').exists():
+                            installed_in_tools.add(f.name.lower())
+
+            for f in list(home_agents.iterdir()):
+                if f.is_dir() and (f / 'SKILL.md').exists():
+                    if f.name.lower() in installed_in_tools:
+                        archive = home / '.agents' / '.abyssal-removed' / f"home-dup-{f.name}-{time.time_ns()}"
+                        archive.parent.mkdir(parents=True, exist_ok=True)
+                        try:
+                            shutil.move(str(f), str(archive))
+                            cleaned_actions.append(f"Trùng Personal: chuyển bản sao dư thừa '{f.name}' từ ~/.agents/skills vào kho lưu trữ")
+                        except Exception as e:
+                            cleaned_actions.append(f"Lỗi chuyển '{f.name}': {e}")
+
+        return {
+            'success': True,
+            'status': 'success',
+            'actions_count': len(cleaned_actions),
+            'actions': cleaned_actions,
+            'message': f'Đã quét và xử lý {len(cleaned_actions)} mục trùng lặp/chuẩn hóa.' if cleaned_actions else 'Hệ thống sạch, không có kỹ năng trùng lặp.'
+        }
+
+    @classmethod
     def install(cls, skill: SkillItem, req: InstallRequest) -> InstallResult:
         installed, rules, errors, results = [], [], [], []
+        already_installed_targets = []
         try:
             destinations = cls.target_dirs(skill.id, req.workspace_path)
             cls.skill_payload(skill)
         except (ValueError, OSError) as error:
             return InstallResult(False, skill.id, message=str(error), errors=[str(error)])
         workspace = Path(req.workspace_path or Path.cwd())
+
+        # Tránh ghi vào ~/.agents/skills khi workspace trỏ vào User Home và đã chọn công cụ cá nhân
+        skip_home_workspace = (workspace.resolve() == Path.home().resolve()) and any(t in req.targets for t in ['antigravity', 'codex', 'claude'])
+
         for target in dict.fromkeys(req.targets):
             try:
+                if target == 'workspace' and skip_home_workspace:
+                    results.append({'target': target, 'status': 'skipped', 'message': 'Bỏ qua ghi ~/.agents/skills vì đã cài vào thư mục công cụ cá nhân (tránh trùng lặp)'})
+                    continue
                 if target not in destinations:
                     raise ValueError('Môi trường AI không được hỗ trợ: ' + str(target))
                 destination = destinations[target]
-                if (destination / 'SKILL.md').exists() and cls.skill_differs_at(skill, destination) and not req.overwrite:
-                    raise ValueError('Nội dung đã tồn tại khác với thư viện. Vui lòng xem khác biệt và xác nhận cập nhật.')
-                payload = {safe_child(destination, name): content for name, content in cls.skill_payload(skill).items()}
+
+                # Lưu trữ bất kỳ thư mục anh em nào trùng tên kỹ năng hoặc mã cloud_id
+                if destination.parent.exists():
+                    for sibling in list(destination.parent.iterdir()):
+                        if sibling != destination and sibling.is_dir() and (sibling / 'SKILL.md').is_file():
+                            s_name = sibling.name
+                            try:
+                                s_text = (sibling / 'SKILL.md').read_text(encoding='utf-8')
+                                if s_text.startswith('---'):
+                                    parts = s_text.split('---', 2)
+                                    if len(parts) >= 3:
+                                        m = yaml.safe_load(parts[1])
+                                        if isinstance(m, dict) and m.get('name'):
+                                            s_name = str(m['name']).strip()
+                            except Exception:
+                                pass
+                            if s_name.lower() == skill.name.lower() or (skill.cloud_id and sibling.name == skill.cloud_id):
+                                archive_sib = destination.parent / '.abyssal-removed' / f"sibling-dup-{sibling.name}-{time.time_ns()}"
+                                archive_sib.parent.mkdir(parents=True, exist_ok=True)
+                                try:
+                                    shutil.move(str(sibling), str(archive_sib))
+                                except Exception:
+                                    pass
+
+                # Kiểm tra bất biến: Đã cài đặt & khớp nội dung 100%
+                is_installed = (destination / 'SKILL.md').is_file()
+                content_differs = cls.skill_differs_at(skill, destination) if is_installed else True
+
                 rule_paths = []
+                shared = {}
                 if req.enable_always_on:
                     shared = cls.shared_rule_payload(skill, target, workspace)
-                    payload.update(shared)
                     rule_paths = [str(path) for path in shared]
-                if not req.overwrite:
+
+                if is_installed and not content_differs and not req.force_reinstall:
+                    rules_differ = False
+                    for r_path, r_content in shared.items():
+                        if not r_path.exists() or cls.rule_block(r_path.read_text(encoding='utf-8'), skill.id) != cls.rule_block(r_content, skill.id):
+                            rules_differ = True
+                            break
+                    if not rules_differ:
+                        installed.append(str(destination))
+                        rules.extend(rule_paths)
+                        already_installed_targets.append(target)
+                        results.append({'target': target, 'status': 'already_installed', 'path': str(destination), 'message': 'Đã có sẵn & khớp 100%'})
+                        continue
+
+                if is_installed and content_differs and not req.overwrite and not req.force_reinstall:
+                    raise ValueError('Nội dung đã tồn tại khác với thư viện. Vui lòng xem khác biệt và xác nhận cập nhật.')
+
+                payload = {safe_child(destination, name): content for name, content in cls.skill_payload(skill).items()}
+                if req.enable_always_on:
+                    payload.update(shared)
+
+                if not req.overwrite and not req.force_reinstall:
                     for path, content in payload.items():
                         if path.exists() and path.read_text(encoding='utf-8') != content and path.is_relative_to(destination):
                             raise ValueError('Nội dung đã thay đổi. Vui lòng xem khác biệt trước khi cập nhật.')
@@ -131,9 +352,13 @@ class SkillInstaller:
                             new = cls.rule_block(content, skill.id)
                             if old and old != new:
                                 raise ValueError('Quy tắc đã thay đổi. Vui lòng xem khác biệt trước khi cập nhật.')
+
                 manifest = {str(path): hashlib.sha256(cls.rule_block(content, skill.id).encode()).hexdigest()
                             for path, content in payload.items() if str(path) in rule_paths}
-                payload[safe_child(destination, '.abyssal-install.json')] = json.dumps({'rules': manifest}, ensure_ascii=False)
+                meta_install = {'rules': manifest}
+                if skill.cloud_id:
+                    meta_install['cloud_id'] = skill.cloud_id
+                payload[safe_child(destination, '.abyssal-install.json')] = json.dumps(meta_install, ensure_ascii=False)
                 cls.write_payload(payload)
                 installed.append(str(destination))
                 rules.extend(rule_paths)
@@ -141,10 +366,19 @@ class SkillInstaller:
             except Exception as error:
                 errors.append(f"{target}: {error}")
                 results.append({'target': target, 'status': 'error', 'message': str(error)})
+
+        effective_targets = [t for t in req.targets if not (t == 'workspace' and skip_home_workspace)]
+        if already_installed_targets and len(already_installed_targets) == len(effective_targets) and not errors:
+            return InstallResult(
+                True, skill.id, installed_paths=installed, rules_paths=rules,
+                message=f"Kỹ năng '{skill.display_title or skill.name}' đã được cài đặt đầy đủ và khớp 100% trên {len(installed)} môi trường (không ghi đè dư thừa).",
+                errors=[], status='already_installed', results=results
+            )
+
         success = bool(installed) and not errors
         status = 'success' if success else ('partial' if installed else 'error')
         return InstallResult(success, skill.id, installed_paths=installed, rules_paths=rules,
-                             message=f'Đã ghi tệp ở {len(installed)}/{len(set(req.targets))} môi trường.' + (' Có lỗi cần xử lý.' if errors else ''),
+                             message=f'Đã ghi tệp ở {len(installed)}/{len(set(effective_targets))} môi trường.' + (' Có lỗi cần xử lý.' if errors else ''),
                              errors=errors, status=status, results=results)
 
     @classmethod
@@ -284,7 +518,8 @@ class SkillInstaller:
         workspace_path: Optional[str] = None,
         cancel_event=None,
         enable_always_on=True,
-        overwrite: bool = True
+        overwrite: bool = True,
+        force_reinstall: bool = False
     ) -> Dict[str, Any]:
         """
         Đồng bộ toàn bộ kho kỹ năng cho tất cả các công cụ AI được chỉ định.
@@ -294,17 +529,24 @@ class SkillInstaller:
             targets = ["antigravity", "claude", "copilot", "cursor", "windsurf", "codex", "workspace"]
 
         active_ws = assert_safe_workspace_path(workspace_path or Path.cwd())
+        
+        # Dọn sạch các thư mục trùng lặp trước khi bắt đầu đồng bộ
+        try:
+            cls.deduplicate_all_targets(active_ws)
+        except Exception:
+            pass
+
         counts = {target: 0 for target in targets}
         results, errors, installed = [], [], []
         for skill in skills:
             if cancel_event is not None and cancel_event.is_set():
                 break
-            result = cls.install(skill, InstallRequest(skill.id, targets, str(active_ws), enable_always_on, False, overwrite=overwrite))
+            result = cls.install(skill, InstallRequest(skill.id, targets, str(active_ws), enable_always_on, False, overwrite=overwrite, force_reinstall=force_reinstall))
             installed.extend(result.installed_paths)
             errors.extend(result.errors)
             results.append({'skill_id': skill.id, 'status': result.status, 'results': result.results})
             for item in result.results:
-                if item['status'] == 'success':
+                if item['status'] in ('success', 'already_installed'):
                     counts[item['target']] += 1
         cancelled = cancel_event is not None and cancel_event.is_set()
         success = bool(installed) and not errors and not cancelled

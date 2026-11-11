@@ -712,6 +712,89 @@ code, pre {
   color: #ffffff;
 }
 
+/* Status Filter Bar */
+.catalog-unified-toolbar .catalog-status-bar {
+  height: auto;
+  padding: 0;
+  border-bottom: none;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.catalog-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.status-bar-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.status-chip:hover {
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+}
+
+.status-chip.active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border-color: #10b981;
+  font-weight: 600;
+}
+
+.status-chip[data-status="all"].active {
+  background: var(--accent-subtle);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.status-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.status-chip.active .status-count {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.status-chip[data-status="all"].active .status-count {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+
 /* Card Attribution Pill */
 .card-attribution-row {
   display: flex;

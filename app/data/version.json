@@ -1,18 +1,19 @@
 {
-  "version": "1.1.4",
+  "version": "1.1.5",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
-  "release_date": "2026-11-07",
+  "release_date": "2026-11-11",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.1.4",
-    "title": "AbyssalSkillsD 1.1.4 — Cập Nhật Động & Gỡ Cài Đặt Sạch 100%",
+    "version": "1.1.5",
+    "title": "AbyssalSkillsD 1.1.5 — Khắc Phục Nhân Bản Skill, Chống Spam Ghi Đè & Bộ Lọc Trạng Thái",
     "highlights": [
-      "Tự động tải bản mới nhất: Liên kết README và PowerShell 1-click tự động nhận diện và tải chính xác bản phát hành mới nhất từ GitHub.",
-      "Gỡ cài đặt sạch 100%: Tự động dọn sạch toàn bộ cấu hình, cache và nhật ký (%APPDATA% & %LOCALAPPDATA%) khi gỡ ứng dụng qua Windows.",
-      "Tương thích ngược Community Cloud: Khắc phục triệt để lỗi không tải được chợ kỹ năng khi chạy với bản backend cũ.",
-      "Sửa nút Tải lại Cloud: Hiển thị icon xoay đồng bộ chuẩn xác thay vì nhãn undefined."
+      "Khắc phục triệt để lỗi nhân đôi Skill: Tự động phát hiện và dọn sạch các thư mục kỹ năng bị nhân đôi (trùng ~/.agents/skills, mã UUID Cloud, thư mục lồng nhau), giúp mỗi kỹ năng chỉ hiện duy nhất 1 dòng trong AI IDE.",
+      "Chống spam click và kiểm tra trước khi ghi: Khóa nút bấm khi đang cài đặt; bỏ qua ghi đè tệp dư thừa khi kỹ năng đã cài đặt đầy đủ và khớp nội dung 100%.",
+      "Bộ lọc Trạng thái nhanh: Bổ sung thanh lọc (Tất cả / Đã cài / Chưa cài / Bản mới) ngay trên thanh công cụ kèm số đếm thời gian thực.",
+      "Đồng bộ nhãn trực quan: Thẻ kỹ năng nội bộ và Chợ Cộng Đồng tự động hiện nhãn '✓ Đã cài (N AI)' và đổi trạng thái nút bấm rõ ràng.",
+      "Công cụ 1-Click: Bổ sung chức năng '🧹 Dọn Trùng Lặp Skill' trong menu Thao Tác Dự Án."
     ]
   }
 }

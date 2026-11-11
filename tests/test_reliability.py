@@ -192,9 +192,10 @@ class ReliabilityTests(unittest.TestCase):
         self.assertTrue(result['success'])
         self.assertEqual(reference.read_text(), 'UPSTREAM')
 
-    def test_registry_contains_original_suite(self):
+    def test_registry_contains_bundled_suite(self):
         data = json.loads((Path(__file__).resolve().parents[1] / 'app/data/skills_registry.json').read_text(encoding='utf-8'))
-        self.assertEqual(len(data), 36)
+        self.assertEqual(len(data), 37)
+        self.assertIn('honest-advisor', {item['id'] for item in data})
         self.assertEqual(sum(len(item.get('references', [])) for item in data), 237)
         self.assertEqual(sum(item.get('is_persona', False) for item in data), 4)
 
@@ -226,6 +227,57 @@ class ReliabilityTests(unittest.TestCase):
         result = self.installer.install(self.skill, self.request)
         self.assertFalse(result.success)
         self.assertEqual(list(target.iterdir()), [])
+
+    def test_idempotent_install_skips_when_identical(self):
+        # First install creates files
+        res1 = self.installer.install(self.skill, self.request)
+        self.assertTrue(res1.success)
+        dest = self.workspace / '.agents' / 'skills' / self.skill.id / 'SKILL.md'
+        self.assertTrue(dest.is_file())
+
+        # Second install with identical content returns 'already_installed'
+        res2 = self.installer.install(self.skill, self.request)
+        self.assertTrue(res2.success)
+        self.assertEqual(res2.status, 'already_installed')
+        self.assertIn('khớp 100%', res2.message)
+
+    def test_deduplicate_all_targets_cleans_nested_and_uuid(self):
+        ws_skills = self.workspace / '.agents' / 'skills'
+        ws_skills.mkdir(parents=True, exist_ok=True)
+        
+        # 1. Create a skill with nested subfolder
+        parent = ws_skills / 'parent-skill'
+        parent.mkdir()
+        (parent / 'SKILL.md').write_text('---\nname: parent-skill\n---\n# Parent', encoding='utf-8')
+        nested = parent / 'nested-child'
+        nested.mkdir()
+        (nested / 'SKILL.md').write_text('---\nname: nested-child\n---\n# Child', encoding='utf-8')
+
+        # 2. Create a duplicate UUID folder with the same name as parent-skill
+        uuid_folder = ws_skills / '01794859-a6f6-4f45-bfd2-618ddc1c13f4'
+        uuid_folder.mkdir()
+        (uuid_folder / 'SKILL.md').write_text('---\nname: parent-skill\n---\n# Duplicate', encoding='utf-8')
+
+        dedup_res = self.installer.deduplicate_all_targets(str(self.workspace))
+        self.assertTrue(dedup_res['success'])
+        self.assertGreaterEqual(dedup_res['actions_count'], 2)
+
+        # Verify nested child was removed from inside parent
+        self.assertFalse((parent / 'nested-child').exists())
+
+        # Verify duplicate UUID folder was removed/archived
+        self.assertFalse(uuid_folder.exists())
+        self.assertTrue((parent / 'SKILL.md').exists())
+
+    def test_api_concurrency_lock_prevents_spam(self):
+        from app.backend.api import DesktopAPI
+        api = DesktopAPI()
+        api.active_workspace = str(self.workspace)
+        api._install_locks.add('test-skill')
+        res = api.install_skill({'skill_id': 'test-skill'})
+        self.assertFalse(res['success'])
+        self.assertEqual(res['error_code'], 'ALREADY_INSTALLING')
+        api._install_locks.clear()
 
 
 if __name__ == '__main__':

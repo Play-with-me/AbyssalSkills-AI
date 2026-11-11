@@ -1,11 +1,11 @@
 ; =====================================================================
 ; AbyssalSkillsD - Inno Setup 6 Script
-; Builds Windows standalone installer: AbyssalSkillsD-Setup-v1.1.4.exe
+; Builds Windows standalone installer: AbyssalSkillsD-Setup-v1.1.5.exe
 ; Features clean uninstallation (purges %APPDATA% & %LOCALAPPDATA%)
 ; =====================================================================
 
 #define MyAppName "AbyssalSkillsD"
-#define MyAppVersion "1.1.4"
+#define MyAppVersion "1.1.5"
 #define MyAppPublisher "Lâm Nhựt Hải Đăng (Kyuu449977)"
 #define MyAppURL "https://github.com/Play-with-me/AbyssalSkills-AI"
 #define MyAppExeName "AbyssalSkillsD.exe"

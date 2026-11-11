@@ -11,6 +11,8 @@ const App = {
   activeViewMode: "bento",    // bento, linear
   activeCategory: "all",
   activeSource: "all",        // all, skill_ai, addy_osmani
+  activeStatusFilter: "all",  // all, installed, not_installed, has_update
+  _installingSkillIds: new Set(),
   searchQuery: "",
   selectedSkillId: null,
   activeDocId: "guide",
@@ -435,6 +437,25 @@ const App = {
     if (elAll) elAll.innerText = countAll;
     if (elSkillAi) elSkillAi.innerText = countSkillAi;
     if (elAddy) elAddy.innerText = countAddy;
+
+    // Status filter counters
+    const countStatusAll = this.skills.length;
+    const countStatusInstalled = this.skills.filter(s => s.installed_targets && s.installed_targets.length > 0).length;
+    const countStatusNotInstalled = this.skills.filter(s => !s.installed_targets || s.installed_targets.length === 0).length;
+    const countStatusHasUpdate = this.skills.filter(s => Boolean(s.has_update)).length;
+
+    const elStatAll = document.getElementById("count-status-all");
+    const elStatInst = document.getElementById("count-status-installed");
+    const elStatNot = document.getElementById("count-status-not-installed");
+    const elStatUpd = document.getElementById("count-status-has-update");
+
+    if (elStatAll) elStatAll.innerText = countStatusAll;
+    if (elStatInst) elStatInst.innerText = countStatusInstalled;
+    if (elStatNot) elStatNot.innerText = countStatusNotInstalled;
+    if (elStatUpd) {
+      elStatUpd.innerText = countStatusHasUpdate;
+      elStatUpd.style.display = countStatusHasUpdate > 0 ? "inline-flex" : "none";
+    }
   },
 
   /* =========================================================================
@@ -1432,6 +1453,16 @@ const App = {
       result = result.filter(s => s.installed_targets && s.installed_targets.length > 0);
     }
 
+    if (this.activeStatusFilter && this.activeStatusFilter !== "all") {
+      if (this.activeStatusFilter === "installed") {
+        result = result.filter(s => s.installed_targets && s.installed_targets.length > 0);
+      } else if (this.activeStatusFilter === "not_installed") {
+        result = result.filter(s => !s.installed_targets || s.installed_targets.length === 0);
+      } else if (this.activeStatusFilter === "has_update") {
+        result = result.filter(s => Boolean(s.has_update));
+      }
+    }
+
     if (this.activeSource && this.activeSource !== "all") {
       result = result.filter(s => (s.source_group || "skill_ai") === this.activeSource);
     }
@@ -1747,7 +1778,12 @@ const App = {
     }
   },
 
-  async handleApplyInstall(skillId) {
+  async handleApplyInstall(skillId, forceReinstall = false) {
+    if (this._installingSkillIds && this._installingSkillIds.has(skillId)) {
+      this.showToast(`Kỹ năng '${skillId}' đang trong quá trình cài đặt, vui lòng chờ...`, "info");
+      return;
+    }
+
     const skill = this.skills.find(s => s.id === skillId) || { id: skillId, name: skillId };
     const targets = [];
     if (document.getElementById("sw-antigravity")?.checked) targets.push("antigravity");
@@ -1762,6 +1798,22 @@ const App = {
     const enableAlwaysOn = document.getElementById("sw-always-on")?.checked ?? true;
     const withGraphify = document.getElementById("sw-graphify")?.checked ?? true;
 
+    // Kiểm tra nếu đã cài đặt đầy đủ trên các môi trường đã chọn và nội dung không đổi
+    const alreadyInstalledOnAll = targets.every(t => (skill.installed_targets || []).includes(t));
+    if (alreadyInstalledOnAll && !skill.has_update && !forceReinstall) {
+      this.showToast(`✓ Kỹ năng "${skill.display_title || skill.name}" đã được cài đặt đầy đủ và khớp 100% trên các môi trường đã chọn.`, "success");
+      return;
+    }
+
+    if (!this._installingSkillIds) this._installingSkillIds = new Set();
+    this._installingSkillIds.add(skillId);
+
+    const applyBtn = document.getElementById("btn-inspector-apply");
+    if (applyBtn) {
+      applyBtn.disabled = true;
+      applyBtn.style.opacity = "0.6";
+    }
+
     // 1. Launch Neural Stream Modal - Step 1: Packing Playbooks
     this.openActivationModal(skill, targets, {
       stepIndex: 1,
@@ -1769,7 +1821,7 @@ const App = {
       isComplete: false
     });
 
-    await new Promise(r => setTimeout(r, 380));
+    await new Promise(r => setTimeout(r, 280));
 
     // 2. Advance to Step 2: Injecting Rules
     this.openActivationModal(skill, targets, {
@@ -1785,11 +1837,12 @@ const App = {
         workspace_path: this.activeWorkspaceProject || null,
         enable_always_on: enableAlwaysOn,
         with_graphify: withGraphify,
-        overwrite: true
+        overwrite: true,
+        force_reinstall: forceReinstall
       });
 
       if (res && res.success) {
-        await new Promise(r => setTimeout(r, 350));
+        await new Promise(r => setTimeout(r, 200));
         const verifyRes = await DesktopBridge.verifySkillActive({ skill_id: skillId });
 
         // 3. Step 3: Complete & Render Proof
@@ -1812,6 +1865,31 @@ const App = {
     } catch (err) {
       this.closeActiveModal();
       this.showToast("Lỗi cài đặt: " + err.message, "error");
+    } finally {
+      this._installingSkillIds.delete(skillId);
+      if (applyBtn) {
+        applyBtn.disabled = false;
+        applyBtn.style.opacity = "1";
+      }
+    }
+  },
+
+  async handleDeduplicateSkills() {
+    this.showToast("🧹 Đang quét và dọn các thư mục kỹ năng trùng lặp trên máy...", "info");
+    try {
+      const res = await DesktopBridge.deduplicateSkills({ workspace_path: this.activeWorkspaceProject || null });
+      if (res && res.success) {
+        if (res.actions_count > 0) {
+          this.showToast(`✓ ${res.message}`, "success");
+        } else {
+          this.showToast("✓ Toàn bộ các môi trường AI đều sạch sẽ, không có thư mục trùng lặp!", "success");
+        }
+        await this.loadSkills();
+      } else {
+        this.showToast("Lỗi dọn trùng lặp: " + (res ? res.message : "Thất bại"), "error");
+      }
+    } catch (err) {
+      this.showToast("Lỗi dọn trùng lặp: " + err.message, "error");
     }
   },
 
@@ -3224,6 +3302,16 @@ phase: build-and-polish
       });
     });
 
+    // Status filter chips (All / Installed / Not Installed / Has Update)
+    document.querySelectorAll(".status-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".status-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        this.activeStatusFilter = chip.getAttribute("data-status") || "all";
+        this.applyFilters();
+      });
+    });
+
     // Search command input with 150ms debounce
     const searchInput = document.getElementById("global-search-input");
     let debounceTimer;
@@ -3273,6 +3361,11 @@ phase: build-and-polish
     document.getElementById("btn-sync-all-ais")?.addEventListener("click", () => {
       if (projectToolsMenu) projectToolsMenu.style.display = "none";
       this.openSyncAllModal();
+    });
+
+    document.getElementById("btn-deduplicate-skills")?.addEventListener("click", async () => {
+      if (projectToolsMenu) projectToolsMenu.style.display = "none";
+      await this.handleDeduplicateSkills();
     });
 
     document.getElementById("btn-generate-project-rules")?.addEventListener("click", () => {

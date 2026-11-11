@@ -2,6 +2,7 @@
 import json
 import hashlib
 import uuid
+import re
 from .auth import AuthEngine
 from .cloud_client import CloudClient, CloudError, failure
 from .paths import get_data_dir, atomic_write, validate_skill_id
@@ -110,12 +111,33 @@ class CommunityService:
         from .storage import SkillStorage
         try:
             row = cls.get_skill(data['skill_id'])
-            # UUID cloud IDs isolate two authors publishing the same slug.
-            item = SkillItem.from_dict({**row, 'name': row.get('slug') or row['name'],
-                                      'skill_content': row['content'], 'source_group': 'community',
-                                      'cloud_id': row['id']})
-            result = SkillInstaller.install(item, InstallRequest(item.id, data.get('targets') or ['workspace'],
-                         data.get('workspace_path') or workspace, True, False))
+            # Derive canonical folder slug: prefer slug or sanitized name
+            raw_slug = row.get('slug') or row.get('name') or str(row['id'])
+            canonical_slug = re.sub(r'[^a-zA-Z0-9_-]', '-', raw_slug.lower()).strip('-')
+            if not canonical_slug:
+                canonical_slug = str(row['id'])
+            item_dict = {
+                **row,
+                'id': canonical_slug,
+                'name': row.get('slug') or row['name'],
+                'skill_content': row['content'],
+                'source_group': 'community',
+                'cloud_id': str(row['id']),
+            }
+            item = SkillItem.from_dict(item_dict)
+            force = bool(data.get('force_reinstall', False))
+            result = SkillInstaller.install(
+                item,
+                InstallRequest(
+                    item.id,
+                    data.get('targets') or ['workspace'],
+                    data.get('workspace_path') or workspace,
+                    enable_always_on=True,
+                    with_graphify=False,
+                    overwrite=True,
+                    force_reinstall=force
+                )
+            )
             if not result.success:
                 return {'success': False, 'status': result.status, 'message': result.message, 'errors': result.errors, 'results': result.results}
             SkillStorage.upsert_skill(item)

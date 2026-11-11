@@ -80,6 +80,10 @@ class DesktopBridge {
     return await this.call("install_skill", payload);
   }
 
+  static async deduplicateSkills(payload = {}) {
+    return await this.call("deduplicate_skills", payload);
+  }
+
   static async uninstallSkill(payload) {
     return await this.call("uninstall_skill", payload);
   }

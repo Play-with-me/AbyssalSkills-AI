@@ -219,6 +219,27 @@
               <span class="source-count" id="count-source-addy-osmani" style="display:none;">29</span>
             </button>
           </div>
+
+          <!-- Status Filter Bar (All / Installed / Not Installed / Has Update) -->
+          <div class="catalog-status-bar" id="catalog-status-bar" data-testid="catalog-status-bar">
+            <span class="status-bar-label">Trạng thái:</span>
+            <button class="status-chip active" data-status="all" data-testid="status-all" title="Hiển thị tất cả kỹ năng">
+              <span>Tất cả</span>
+              <span class="status-count" id="count-status-all">36</span>
+            </button>
+            <button class="status-chip" data-status="installed" data-testid="status-installed" title="Chỉ hiển thị các kỹ năng đã cài đặt vào máy">
+              <span>✓ Đã cài</span>
+              <span class="status-count" id="count-status-installed">0</span>
+            </button>
+            <button class="status-chip" data-status="not_installed" data-testid="status-not-installed" title="Chỉ hiển thị các kỹ năng chưa cài đặt">
+              <span>○ Chưa cài</span>
+              <span class="status-count" id="count-status-not-installed">0</span>
+            </button>
+            <button class="status-chip" data-status="has_update" data-testid="status-has-update" title="Các kỹ năng có bản cập nhật mới">
+              <span>🔄 Bản mới</span>
+              <span class="status-count" id="count-status-has-update" style="display:none;">0</span>
+            </button>
+          </div>
         </div>
 
         <!-- Active Workspace Project Bar (Consolidated Action Dropdown List) -->
@@ -244,6 +265,10 @@
                 <div class="dropdown-menu-item" id="btn-sync-all-ais" data-testid="btn-sync-all-ais" title="Đồng bộ toàn bộ 36 kỹ năng vào tất cả các công cụ AI trên máy">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                   <span>⚡ Đồng Bộ Tất Cả 7 AI</span>
+                </div>
+                <div class="dropdown-menu-item" id="btn-deduplicate-skills" data-testid="btn-deduplicate-skills" title="Quét và dọn sạch các thư mục kỹ năng trùng lặp, lồng nhau trên toàn bộ các công cụ AI">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                  <span>🧹 Dọn Trùng Lặp Skill</span>
                 </div>
                 <div class="dropdown-menu-item" id="btn-generate-project-rules" data-testid="btn-generate-project-rules" title="Tự động tạo các tệp quy tắc .cursorrules, .windsurfrules, CLAUDE.md cho dự án này">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -284,7 +309,7 @@
         <span class="status-led active"></span>
         <span id="footer-status-text">Đang đọc thư viện và trạng thái tệp cài đặt…</span>
       </div>
-      <div>v1.1.4</div>
+      <div>v1.1.5</div>
     </footer>
   </div>
 

@@ -84,6 +84,7 @@ class InstallRequest:
     enable_always_on: bool = True
     with_graphify: bool = True
     overwrite: bool = False
+    force_reinstall: bool = False
 
 @dataclass
 class InstallResult:

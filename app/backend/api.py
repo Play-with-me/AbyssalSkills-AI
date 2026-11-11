@@ -31,6 +31,12 @@ class DesktopAPI:
         self.active_workspace = str(Path.cwd())
         self._cancel_install = threading.Event()
         self._batch_lock = threading.Lock()
+        self._install_locks = set()
+        self._install_lock_mutex = threading.Lock()
+        try:
+            SkillInstaller.deduplicate_all_targets(self.active_workspace)
+        except Exception:
+            pass
 
     def get_active_workspace(self) -> Dict[str, Any]:
         """Returns the currently active coding project workspace."""
@@ -370,39 +376,68 @@ class DesktopAPI:
 
     def install_skill(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Executes multi-target installation for a single skill.
+        Executes multi-target installation for a single skill with concurrency locking and idempotency.
         """
         skill_id = data.get("skill_id")
-        workspace_path = data.get("workspace_path") or getattr(self, "active_workspace", str(Path.cwd()))
-        skill = SkillStorage.get_skill(skill_id, workspace_path)
-        if not skill:
-            return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}'"}
+        if not skill_id:
+            return {"success": False, "message": "Thiếu skill_id."}
 
-        req = InstallRequest(
-            skill_id=skill_id,
-            targets=data.get("targets", ["antigravity"]),
-            workspace_path=workspace_path,
-            enable_always_on=data.get("enable_always_on", True),
-            with_graphify=data.get("with_graphify", True),
-            overwrite=bool(data.get("overwrite", False))
-        )
+        with self._install_lock_mutex:
+            if skill_id in self._install_locks:
+                return {
+                    "success": False,
+                    "status": "busy",
+                    "error_code": "ALREADY_INSTALLING",
+                    "message": f"Kỹ năng '{skill_id}' đang được xử lý cài đặt. Vui lòng đợi trong giây lát."
+                }
+            self._install_locks.add(skill_id)
 
-        res = SkillInstaller.install(skill, req)
-        
-        skill.installed_targets = SkillScanner.detect_installed_targets(skill.id, workspace_path)
-        skill.always_on_enabled = SkillScanner.detect_always_on_enabled()
-        SkillStorage.upsert_skill(skill)
+        try:
+            workspace_path = data.get("workspace_path") or getattr(self, "active_workspace", str(Path.cwd()))
+            skill = SkillStorage.get_skill(skill_id, workspace_path)
+            if not skill:
+                return {"success": False, "message": f"Không tìm thấy kỹ năng '{skill_id}'"}
 
-        return {
-            "success": res.success,
-            "status": res.status,
-            "results": res.results,
-            "message": res.message,
-            "installed_paths": res.installed_paths,
-            "rules_paths": res.rules_paths,
-            "graphify_status": res.graphify_status,
-            "errors": res.errors
-        }
+            req = InstallRequest(
+                skill_id=skill_id,
+                targets=data.get("targets", ["antigravity"]),
+                workspace_path=workspace_path,
+                enable_always_on=data.get("enable_always_on", True),
+                with_graphify=data.get("with_graphify", True),
+                overwrite=bool(data.get("overwrite", False)),
+                force_reinstall=bool(data.get("force_reinstall", False))
+            )
+
+            res = SkillInstaller.install(skill, req)
+            
+            skill.installed_targets = SkillScanner.detect_installed_targets(skill.id, workspace_path)
+            skill.always_on_enabled = SkillScanner.detect_always_on_enabled()
+            SkillStorage.upsert_skill(skill)
+
+            return {
+                "success": res.success,
+                "status": res.status,
+                "results": res.results,
+                "message": res.message,
+                "installed_paths": res.installed_paths,
+                "rules_paths": res.rules_paths,
+                "graphify_status": res.graphify_status,
+                "errors": res.errors
+            }
+        finally:
+            with self._install_lock_mutex:
+                self._install_locks.discard(skill_id)
+
+    def deduplicate_skills(self, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Quét và dọn sạch các thư mục kỹ năng trùng lặp, lồng nhau hoặc mang mã UUID trên toàn bộ các môi trường AI.
+        """
+        workspace_path = None
+        if isinstance(data, dict):
+            workspace_path = data.get("workspace_path")
+        ws = workspace_path or getattr(self, "active_workspace", str(Path.cwd()))
+        res = SkillInstaller.deduplicate_all_targets(ws)
+        return res
 
     def sync_all_ais(self, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -901,8 +936,19 @@ class DesktopAPI:
         return CommunityService.publish(skill_data)
 
     def community_install_skill(self, data):
-        from .community import CommunityService
-        return CommunityService.install(data, self.active_workspace)
+        skill_id = (data or {}).get('skill_id')
+        if skill_id:
+            with self._install_lock_mutex:
+                if skill_id in self._install_locks:
+                    return {'success': False, 'status': 'busy', 'error_code': 'ALREADY_INSTALLING', 'message': 'Kỹ năng đang được tải và cài đặt...'}
+                self._install_locks.add(skill_id)
+        try:
+            from .community import CommunityService
+            return CommunityService.install(data, self.active_workspace)
+        finally:
+            if skill_id:
+                with self._install_lock_mutex:
+                    self._install_locks.discard(skill_id)
 
     def community_action(self, data):
         from .community import CommunityService

@@ -1307,7 +1307,7 @@ class UIComponents {
               <span>${this.escape(skill.display_title || skill.name)}</span>
               <span class="version-tag">v${skill.version || '1.0'}</span>
               ${skill.has_update ? `<span class="badge-skill-update btn-card-review-diff" data-id="${skill.id}" style="background:rgba(245,158,11,0.18); color:#FBBF24; font-size:10px; font-weight:600; padding:1px 6px; border-radius:4px; border:1px solid rgba(245,158,11,0.4); cursor:pointer;" title="Bản trên máy khác với kho. Bấm để so sánh!">🔄 Có cập nhật</span>` : ''}
-              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Tệp kỹ năng đã được ghi (${this.escape(installedListStr || 'Đã ghi tệp')}). Bấm để xem bằng chứng và lệnh kiểm chứng">● Đã ghi tệp</span>` : ''}
+              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Tệp kỹ năng đã được cài (${this.escape(installedListStr || 'Đã cài')}). Bấm để xem chi tiết">✓ Đã cài (${skill.installed_targets.length} AI)</span>` : `<span class="badge-ai-ready" style="font-size:10px; color:var(--text-muted); padding:1px 5px; border-radius:4px; border:1px solid var(--border-subtle);">○ Chưa cài</span>`}
             </div>
             <div class="bento-card-category">${this.escape(skill.use_case_group || skill.category || 'Chuyên gia')}</div>
           </div>
@@ -1421,12 +1421,12 @@ class UIComponents {
           ${isInstalled ? `
             <span class="pill-tag installed btn-card-verify" data-id="${skill.id}" style="cursor:pointer;" title="Đã nạp vào: ${this.escape(installedListStr || 'Đã ghi tệp')}. Bấm để kiểm chứng tệp và câu lệnh trong AI">
               <span class="status-led active"></span>
-              <span>Đã ghi tệp</span>
+              <span>✓ Đã cài (${skill.installed_targets.length})</span>
             </span>
           ` : `
             <span class="pill-tag">
               <span class="status-led inactive"></span>
-              <span>Chưa cài</span>
+              <span>○ Chưa cài</span>
             </span>
           `}
         </div>
@@ -1747,7 +1747,7 @@ class UIComponents {
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 14px;">
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">Antigravity</span>
+              <span class="switch-title">Antigravity ${hasAntigravity ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">~/.gemini/config</span>
             </div>
             <label class="toggle-switch">
@@ -1758,7 +1758,7 @@ class UIComponents {
 
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">Claude Code</span>
+              <span class="switch-title">Claude Code ${hasClaude ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">~/.claude/skills</span>
             </div>
             <label class="toggle-switch">
@@ -1769,7 +1769,7 @@ class UIComponents {
 
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">Cursor AI</span>
+              <span class="switch-title">Cursor AI ${hasCursor ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">.cursorrules / .mdc</span>
             </div>
             <label class="toggle-switch">
@@ -1780,7 +1780,7 @@ class UIComponents {
 
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">Windsurf</span>
+              <span class="switch-title">Windsurf ${hasWindsurf ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">.windsurfrules</span>
             </div>
             <label class="toggle-switch">
@@ -1791,7 +1791,7 @@ class UIComponents {
 
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">GitHub Copilot</span>
+              <span class="switch-title">GitHub Copilot ${hasCopilot ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">~/.copilot/skills</span>
             </div>
             <label class="toggle-switch">
@@ -1802,7 +1802,7 @@ class UIComponents {
 
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">OpenAI Codex</span>
+              <span class="switch-title">OpenAI Codex ${hasCodex ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">~/.codex/skills & CODEX.md</span>
             </div>
             <label class="toggle-switch">
@@ -1813,7 +1813,7 @@ class UIComponents {
 
           <div class="switch-row">
             <div class="switch-label-area">
-              <span class="switch-title">Dự án hiện tại</span>
+              <span class="switch-title">Dự án hiện tại ${hasWorkspace ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
               <span class="switch-desc">.agents/skills</span>
             </div>
             <label class="toggle-switch">
@@ -1850,7 +1850,7 @@ class UIComponents {
         <div class="inspector-action-buttons">
           <button class="btn btn-primary" id="btn-inspector-apply" data-id="${skill.id}" style="flex:1;">
             ${Icons.download}
-            <span>Đồng bộ Cài đặt</span>
+            <span>${targets.length > 0 ? '✓ Đã Cài Đặt (Đồng bộ lại)' : '⚡ Cài Đặt Kỹ Năng'}</span>
           </button>
           <button class="btn btn-secondary btn-inspector-action-customize" data-id="${skill.id}" title="Nạp kỹ năng này vào Studio để chỉnh sửa">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -2085,7 +2085,10 @@ class UIComponents {
             </div>
           ` : `
             <div class="community-skills-grid">
-              ${filtered.map(s => `
+              ${filtered.map(s => {
+                const localMatch = (window.App && window.App.skills) ? window.App.skills.find(loc => loc.id === s.id || loc.id === s.slug || loc.cloud_id === s.id || (loc.name && s.name && loc.name.toLowerCase() === s.name.toLowerCase())) : null;
+                const isInstalledLocally = localMatch && localMatch.installed_targets && localMatch.installed_targets.length > 0;
+                return `
                 <div class="comm-card" data-skill-id="${s.id}">
                   <div>
                     <div class="comm-card-header">
@@ -2093,7 +2096,10 @@ class UIComponents {
                         <div class="comm-card-title">${this.escape(s.display_title || s.name)}</div>
                         <div class="comm-card-author">Đóng góp bởi: <strong style="color:var(--text-primary);">@${this.escape(s.author || 'engineer')}</strong></div>
                       </div>
-                      <span class="comm-card-badge">${this.escape(s.category || 'Cloud')}</span>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        ${isInstalledLocally ? `<span class="badge-comm-installed" style="font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:4px; background:rgba(16,185,129,0.15); color:#10B981; border:1px solid rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:3px;">✓ Đã cài (${localMatch.installed_targets.length} AI)</span>` : ''}
+                        <span class="comm-card-badge">${this.escape(s.category || 'Cloud')}</span>
+                      </div>
                     </div>
 
                     <p class="comm-card-desc" style="margin-top:10px;">
@@ -2135,15 +2141,15 @@ class UIComponents {
                         <button class="btn btn-secondary btn-comm-detail btn-view-community-skill" data-id="${s.id}" style="flex:1; height:32px; font-size:11.5px; font-weight:600; white-space:nowrap;">
                           <span>👁️ Chi Tiết</span>
                         </button>
-                        <button class="btn-install-community btn-install-community-skill" data-id="${s.id}" style="flex:1.8; height:32px; font-size:11.5px; font-weight:600; white-space:nowrap;">
-                          ${Icons.download}
-                          <span>Tải & Cài Vào AI</span>
+                        <button class="btn-install-community btn-install-community-skill" data-id="${s.id}" style="flex:1.8; height:32px; font-size:11.5px; font-weight:600; white-space:nowrap; ${isInstalledLocally ? 'background:rgba(16,185,129,0.14); color:#10B981; border:1px solid rgba(16,185,129,0.35);' : ''}">
+                          ${isInstalledLocally ? Icons.checkCircle : Icons.download}
+                          <span>${isInstalledLocally ? '✓ Đã Cài (Cài lại)' : 'Tải & Cài Vào AI'}</span>
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              `).join('')}
+              `;}).join('')}
             </div>
           `}
         ` : `
@@ -2417,6 +2423,19 @@ class UIComponents {
           </div>
 
           <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+            ${(() => {
+              const localMatch = (window.App && window.App.skills) ? window.App.skills.find(loc => loc.id === skill.id || loc.id === skill.slug || loc.cloud_id === skill.id || (loc.name && skill.name && loc.name.toLowerCase() === skill.name.toLowerCase())) : null;
+              const isInstalledLocally = localMatch && localMatch.installed_targets && localMatch.installed_targets.length > 0;
+              return isInstalledLocally ? `
+                <div style="padding:10px 14px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:8px; display:flex; align-items:center; gap:8px;">
+                  <span style="color:#10B981; font-size:16px;">✓</span>
+                  <div style="font-size:12px; color:var(--text-primary);">
+                    Kỹ năng này <strong>đã được cài đặt</strong> trên máy của bạn (<strong>${localMatch.installed_targets.join(', ')}</strong>). Bạn có thể bấm tiếp tục nếu muốn đồng bộ lại tệp.
+                  </div>
+                </div>
+              ` : '';
+            })()}
+
             <div>
               <div style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:4px;">Mô tả kỹ năng:</div>
               <p style="font-size:12.5px; color:var(--text-primary); line-height:1.5;">${this.escape(skill.description || '')}</p>

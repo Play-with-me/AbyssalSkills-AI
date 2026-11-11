@@ -1,12 +1,12 @@
 # AbyssalSkillsD — Living Project Memory (`.agents/PROJECT_MEMORY.md`)
 
 ## 1. Product Summary & Active UX Rules
-- **Product:** AbyssalSkillsD (v1.1.4) — Standalone Windows Desktop App for AI Skill Management & Marketplace.
+- **Product:** AbyssalSkillsD (v1.1.5) — Standalone Windows Desktop App for AI Skill Management & Marketplace.
 - **Brand Identity:** Abyssal Sky v2.0 (`#050814` Void, `#00B4D8` Ocean Cyan, `#7C3AED` Aurora Violet, `#1E2D4A` Hairline).
 - **Background Aesthetic Law:** Luxury Studio Atmospheric Canvas. Zero fake sci-fi blueprint rings, zero crosshairs, zero giant watermarks.
 - **UI/UX Guardrails:** Anti-overflow CSS (`min-h-0`, `min-w-0`), sub-250ms physics motion, zero blind actions, uncluttered headers, and collapsible guidance hubs.
 - **Universal Multi-AI Ecosystem (7 Environments):** Google Antigravity, Claude Code, Cursor AI, Windsurf, GitHub Copilot, OpenAI Codex, and Aider/Workspace.
-- **Aggregated Suites:** 36 Skills (7 Skill-AI Nucleus + 29 Addy Osmani Production Engineering).
+- **Aggregated Suites:** 37 Skills (8 Skill-AI Nucleus + 29 Addy Osmani Production Engineering).
 
 ## 2. Architecture & God Nodes (Graphify AST Audit)
 - `RuntimePathResolver` (`app/backend/paths.py`): Frozen PyInstaller vs. dev mode path resolution with APPDATA fallback.
@@ -19,6 +19,19 @@
 - `App` (`app/frontend/js/app.js`): View state, filtering, auto-update progress listener, and workspace router.
 
 ## 3. Recent Completed Changes
+- [x] **Deduplication Engine & Pre-Install Idempotency (`SkillInstaller` & `DesktopAPI`):**
+  - Added `SkillInstaller.deduplicate_all_targets()`: scans and automatically heals nested skill directories (e.g., `strict-architect-coder/ui-ux-design-master`), canonicalizes UUID folders (`01794859-...` -> `honest-advisor`), and eliminates redundant copies in `~/.agents/skills` that caused duplicate `Personal` listings in Codex/Antigravity/Cursor.
+  - Added pre-install idempotency in `SkillInstaller.install`: if a skill is already installed on requested targets with identical content (`skill_differs_at == False`), skips redundant disk writes and `.bak` backups, returning `status: 'already_installed'`.
+  - Added per-skill concurrency in-flight lock (`_install_locks`) in `DesktopAPI` and `App._installingSkillIds` to block rapid spam clicks.
+  - Automatically runs deduplication on application startup and via 1-click `"🧹 Dọn Trùng Lặp Skill"` in Project Tools menu.
+- [x] **Install Status Filter & High-Clarity UX Badges (`components.js`, `app.js`, `index.html`):**
+  - Added interactive Status Filter Bar in catalog toolbar: `Tất cả` • `✓ Đã cài` • `○ Chưa cài` • `🔄 Bản mới` with live count badges.
+  - Upgraded Bento and Linear cards to show clear status pills: `✓ Đã cài (N AI)` vs `○ Chưa cài`.
+  - Synchronized Community Cloud marketplace: cards and detail modal cross-reference local catalog to display `✓ Đã cài (N AI)` and switch button from `"Tải & Cài Vào AI"` to `"✓ Đã Cài (Cài lại)"`.
+  - Upgraded Inspector right drawer: each platform row now shows per-platform status (`✓ Đã có` vs `○ Chưa cài`), and main button dynamically adapts to `"✓ Đã Cài Đặt (Đồng bộ lại)"`.
+- [x] **Honest Advisor — Balanced Benefits & Risks Skill:**
+  - Added `honest-advisor` to the bundled registry as “Cố Vấn Trung Thực Hai Chiều,” including evidence/assumption separation, fair upside analysis, material-risk disclosure, real alternatives, calibrated recommendations, and anti-false-balance guardrails.
+  - Added 3 Vietnamese starter prompts and updated the registry regression test from 36 to 37 bundled skills.
 - [x] **Dynamic GitHub Release & 1-Click Install Script:**
   - `scripts/install.ps1` dynamically detects the latest release via GitHub API with fallback to `/releases/latest/download/AbyssalSkillsD-Setup.exe`. Zero hardcoded version debt.
   - `README.md` and `README.vi.md` upgraded with dynamic Shields.io release badges and permanent latest download links.
