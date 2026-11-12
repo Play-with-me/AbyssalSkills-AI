@@ -1,19 +1,19 @@
 {
-  "version": "1.1.5",
+  "version": "1.1.6",
   "app_name": "AbyssalSkillsD",
   "channel": "stable",
-  "release_date": "2026-11-11",
+  "release_date": "2026-11-12",
   "repository": "https://github.com/Play-with-me/AbyssalSkills-AI",
   "skills_repo": "https://github.com/addyosmani/agent-skills",
   "changelog": {
-    "version": "1.1.5",
-    "title": "AbyssalSkillsD 1.1.5 — Khắc Phục Nhân Bản Skill, Chống Spam Ghi Đè & Bộ Lọc Trạng Thái",
+    "version": "1.1.6",
+    "title": "AbyssalSkillsD 1.1.6 — Hoàn Thiện Figma 11:2, Hộp Thoại Xác Nhận Kích Hoạt & Nâng Cấp Graphify v0.9.107",
     "highlights": [
-      "Khắc phục triệt để lỗi nhân đôi Skill: Tự động phát hiện và dọn sạch các thư mục kỹ năng bị nhân đôi (trùng ~/.agents/skills, mã UUID Cloud, thư mục lồng nhau), giúp mỗi kỹ năng chỉ hiện duy nhất 1 dòng trong AI IDE.",
-      "Chống spam click và kiểm tra trước khi ghi: Khóa nút bấm khi đang cài đặt; bỏ qua ghi đè tệp dư thừa khi kỹ năng đã cài đặt đầy đủ và khớp nội dung 100%.",
-      "Bộ lọc Trạng thái nhanh: Bổ sung thanh lọc (Tất cả / Đã cài / Chưa cài / Bản mới) ngay trên thanh công cụ kèm số đếm thời gian thực.",
-      "Đồng bộ nhãn trực quan: Thẻ kỹ năng nội bộ và Chợ Cộng Đồng tự động hiện nhãn '✓ Đã cài (N AI)' và đổi trạng thái nút bấm rõ ràng.",
-      "Công cụ 1-Click: Bổ sung chức năng '🧹 Dọn Trùng Lặp Skill' trong menu Thao Tác Dự Án."
+      "Chuẩn hóa thanh bên trái (Sidebar): Căn chỉnh hoàn hảo khung dự án đang mở, thẳng hàng chấm LED và tên của cả 7 nền tảng AI (Antigravity, Claude, Cursor, Windsurf, Copilot, Codex, Workspace).",
+      "Kích hoạt Bảng Trợ Giúp & Phím Tắt: Nút trợ giúp hoạt động nhạy bén, tích hợp phím tắt Ctrl+/ và ? mở bảng tra cứu phím tắt tiện dụng (Ctrl+K, Ctrl+/, Esc, Mũi tên/Enter).",
+      "Hộp Thoại Xác Nhận Kích Hoạt (Zero Blind Actions): Hiển thị chi tiết danh sách kỹ năng, nền tảng AI đích và đường dẫn thư mục dự án; bắt buộc người dùng xác nhận mới tiến hành ghi tệp.",
+      "Đồng Bộ Lõi Graphify v0.9.107: Tích hợp công cụ phân tích đồ thị kiến trúc mới nhất, hỗ trợ truy vấn nhanh BFS/DFS (graphify query), cờ --force và nạp đủ 8 cẩm nang tham chiếu (references).",
+      "Kết Nối Toàn Bộ Công Cụ Dự Án: Kích hoạt đầy đủ các tính năng Đồng bộ 7 AI, Dọn trùng lặp, Sinh file Rules, và Nhật ký chẩn đoán từ menu công cụ trên thanh tiêu đề."
     ]
   }
 }
