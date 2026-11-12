@@ -1,55 +1,46 @@
-# AbyssalSkillsD — Living Project Memory (`.agents/PROJECT_MEMORY.md`)
+# PROJECT MEMORY — `AbyssalSkillsD` Desktop App Suite & Figma Workspace
 
-## 1. Product Summary & Active UX Rules
-- **Product:** AbyssalSkillsD (v1.1.5) — Standalone Windows Desktop App for AI Skill Management & Marketplace.
-- **Brand Identity:** Abyssal Sky v2.0 (`#050814` Void, `#00B4D8` Ocean Cyan, `#7C3AED` Aurora Violet, `#1E2D4A` Hairline).
-- **Background Aesthetic Law:** Luxury Studio Atmospheric Canvas. Zero fake sci-fi blueprint rings, zero crosshairs, zero giant watermarks.
-- **UI/UX Guardrails:** Anti-overflow CSS (`min-h-0`, `min-w-0`), sub-250ms physics motion, zero blind actions, uncluttered headers, and collapsible guidance hubs.
-- **Universal Multi-AI Ecosystem (7 Environments):** Google Antigravity, Claude Code, Cursor AI, Windsurf, GitHub Copilot, OpenAI Codex, and Aider/Workspace.
-- **Aggregated Suites:** 37 Skills (8 Skill-AI Nucleus + 29 Addy Osmani Production Engineering).
+## 1. Product Summary & Active UX/Brand Rules
+- **Product Name**: `AbyssalSkillsD` (AI Skill Manager Workbench for Windows 10/11 x64, PyWebView).
+- **Author**: Lâm Nhựt Hải Đăng (Kyuu449977).
+- **Core Archetype**: Linear / Raycast / Cursor Desktop Precision Workbench.
+- **Design Tokens & Theme**:
+  - Obsidian Deep Dark Theme (`#050C1A` canvas, `#0A1428` surface, `#0D1933` cards/inputs, `#1E2D4A` borders).
+  - Aurora Accents: Electric Ocean Cyan (`#00B4D8`), Celestial Violet (`#7C3AED` -> `#A78BFA`), Emerald Health (`#10B981`).
+  - Zero-Emoji Policy: 100% Vector SVG iconography (1.5px/2px uniform stroke).
+  - 118 Anti-Slop Rules & Sub-250ms physics motion (`cubic-bezier(0.16, 1, 0.3, 1)`).
 
-## 2. Architecture & God Nodes (Graphify AST Audit)
-- `RuntimePathResolver` (`app/backend/paths.py`): Frozen PyInstaller vs. dev mode path resolution with APPDATA fallback.
-- `UpdateEngine` (`app/backend/updater.py`): GitHub Releases API, SemVer comparison, and in-place silent auto-updater.
-- `DesktopAPI` (`app/backend/api.py`): JS-to-Python IPC bridge (34 methods).
-- `SkillStorage` (`app/backend/storage.py`): Registry persistence, fast-path YAML hashing, and backup snapshot manager.
-- `SkillInstaller` (`app/backend/installer.py`): Multi-target atomic file deployment engine.
-- `DesktopBridge` (`app/frontend/js/bridge.js`): Frontend asynchronous bridge with backward compatibility.
-- `UIComponents` (`app/frontend/js/components.js`): Executive header, bento cards, community marketplace, and diff viewer.
-- `App` (`app/frontend/js/app.js`): View state, filtering, auto-update progress listener, and workspace router.
+## 2. Architecture & Figma Reference Canvas
+- **Active Figma File URL**: `https://www.figma.com/design/NRBE8zh5RbhSob8pKHIKC7/Untitled`
+- **Figma File Key**: `NRBE8zh5RbhSob8pKHIKC7`
+- **Production Desktop Design**: Frame `11:2` (`AbyssalSkillsD · Quản lý Kỹ năng & AI`, `1440 × 900` px):
+  1. **Topbar Header (`11:3`)**: Clean brand badge `v1.1.5`, Search Command input (`⌘ K`), View toggles, Notifications, Tools menu.
+  2. **Activity Sidebar (`11:53`)**:
+     - Dedicated Workspace box (`#workspace-project-bar`) moved to sidebar top with path preview and `#btn-change-workspace`.
+     - 6 primary navigation destinations.
+     - Vertical AI Ecosystem Health list (`11:93`) with status LED dots for all 7 platforms.
+     - Help & shortcuts trigger (`11:110`, `⌘ ?`).
+  3. **Center Catalog (`11:125`)**:
+     - Breadcrumb navigation (`KHÔNG GIAN LÀM VIỆC / Thư viện kỹ năng`), main title `Kho Kỹ Năng`, count badge `36 kỹ năng`.
+     - Needs filter chips (`Tất cả`, `Lập trình & Clean Code`, `Frontend & Giao diện`, `Kiểm thử & QA`).
+     - Source tabs with active indicator and visible counter (`6 / 36 kỹ năng`).
+     - Redesigned Bento Cards (`11:156`): Category label, title, version tag, LED dot, 2-line description, 3 tags (`# ...`), "Chi tiết" outline button, "Đồng bộ vào AI" gradient button.
+     - Pagination Bar (`11:303`): `1, 2, 3 >`.
+  4. **Inspector Drawer (`11:6`)**:
+     - Header: Skill title, version badges (`● Đã cài vX.Y.Z` and `vX.Y.Z có sẵn`), close button.
+     - 3 Horizontal Tabs: `Tổng quan` (`data-doc="guide"`), `So sánh Diff` (`data-doc="diff"`), `Quy tắc` (`data-doc="skill_md"`).
+     - Side-by-side 2-column Diff viewer table with `+6 -2` metrics, code highlights, and safety summary card.
+     - Pinned Action Footer: "Gỡ cài đặt" and "Áp dụng vào Dự án →".
+  5. **Bottom Statusbar (`11:7`)**: Left system LED status, center last synced timestamp, right version `v1.1.5`.
 
 ## 3. Recent Completed Changes
-- [x] **Deduplication Engine & Pre-Install Idempotency (`SkillInstaller` & `DesktopAPI`):**
-  - Added `SkillInstaller.deduplicate_all_targets()`: scans and automatically heals nested skill directories (e.g., `strict-architect-coder/ui-ux-design-master`), canonicalizes UUID folders (`01794859-...` -> `honest-advisor`), and eliminates redundant copies in `~/.agents/skills` that caused duplicate `Personal` listings in Codex/Antigravity/Cursor.
-  - Added pre-install idempotency in `SkillInstaller.install`: if a skill is already installed on requested targets with identical content (`skill_differs_at == False`), skips redundant disk writes and `.bak` backups, returning `status: 'already_installed'`.
-  - Added per-skill concurrency in-flight lock (`_install_locks`) in `DesktopAPI` and `App._installingSkillIds` to block rapid spam clicks.
-  - Automatically runs deduplication on application startup and via 1-click `"🧹 Dọn Trùng Lặp Skill"` in Project Tools menu.
-- [x] **Install Status Filter & High-Clarity UX Badges (`components.js`, `app.js`, `index.html`):**
-  - Added interactive Status Filter Bar in catalog toolbar: `Tất cả` • `✓ Đã cài` • `○ Chưa cài` • `🔄 Bản mới` with live count badges.
-  - Upgraded Bento and Linear cards to show clear status pills: `✓ Đã cài (N AI)` vs `○ Chưa cài`.
-  - Synchronized Community Cloud marketplace: cards and detail modal cross-reference local catalog to display `✓ Đã cài (N AI)` and switch button from `"Tải & Cài Vào AI"` to `"✓ Đã Cài (Cài lại)"`.
-  - Upgraded Inspector right drawer: each platform row now shows per-platform status (`✓ Đã có` vs `○ Chưa cài`), and main button dynamically adapts to `"✓ Đã Cài Đặt (Đồng bộ lại)"`.
-- [x] **Honest Advisor — Balanced Benefits & Risks Skill:**
-  - Added `honest-advisor` to the bundled registry as “Cố Vấn Trung Thực Hai Chiều,” including evidence/assumption separation, fair upside analysis, material-risk disclosure, real alternatives, calibrated recommendations, and anti-false-balance guardrails.
-  - Added 3 Vietnamese starter prompts and updated the registry regression test from 36 to 37 bundled skills.
-- [x] **Dynamic GitHub Release & 1-Click Install Script:**
-  - `scripts/install.ps1` dynamically detects the latest release via GitHub API with fallback to `/releases/latest/download/AbyssalSkillsD-Setup.exe`. Zero hardcoded version debt.
-  - `README.md` and `README.vi.md` upgraded with dynamic Shields.io release badges and permanent latest download links.
-- [x] **100% Clean Uninstallation (Modern App Spec):**
-  - Added `[UninstallDelete]` and Pascal script `CurUninstallStepChanged(usPostUninstall)` with `DelTree` in `installer/abyssalskillsd.iss`.
-  - Automatically wipes `%APPDATA%\AbyssalSkillsD`, `%LOCALAPPDATA%\AbyssalSkillsD`, and `{app}` when uninstalled via Windows Settings or Control Panel.
-- [x] **Community Cloud Bridge Backward-Compatibility:**
-  - Fixed `DesktopBridge.communityGetSkills()` to handle both 0-arg and 1-arg backend signatures without throwing `DesktopAPI.community_get_skills() takes 1 positional argument but 2 were given`.
-  - Fixed `undefined Tải lại` button icon reference (`Icons.refresh`).
-- [x] **Luxury Studio Atmospheric Background:**
-  - Removed all fake sci-fi blueprint graphics (orbit rings, compass crosshairs, dashed diagonal lines, giant fox watermark).
-  - Implemented human-crafted deep obsidian mesh with organic cyan/violet ambient aurora lighting and subtle studio dot matrix (Linear/Raycast aesthetic).
-- [x] **Project Tools Dropdown List (Consolidated Actions):**
-  - Replaced the 4 horizontal buttons with a single glowing trigger: `[⚡ Thao Tác Dự Án ▾]`.
-- [x] **UI Decluttering & Header Streamlining:**
-  - Collapsed 3-card `hero-action-hub` by default into `[✨ Mở Gợi Ý Nhanh]`.
-  - Replaced 7 static non-clickable sidebar rows with sleek `.sidebar-ai-health-card` ("7 Nền Tảng AI Sẵn Sàng").
-- [x] **Workspace Isolation (Toolbar Leakage Fix):**
-  - Isolated `#catalog-unified-toolbar` and `#workspace-project-bar` to `library` and `installed` views only.
-- [x] **Cleaned Dist Binaries from Git Tracking:**
-  - Untracked legacy v1.0.1 binaries from Git index so future GitHub Actions releases only upload new compilation assets.
+- Successfully implemented 100% of the Figma Desktop Screen `11:2` design into the frontend (`index.html`, `js/components.js`, `css/app.css`, `js/app.js`).
+- Preserved all project management actions in the Topbar Tools dropdown for complete accessibility and test safety.
+- Retained all platform toggle switches inside a collapsible platform accordion in the Inspector drawer.
+- Verified: All 39/39 automated reliability and backend unit tests pass without regressions (`OK (skipped=1)`).
+- Hotfix & Polish (v1.1.6):
+  1. **Sidebar Layout & Alignment**: Fixed `#workspace-project-bar` top and main rows (folder icon + label grouped on left, path + `[Đổi]` neatly aligned on one row). Fixed `.ai-platform-row` alignment across all 7 AI platforms (`Antigravity`, `Claude Code`, `Cursor AI`, `Windsurf`, `GitHub Copilot`, `OpenAI Codex`, `Workspace`) using `.platform-info` wrappers and clean right-aligned status badges.
+  2. **Help & Shortcuts**: Wired up `#btn-sidebar-help` click, Enter/Space, and keyboard shortcuts (`Ctrl + /` or `?`) to open a rich modal featuring a complete Keyboard Shortcuts reference table (`Ctrl+K`, `Ctrl+/`, `Esc`, `↑/↓/Enter`).
+  3. **Skill Activation Confirmation Modal (Zero Blind Actions)**: Routed single and batch activations (`handleApplyInstall`, `handleBatchInstallAll`, quick tryouts, topbar tools) through `UIComponents.renderActivationConfirmModal`. Displays target workspace, selectable/deselectable skills list with live counters, target AI platform checklist, and only proceeds to write files upon explicit user click of `[⚡ Xác Nhận Kích Hoạt Ngay]`.
+  4. **Workspace Visibility Safety**: Preserved `#workspace-project-bar` in the persistent sidebar across all views (`library`, `installed`, `guide`, `studio`, `community`, `profile`), and correctly toggles `#catalog-header-area` and `#catalog-pagination-bar`.
+  5. Verified runtime execution with PyWebView headless evaluation: 0 errors, 100% modal/button bindings passing.

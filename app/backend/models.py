@@ -24,6 +24,14 @@ class RuleDoc:
     rule_type: str = "always_on"  # always_on, system, tool_guard
 
 @dataclass
+class SkillFileDoc:
+    rel_path: str         # e.g. "scripts/audit.py", "templates/config.json"
+    filename: str         # e.g. "audit.py"
+    content: str          # text content
+    is_binary: bool = False
+    category: str = "other"  # reference, rule, script, template, asset, other
+
+@dataclass
 class SkillItem:
     id: str
     name: str
@@ -38,6 +46,7 @@ class SkillItem:
     yaml_frontmatter: Dict[str, Any] = field(default_factory=dict)
     references: List[ReferenceDoc] = field(default_factory=list)
     rules: List[RuleDoc] = field(default_factory=list)
+    extra_files: List[SkillFileDoc] = field(default_factory=list)
     has_graphify: bool = False
     graphify_summary: Optional[Dict[str, Any]] = None
     installed_targets: List[str] = field(default_factory=list) # ['antigravity', 'claude', 'copilot', 'workspace']
@@ -63,8 +72,9 @@ class SkillItem:
     def from_dict(cls, data: Dict[str, Any]) -> "SkillItem":
         refs = [ReferenceDoc(**r) if isinstance(r, dict) else r for r in data.get("references", [])]
         rules = [RuleDoc(**r) if isinstance(r, dict) else r for r in data.get("rules", [])]
+        extra = [SkillFileDoc(**f) if isinstance(f, dict) else f for f in data.get("extra_files", [])]
         field_names = {f.name for f in cls.__dataclass_fields__.values()}
-        clean_data = {k: v for k, v in data.items() if k in field_names and k not in ["references", "rules"]}
+        clean_data = {k: v for k, v in data.items() if k in field_names and k not in ["references", "rules", "extra_files"]}
         content = clean_data.get('skill_content', '')
         if content.startswith('---\n') and '\n---\n' in content[4:]:
             import yaml
@@ -74,7 +84,7 @@ class SkillItem:
                 raise ValueError('Frontmatter phải là một bảng thuộc tính YAML.')
             clean_data['yaml_frontmatter'] = clean_data.get('yaml_frontmatter') or metadata
             clean_data['skill_content'] = body.lstrip('\n')
-        return cls(references=refs, rules=rules, **clean_data)
+        return cls(references=refs, rules=rules, extra_files=extra, **clean_data)
 
 @dataclass
 class InstallRequest:

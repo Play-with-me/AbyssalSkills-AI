@@ -38,6 +38,9 @@ const Icons = {
   mail: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
   bell: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`,
   chevronDown: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>`,
+  chevronRight: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>`,
+  code: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+  terminal: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`,
   check: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
   checkCircle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06D6A0" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
   folderOpen: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"/></svg>`,
@@ -610,6 +613,10 @@ class UIComponents {
               </div>
               <div style="display:flex; gap:8px;">
                 <button class="btn btn-secondary" onclick="App.closeActiveModal()">Đóng</button>
+                <button class="btn btn-secondary" onclick="App.closeActiveModal(); App.openActivationConfirmModal([App.skills.find(s => s.id === '${skill.id}') || { id: '${skill.id}', name: '${this.escape(skill.name || skill.id)}' }], null, false);" style="border-color: rgba(0, 180, 216, 0.4); color: #38BDF8;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span>⚡ Kích Hoạt Vào AI</span>
+                </button>
                 <button class="btn btn-primary" id="btn-copy-tryout-prompt" onclick="App.copyTryoutPrompt()" style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);">
                   ${Icons.copy}
                   <span id="btn-copy-tryout-text">Sao Chép Câu Lệnh Này</span>
@@ -629,7 +636,7 @@ class UIComponents {
           <div class="modal-header">
             <div style="font-size:14px; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
               <span style="color:var(--accent-primary);">${Icons.sparkles}</span>
-              <span>Hướng Dẫn Sử Dụng Nhanh (3 Bước)</span>
+              <span>Trợ Giúp & Bảng Phím Tắt Nhanh</span>
             </div>
             <button class="btn btn-ghost btn-icon" onclick="App.closeActiveModal()">
               ${Icons.x}
@@ -659,6 +666,45 @@ class UIComponents {
               </div>
             </div>
 
+            <!-- Keyboard Shortcuts Table (Figma 11:114) -->
+            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+              <div style="font-size: 12.5px; font-weight: 600; color: #F8FAFC; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+                <span>Bảng Phím Tắt Tiện Dụng</span>
+              </div>
+              <table class="shortcuts-table">
+                <thead>
+                  <tr>
+                    <th>Phím tắt</th>
+                    <th>Chức năng</th>
+                    <th>Phạm vi áp dụng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><kbd class="sidebar-kbd-chip">Ctrl + K</kbd> hoặc <kbd class="sidebar-kbd-chip">⌘ K</kbd></td>
+                    <td>Mở Command Palette tìm nhanh kỹ năng & lệnh</td>
+                    <td>Toàn ứng dụng</td>
+                  </tr>
+                  <tr>
+                    <td><kbd class="sidebar-kbd-chip">Ctrl + /</kbd> hoặc <kbd class="sidebar-kbd-chip">?</kbd></td>
+                    <td>Mở hộp thoại Trợ giúp & Phím tắt này</td>
+                    <td>Toàn ứng dụng</td>
+                  </tr>
+                  <tr>
+                    <td><kbd class="sidebar-kbd-chip">Esc</kbd></td>
+                    <td>Đóng hộp thoại đang mở hoặc đóng ngăn chi tiết kỹ năng</td>
+                    <td>Hộp thoại & Inspector</td>
+                  </tr>
+                  <tr>
+                    <td><kbd class="sidebar-kbd-chip">↑</kbd> <kbd class="sidebar-kbd-chip">↓</kbd> <kbd class="sidebar-kbd-chip">Enter</kbd></td>
+                    <td>Di chuyển và chọn lệnh trong Command Palette</td>
+                    <td>Command Palette</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; padding-top:14px; border-top:1px solid var(--border-subtle);">
               <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
                 <span class="status-led active"></span>
@@ -666,11 +712,123 @@ class UIComponents {
               </span>
               <div style="display:flex; gap:8px;">
                 <button class="btn btn-secondary" onclick="App.closeActiveModal()">Đã hiểu</button>
-                <button class="btn btn-primary" onclick="App.closeActiveModal(); App.handleBatchInstall();">
+                <button class="btn btn-primary" onclick="App.closeActiveModal(); App.handleBatchInstallAll();">
                   ${Icons.download}
-                  <span>Kích hoạt 7 Kỹ Năng ngay</span>
+                  <span>Kích hoạt Kỹ Năng ngay</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  static renderActivationConfirmModal(skillsToActivate = [], selectedTargets = null, workspacePath = "", isBatch = false) {
+    const defaultTargets = ["antigravity", "claude", "cursor", "windsurf", "copilot", "codex", "workspace"];
+    const targets = (selectedTargets && selectedTargets.length > 0) ? selectedTargets : defaultTargets;
+    const targetMeta = [
+      { id: "antigravity", name: "Antigravity", badge: "Google" },
+      { id: "claude", name: "Claude Code", badge: "Anthropic" },
+      { id: "cursor", name: "Cursor AI", badge: "IDE" },
+      { id: "windsurf", name: "Windsurf", badge: "IDE" },
+      { id: "copilot", name: "GitHub Copilot", badge: "GitHub" },
+      { id: "codex", name: "OpenAI Codex", badge: "OpenAI" },
+      { id: "workspace", name: "Workspace Rules", badge: "Project" }
+    ];
+
+    const displayPath = workspacePath || "C:\\Manager Skills";
+    const skillCount = skillsToActivate.length;
+
+    return `
+      <div class="modal-backdrop" id="activation-confirm-backdrop" onclick="App.closeActiveModal(event)">
+        <div class="modal-dialog activation-confirm-dialog" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:28px; height:28px; border-radius:6px; background:rgba(0,180,216,0.15); border:1px solid rgba(0,180,216,0.3); display:flex; align-items:center; justify-content:center; color:#38BDF8;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div>
+                <div style="font-size:14px; font-weight:700; color:#F8FAFC;">
+                  Xác Nhận Kích Hoạt Kỹ Năng Vào Não Bộ AI
+                </div>
+                <div style="font-size:11.5px; color:#94A3B8;">
+                  Kiểm tra danh sách kỹ năng và môi trường đích trước khi hệ thống ghi tệp
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-icon" onclick="App.closeActiveModal()" title="Đóng">
+              ${Icons.x}
+            </button>
+          </div>
+
+          <div class="modal-body" style="padding:16px 20px; overflow-y:auto;">
+            <!-- Meta Workspace Info Box -->
+            <div class="confirm-meta-box">
+              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span>Dự án đích:</span>
+                <span class="confirm-meta-path" id="confirm-workspace-path" title="${this.escape(displayPath)}">${this.escape(displayPath)}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <span class="status-led active"></span>
+                <span style="font-size:11px; color:#10B981; font-weight:500;">Tự động sao lưu .bak</span>
+              </div>
+            </div>
+
+            <!-- Target Environments Checklist -->
+            <div class="confirm-section-title">
+              <span>1. Chọn nền tảng AI nhận kỹ năng</span>
+              <span style="font-size:11px; font-weight:400; color:#64748B;">Đồng bộ đa môi trường</span>
+            </div>
+            <div class="confirm-targets-grid" id="confirm-targets-grid">
+              ${targetMeta.map(t => `
+                <label class="confirm-target-item">
+                  <input type="checkbox" class="confirm-target-checkbox" value="${t.id}" ${targets.includes(t.id) ? "checked" : ""}>
+                  <span style="font-weight:500;">${t.name}</span>
+                </label>
+              `).join("")}
+            </div>
+
+            <!-- Skills List Header & Select All -->
+            <div class="confirm-section-title">
+              <span>2. Danh sách kỹ năng sẽ kích hoạt (<span id="confirm-selected-count" style="color:#38BDF8;">${skillCount}</span>/${skillCount})</span>
+              <div>
+                <button type="button" class="btn-text-sm" id="btn-confirm-select-all">Chọn tất cả</button>
+                <span style="color:#334155;">|</span>
+                <button type="button" class="btn-text-sm" id="btn-confirm-deselect-all">Bỏ chọn</button>
+              </div>
+            </div>
+
+            <!-- Scrollable Skills List -->
+            <div class="confirm-skills-container" id="confirm-skills-container">
+              ${skillsToActivate.map(s => `
+                <div class="confirm-skill-row">
+                  <div class="confirm-skill-left">
+                    <input type="checkbox" class="confirm-skill-checkbox" data-skill-id="${this.escape(s.id)}" checked>
+                    <div style="min-width:0;">
+                      <div class="confirm-skill-title">${this.escape(s.display_title || s.name || s.id)}</div>
+                      <div class="confirm-skill-desc">${this.escape(s.description || "Quy tắc tự động hóa chuyên gia")}</div>
+                    </div>
+                  </div>
+                  <span class="confirm-skill-badge">v${this.escape(s.version || "1.0")}</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <!-- Action Footer -->
+          <div class="modal-footer" style="padding:12px 20px; border-top:1px solid #1E2D4A; display:flex; justify-content:space-between; align-items:center; background:#070F20;">
+            <div style="font-size:11.5px; color:#64748B; display:flex; align-items:center; gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>Chỉ ghi tệp sau khi bạn bấm xác nhận bên phải</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-secondary" id="btn-cancel-activation-confirm" onclick="App.closeActiveModal()">Hủy Bỏ</button>
+              <button class="btn btn-primary" id="btn-confirm-activation-proceed" style="background:linear-gradient(135deg, #0284C7 0%, #00B4D8 100%);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>⚡ Xác Nhận Kích Hoạt Ngay</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1253,6 +1411,29 @@ class UIComponents {
         </div>
 
         <div class="dropdown-divider"></div>
+        <div class="dropdown-menu-header">Thao tác Dự án</div>
+
+        <div class="dropdown-menu-item" id="btn-sync-all-ais" data-testid="btn-sync-all-ais">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>⚡ Đồng Bộ Tất Cả 7 AI</span>
+        </div>
+
+        <div class="dropdown-menu-item" id="btn-deduplicate-skills" data-testid="btn-deduplicate-skills">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          <span>🧹 Dọn Trùng Lặp Skill</span>
+        </div>
+
+        <div class="dropdown-menu-item" id="btn-generate-project-rules" data-testid="btn-generate-project-rules">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>📄 Tự Động Sinh Tệp Rules</span>
+        </div>
+
+        <div class="dropdown-menu-item" id="btn-open-diagnostics" data-testid="btn-open-diagnostics">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+          <span>🩺 Chẩn Đoán & Nhật Ký Log</span>
+        </div>
+
+        <div class="dropdown-divider"></div>
 
         <div class="dropdown-menu-item" id="btn-tool-batch-sync">
           ${Icons.download}
@@ -1276,6 +1457,47 @@ class UIComponents {
     return this.renderExecutiveHeader(skillsCount, refsCount, activeSource, newCount, updateCount, isCollapsed);
   }
 
+  static getCategoryTheme(skill) {
+    const id = (skill.id || "").toLowerCase();
+    const cat = (skill.category || "").toLowerCase();
+    if (id.includes("architect") || id.includes("plan") || cat.includes("plan") || cat.includes("architect")) {
+      return { label: "KẾ HOẠCH & KIẾN TRÚC", color: "#00B4D8", bg: "rgba(0,180,216,0.12)", border: "rgba(0,180,216,0.3)" };
+    }
+    if (id.includes("ui-ux") || id.includes("impeccable") || id.includes("frontend") || cat.includes("ui") || cat.includes("frontend")) {
+      return { label: "GIAO DIỆN & TRẢI NGHIỆM", color: "#A78BFA", bg: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.3)" };
+    }
+    if (id.includes("supabase") || id.includes("api") || id.includes("backend") || cat.includes("backend") || cat.includes("database")) {
+      return { label: "CƠ SỞ DỮ LIỆU & API", color: "#34D399", bg: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.3)" };
+    }
+    if (id.includes("playwright") || id.includes("test") || cat.includes("test") || cat.includes("qa")) {
+      return { label: "KIỂM THỬ E2E & CHẤT LƯỢNG", color: "#38BDF8", bg: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.3)" };
+    }
+    if (id.includes("security") || cat.includes("security")) {
+      return { label: "BẢO MẬT & TỐI ƯU", color: "#FBBF24", bg: "rgba(251,191,36,0.12)", border: "rgba(251,191,36,0.3)" };
+    }
+    return { label: (skill.use_case_group || skill.category || "CHUYÊN GIA AI").toUpperCase(), color: "#38BDF8", bg: "rgba(56,189,248,0.12)", border: "rgba(56,189,248,0.3)" };
+  }
+
+  static getSkillTags(skill) {
+    if (skill.tags && Array.isArray(skill.tags) && skill.tags.length > 0) {
+      return skill.tags.slice(0, 3);
+    }
+    const id = (skill.id || "").toLowerCase();
+    if (id.includes("architect")) return ["Dual-Layer", "Graphify AST", "Anti-Amnesia"];
+    if (id.includes("ui-ux")) return ["118 Anti-Slop", "Physics Motion", "DESIGN.md"];
+    if (id.includes("shadcn")) return ["shadcn/ui", "Tailwind v4", "Radix Core"];
+    if (id.includes("nextjs")) return ["Next.js 15+", "React 19 RSC", "Server Actions"];
+    if (id.includes("supabase")) return ["PostgreSQL", "RLS Security", "SSR Auth"];
+    if (id.includes("playwright")) return ["Playwright E2E", "Visual QA", "Headless CI"];
+    if (id.includes("assets")) return ["Lucide SVG", "Simple Icons", "unDraw"];
+    if (id.includes("test-driven")) return ["TDD Red-Green", "Unit Testing", "Coverage"];
+    if (id.includes("security")) return ["OWASP Top 10", "Zero-Trust", "Pen-Testing"];
+    if (id.includes("performance")) return ["Core Web Vitals", "Lighthouse", "Zero-Waterfall"];
+    if (id.includes("git")) return ["Git Flow", "Conventional", "Atomic Commits"];
+    if (id.includes("idea-refine") || id.includes("interview")) return ["Divergent Thinking", "Socratic Query", "Scope Lock"];
+    return ["Trí tuệ nhân tạo", "Tự động hóa", "Chuẩn quốc tế"];
+  }
+
   static renderBentoCard(skill, isSelected = false) {
     const isInstalled = skill.installed_targets && skill.installed_targets.length > 0;
     const targetMap = {
@@ -1294,80 +1516,84 @@ class UIComponents {
     const isAddy = skill.source_group === "addy_osmani" || (skill.author && skill.author.includes("Addy Osmani"));
     const authorName = skill.author || (isAddy ? "Addy Osmani (Google)" : "Skill-AI Org");
     const singleLineBenefit = skill.when_to_use || skill.description || "Hỗ trợ lập trình chuyên sâu và tối ưu hóa tác vụ cho mô hình AI.";
+    const theme = this.getCategoryTheme(skill);
+    const tags = this.getSkillTags(skill);
 
     return `
       <div class="bento-card bento-card-clean ${isSelected ? 'selected' : ''}" data-id="${skill.id}" data-testid="skill-card-${skill.id}" role="button" tabindex="0" aria-label="${this.escape(skill.display_title || skill.name)}">
-        <!-- Top row: Brand Icon + Title + Status LED -->
-        <div class="bento-card-top">
-          <div class="card-icon-well">
-            ${this.getBrandIconSvg(skill.id, skill.category)}
-          </div>
-          <div class="bento-card-meta">
-            <div class="bento-card-title">
-              <span>${this.escape(skill.display_title || skill.name)}</span>
-              <span class="version-tag">v${skill.version || '1.0'}</span>
-              ${skill.has_update ? `<span class="badge-skill-update btn-card-review-diff" data-id="${skill.id}" style="background:rgba(245,158,11,0.18); color:#FBBF24; font-size:10px; font-weight:600; padding:1px 6px; border-radius:4px; border:1px solid rgba(245,158,11,0.4); cursor:pointer;" title="Bản trên máy khác với kho. Bấm để so sánh!">🔄 Có cập nhật</span>` : ''}
-              ${isInstalled ? `<span class="badge-ai-active btn-card-verify" data-id="${skill.id}" title="Tệp kỹ năng đã được cài (${this.escape(installedListStr || 'Đã cài')}). Bấm để xem chi tiết">✓ Đã cài (${skill.installed_targets.length} AI)</span>` : `<span class="badge-ai-ready" style="font-size:10px; color:var(--text-muted); padding:1px 5px; border-radius:4px; border:1px solid var(--border-subtle);">○ Chưa cài</span>`}
+        <!-- Top row: Category Badge + Status LED + Brand Icon (Figma 11:156) -->
+        <div class="bento-card-header-row">
+          <div class="bento-card-header-left">
+            <div class="bento-card-icon-box" style="border-color:${theme.border}; background:${theme.bg}; color:${theme.color};">
+              ${this.getBrandIconSvg(skill.id, skill.category)}
             </div>
-            <div class="bento-card-category">${this.escape(skill.use_case_group || skill.category || 'Chuyên gia')}</div>
-          </div>
-          <div class="card-status-indicator" title="${isInstalled ? 'Đã ghi tệp vào công cụ AI' : 'Sẵn sàng kích hoạt'}">
-            <span class="status-led ${isInstalled ? 'active' : 'ready'}"></span>
-          </div>
-        </div>
-
-        <!-- 1 Dòng Công Dụng Duy Nhất Cho Người Mới (Không bị rối mắt) -->
-        <div class="bento-card-benefit-row" title="${this.escape(singleLineBenefit)}">
-          <span class="benefit-bullet-icon">${Icons.sparkles}</span>
-          <span class="benefit-text">${this.escape(singleLineBenefit)}</span>
-        </div>
-
-        <!-- Hidden Accessible Elements (Preserves full automated test compatibility) -->
-        <div class="card-attribution-row" style="display:none;" aria-hidden="true">
-          <span class="card-author-pill ${isAddy ? 'addy' : 'skill-ai'}">${this.escape(authorName)}</span>
-          ${skill.is_persona ? `<span class="card-persona-pill">Persona</span>` : ''}
-          <span class="card-license-pill">MIT</span>
-        </div>
-        <div class="card-badge-row" style="display:none;" aria-hidden="true">
-          ${refCount > 0 ? `<span class="card-icon-badge">${refCount} sổ tay</span>` : ''}
-          ${starterPrompts.length > 0 ? `<span class="card-icon-badge">${starterPrompts.length} lệnh</span>` : ''}
-          ${hasGraphify ? `<span class="card-icon-badge graphify">AST</span>` : ''}
-        </div>
-
-        <!-- Action Footer: Tinh gọn 2 nút chính rõ ràng, thoáng mắt -->
-        <div class="bento-card-footer">
-          <div class="card-action-group" onclick="event.stopPropagation()">
-            <div class="card-action-left" style="display:flex; align-items:center; gap:6px; flex:1; min-width:0;">
-              ${skill.has_update ? `
-                <button class="btn-card-review-diff" data-id="${skill.id}" title="Bản trên máy khác với kho. Bấm để mở popup so sánh 2 bảng!" aria-label="So sánh cập nhật" style="flex:1;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                  <span>🔄 Cập Nhật</span>
-                </button>
-              ` : `
-                <button class="btn-card-tryout" data-id="${skill.id}" title="Lấy câu lệnh mẫu tiếng Việt dùng ngay trong 1 cú nhấp" aria-label="Lấy lệnh nhanh cho người mới" style="flex:1;">
-                  ${Icons.sparkles}
-                  <span>⚡ Lấy Lệnh Nhanh</span>
-                </button>
-              `}
+            <div class="bento-card-header-meta">
+              <span class="bento-card-cat-label" style="color:${theme.color};">${this.escape(theme.label)}</span>
+              <div class="bento-card-title-row">
+                <span class="bento-card-name">${this.escape(skill.display_title || skill.name)}</span>
+                <span class="version-tag">v${skill.version || '1.0'}</span>
+              </div>
             </div>
-
-            <div class="card-action-right" style="display:flex; align-items:center; gap:4px;">
-              <!-- Customize in Studio Button (Icon-Only Compact Tool) -->
-              <button class="btn-card-customize btn-card-icon-tool" data-id="${skill.id}" title="Nạp kỹ năng này vào Studio để chỉnh sửa và lưu thành phiên bản riêng" aria-label="Tùy biến trong Studio">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              </button>
-
-              <!-- Secondary Button for Pro Developers (Opens Advanced Settings Drawer) -->
-              <button class="btn-card-pro-settings btn-card-open" data-id="${skill.id}" title="Mở khay chi tiết: cài đặt AI, xem sổ tay, mở thư mục, gỡ cài đặt" aria-label="Cài đặt chuyên sâu">
-                ${Icons.penTool}
-                <span>⚙️ Chi Tiết ▾</span>
-              </button>
-            </div>
-
-            <!-- Accessible / Test-compatible elements preserved -->
-            <button class="btn-card-verify" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.checkCircle}</button>
-            <button class="btn btn-secondary btn-copy-card" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.copy}</button>
           </div>
+          <div class="bento-card-header-right">
+            ${skill.has_update ? `
+              <span class="bento-status-badge has-update btn-card-review-diff" data-id="${skill.id}" title="Có bản cập nhật mới so với máy">
+                <span class="bento-status-led amber"></span>
+                <span>Có cập nhật</span>
+              </span>
+            ` : isInstalled ? `
+              <span class="bento-status-badge active btn-card-verify" data-id="${skill.id}" title="Đã cài (${this.escape(installedListStr || 'Đã cài')})">
+                <span class="bento-status-led green"></span>
+                <span>Đang hoạt động</span>
+              </span>
+            ` : `
+              <span class="bento-status-badge ready">
+                <span class="bento-status-led ready"></span>
+                <span>Sẵn sàng</span>
+              </span>
+            `}
+          </div>
+        </div>
+
+        <!-- Description body (2 lines max) -->
+        <div class="bento-card-body-text" title="${this.escape(singleLineBenefit)}">
+          ${this.escape(singleLineBenefit)}
+        </div>
+
+        <!-- Tags Row: 3 chips (# ...) -->
+        <div class="bento-card-tags-row">
+          ${tags.map(tag => `<span class="bento-tag-chip"># ${this.escape(tag)}</span>`).join('')}
+        </div>
+
+        <!-- Thin divider -->
+        <div class="bento-card-divider"></div>
+
+        <!-- Action Footer: Figma 11:156 style: Left Outline Chi tiết, Right Gradient Đồng bộ vào AI -->
+        <div class="bento-card-footer-row" onclick="event.stopPropagation()">
+          <button class="btn-card-details btn-card-open btn-card-pro-settings" data-id="${skill.id}" title="Mở chi tiết kỹ năng, xem cấu hình và quy tắc" aria-label="Xem chi tiết kỹ năng">
+            Chi tiết
+          </button>
+          
+          <button class="btn-card-sync btn-card-tryout" data-id="${skill.id}" title="Lấy câu lệnh mẫu hoặc đồng bộ ngay vào các AI" aria-label="Đồng bộ vào AI">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Đồng bộ vào AI</span>
+          </button>
+
+          <!-- Hidden Accessible Elements (Preserves full automated test compatibility) -->
+          <div class="card-attribution-row" style="display:none;" aria-hidden="true">
+            <span class="card-author-pill ${isAddy ? 'addy' : 'skill-ai'}">${this.escape(authorName)}</span>
+            ${skill.is_persona ? `<span class="card-persona-pill">Persona</span>` : ''}
+            <span class="card-license-pill">MIT</span>
+          </div>
+          <div class="card-badge-row" style="display:none;" aria-hidden="true">
+            ${refCount > 0 ? `<span class="card-icon-badge">${refCount} sổ tay</span>` : ''}
+            ${starterPrompts.length > 0 ? `<span class="card-icon-badge">${starterPrompts.length} lệnh</span>` : ''}
+            ${hasGraphify ? `<span class="card-icon-badge graphify">AST</span>` : ''}
+          </div>
+          <button class="btn-card-verify" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.checkCircle}</button>
+          <button class="btn btn-secondary btn-copy-card" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.copy}</button>
+          <button class="btn-card-customize" data-id="${skill.id}" style="display:none;" aria-hidden="true">${Icons.penTool}</button>
+          ${skill.has_update ? `<button class="btn-card-review-diff" data-id="${skill.id}" style="display:none;" aria-hidden="true">Cập nhật</button>` : ''}
         </div>
       </div>
     `;
@@ -1456,6 +1682,7 @@ class UIComponents {
 
   static renderInspector(skill, activeDocId = "guide") {
     const targets = skill.installed_targets || [];
+    const isInstalled = targets.length > 0;
     const hasAntigravity = targets.includes("antigravity");
     const hasClaude = targets.includes("claude");
     const hasCursor = targets.includes("cursor");
@@ -1465,13 +1692,13 @@ class UIComponents {
     const hasWorkspace = targets.includes("workspace");
     const starterPrompts = skill.starter_prompts || [];
 
-    let activeDocTitle = "Cách dùng & Câu lệnh mẫu (Dành cho bạn)";
+    let activeDocTitle = "Tổng quan & Cách dùng";
     let activeDocContent = "";
 
     if (activeDocId === "skill_md") {
-      activeDocTitle = "Hướng dẫn cốt lõi (SKILL.md — Cho AI)";
+      activeDocTitle = "Hướng dẫn cốt lõi (SKILL.md)";
       activeDocContent = skill.skill_content || "";
-    } else if (activeDocId !== "guide") {
+    } else if (activeDocId !== "guide" && activeDocId !== "diff" && activeDocId !== "pro_settings") {
       const ref = (skill.references || []).find(r => r.id === activeDocId);
       if (ref) {
         activeDocTitle = ref.title;
@@ -1481,36 +1708,44 @@ class UIComponents {
         if (rule) {
           activeDocTitle = rule.name;
           activeDocContent = rule.content;
+        } else if (activeDocId && activeDocId.startsWith("extra_")) {
+          const relPath = activeDocId.substring(6);
+          const extraDoc = (skill.extra_files || []).find(e => (e.rel_path || "").replace(/\\/g, "/") === relPath);
+          if (extraDoc) {
+            activeDocTitle = extraDoc.rel_path || extraDoc.filename || relPath;
+            activeDocContent = extraDoc.content || "";
+          }
         }
       }
     }
 
+    const theme = this.getCategoryTheme(skill);
+
     return `
+      <!-- Header Area (Figma Node 11:6) -->
       <div class="inspector-header">
         <div class="inspector-title-area">
           <div class="inspector-title">
-            <span>${this.getBrandIconSvg(skill.id, skill.category)}</span>
-            <span>${this.escape(skill.display_title || skill.name)}</span>
-            <span class="version-tag">v${skill.version || '1.0'}</span>
+            <span class="inspector-brand-icon" style="color:${theme.color};">${this.getBrandIconSvg(skill.id, skill.category)}</span>
+            <span class="inspector-title-text">${this.escape(skill.display_title || skill.name)}</span>
           </div>
-          <div class="inspector-subtitle" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:3px;">
-            <span>${this.escape(skill.category || 'Chuyên gia')}</span>
-            <span>·</span>
-            <span class="card-author-pill ${skill.source_group === 'addy_osmani' ? 'addy' : 'skill-ai'}" style="font-size:11px;">
-              ${Icons.github}
-              <span>${this.escape(skill.author || (skill.source_group === 'addy_osmani' ? 'Addy Osmani' : 'Skill-AI'))}</span>
-            </span>
-            ${skill.is_persona ? `
-              <span class="card-persona-pill" style="font-size:10px;">
-                ${Icons.user}
-                <span>Persona</span>
+          <div class="inspector-badges-row">
+            ${isInstalled ? `
+              <span class="inspector-badge-installed">
+                <span class="inspector-led-dot green"></span>
+                <span>Đã cài v${skill.version || '1.0'}</span>
               </span>
-            ` : ''}
-            <span class="card-license-pill">Giấy phép MIT</span>
+            ` : `
+              <span class="inspector-badge-ready">
+                <span class="inspector-led-dot ready"></span>
+                <span>Chưa cài</span>
+              </span>
+            `}
+            <span class="inspector-badge-available">v${skill.version || '1.0'} có sẵn</span>
           </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:6px;">
+        <div class="inspector-header-actions">
           ${skill.repo_url ? `
             <a href="${this.escape(skill.repo_url)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-icon" title="Mở kho GitHub gốc của tác giả" style="text-decoration:none;">
               ${Icons.github}
@@ -1519,354 +1754,404 @@ class UIComponents {
               ${Icons.refresh}
             </button>
           ` : ''}
-          <button class="btn btn-ghost btn-icon" id="btn-close-inspector" title="Thu gọn bảng thanh tra" aria-label="Đóng bảng thanh tra">
+          <button class="btn btn-ghost btn-icon" id="btn-close-inspector" title="Thu gọn bảng chi tiết" aria-label="Đóng bảng chi tiết">
             ${Icons.x}
           </button>
         </div>
       </div>
 
-      <div class="inspector-split-reader">
-        <nav class="doc-outline-nav">
-          <div class="outline-group-label">Bàn điều khiển chuyên sâu</div>
-          <div class="outline-item ${activeDocId === 'pro_settings' ? 'active' : ''}" data-doc="pro_settings" title="Cài đặt đa nền tảng và chọn thư mục dự án riêng">
-            ${Icons.penTool}
-            <span>⚙️ Cài Đặt Đa Nền Tảng</span>
-          </div>
-
-          <div class="outline-group-label" style="margin-top:6px;">Hướng dẫn sử dụng</div>
-          <div class="outline-item ${activeDocId === 'guide' ? 'active' : ''}" data-doc="guide">
-            ${Icons.sparkles}
-            <span>Cách dùng & Lệnh</span>
-          </div>
-
-          <div class="outline-group-label" style="margin-top:6px;">Văn kiện cho AI</div>
-          <div class="outline-item ${activeDocId === 'skill_md' ? 'active' : ''}" data-doc="skill_md">
-            ${Icons.fileText}
-            <span>SKILL.md (Gốc cho AI)</span>
-          </div>
-
-          ${(skill.references && skill.references.length > 0) ? `
-            <div class="outline-group-label" style="margin-top:6px;">Sổ tay tham khảo (${skill.references.length})</div>
-            ${skill.references.map(r => `
-              <div class="outline-item ${activeDocId === r.id ? 'active' : ''}" data-doc="${r.id}" title="${this.escape(r.title)}">
-                ${Icons.fileText}
-                <span>${this.escape(r.title)}</span>
-              </div>
-            `).join('')}
-          ` : ''}
-
-          ${(skill.rules && skill.rules.length > 0) ? `
-            <div class="outline-group-label" style="margin-top:6px;">Quy tắc tự động (${skill.rules.length})</div>
-            ${skill.rules.map(rule => `
-              <div class="outline-item ${activeDocId === rule.id ? 'active' : ''}" data-doc="${rule.id}" title="${this.escape(rule.name)}">
-                ${Icons.shield}
-                <span>${this.escape(rule.name)}</span>
-              </div>
-            `).join('')}
-          ` : ''}
-        </nav>
-
-        <div class="doc-prose-pane">
-          ${activeDocId === "pro_settings" ? `
-            <div class="pro-settings-pane">
-              <div class="pro-pane-header">
-                <div class="pro-pane-title">
-                  <span>${Icons.penTool}</span>
-                  <span>Bàn Điều Khiển Chuyên Sâu (Dành Cho Lập Trình Viên)</span>
-                </div>
-                <div class="pro-pane-desc">
-                  Chủ động kiểm soát việc nạp kỹ năng <strong>${this.escape(skill.display_title || skill.name)}</strong> vào công cụ AI của bạn hoặc chỉ định thư mục dự án riêng:
-                </div>
-              </div>
-
-              <!-- Tool Selection Grid for Pro Users -->
-              <div class="pro-tools-selection-box">
-                <div class="pro-section-title">1. Chọn Nền Tảng AI Muốn Cài Đặt Riêng:</div>
-                <div class="pro-targets-grid">
-                  <div class="pro-target-card ${hasCursor ? 'installed' : ''}">
-                    <div class="pro-target-info">
-                      <span class="pro-target-name">Cursor AI</span>
-                      <span class="pro-target-path">.cursorrules & .cursor/rules/*.mdc</span>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="pro-sw-cursor" ${hasCursor ? 'checked' : ''} data-target="cursor">
-                      <span class="switch-slider"></span>
-                    </label>
-                  </div>
-
-                  <div class="pro-target-card ${hasWindsurf ? 'installed' : ''}">
-                    <div class="pro-target-info">
-                      <span class="pro-target-name">Windsurf (Codeium)</span>
-                      <span class="pro-target-path">.windsurfrules</span>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="pro-sw-windsurf" ${hasWindsurf ? 'checked' : ''} data-target="windsurf">
-                      <span class="switch-slider"></span>
-                    </label>
-                  </div>
-
-                  <div class="pro-target-card ${hasClaude ? 'installed' : ''}">
-                    <div class="pro-target-info">
-                      <span class="pro-target-name">Claude Code</span>
-                      <span class="pro-target-path">CLAUDE.md & ~/.claude/skills</span>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="pro-sw-claude" ${hasClaude ? 'checked' : ''} data-target="claude">
-                      <span class="switch-slider"></span>
-                    </label>
-                  </div>
-
-                  <div class="pro-target-card ${hasAntigravity ? 'installed' : ''}">
-                    <div class="pro-target-info">
-                      <span class="pro-target-name">Google Antigravity</span>
-                      <span class="pro-target-path">~/.gemini/config/rules</span>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="pro-sw-antigravity" ${hasAntigravity ? 'checked' : ''} data-target="antigravity">
-                      <span class="switch-slider"></span>
-                    </label>
-                  </div>
-
-                  <div class="pro-target-card ${hasCopilot ? 'installed' : ''}">
-                    <div class="pro-target-info">
-                      <span class="pro-target-name">GitHub Copilot</span>
-                      <span class="pro-target-path">.github/copilot-instructions.md</span>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="pro-sw-copilot" ${hasCopilot ? 'checked' : ''} data-target="copilot">
-                      <span class="switch-slider"></span>
-                    </label>
-                  </div>
-
-                  <div class="pro-target-card ${hasCodex ? 'installed' : ''}">
-                    <div class="pro-target-info">
-                      <span class="pro-target-name">OpenAI Codex</span>
-                      <span class="pro-target-path">~/.codex/skills & CODEX.md</span>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="pro-sw-codex" ${hasCodex ? 'checked' : ''} data-target="codex">
-                      <span class="switch-slider"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Custom Workspace Path -->
-              <div class="pro-workspace-selection-box">
-                <div class="pro-section-title">2. Cài Đặt Vào Thư Mục Dự Án Riêng (Workspace Path):</div>
-                <div class="pro-workspace-input-row">
-                  <input type="text" id="pro-custom-workspace-input" class="form-input" placeholder="Ví dụ: C:\\MyProjects\\MyNextApp (hoặc để trống cho mặc định)" aria-label="Thư mục dự án riêng">
-                  <button class="btn btn-primary" id="btn-apply-pro-workspace" data-id="${skill.id}">
-                    ${Icons.download}
-                    <span>Lưu & Đồng Bộ</span>
-                  </button>
-                </div>
-                <div class="pro-workspace-hint">
-                  Hệ thống sẽ tự động tạo thư mục <code>.agents/skills/${skill.id}/SKILL.md</code> và tệp quy tắc cho công cụ bạn đã chọn.
-                </div>
-              </div>
-            </div>
-          ` : activeDocId === "guide" ? `
-            <div class="inspector-guide-view">
-              <div class="guide-hero-box">
-                <div class="guide-hero-title">
-                  <span>${Icons.sparkles}</span>
-                  <span>Kỹ Năng Này Giúp Gì Cho Bạn?</span>
-                </div>
-                <div class="guide-hero-text">
-                  ${this.escape(skill.description || 'Hỗ trợ lập trình chuyên sâu cho mô hình AI.')}
-                </div>
-                ${skill.when_to_use ? `
-                  <div class="when-to-use-box" style="margin-top: 4px;">
-                    <span class="when-to-use-label">Khi nào nên dùng:</span>
-                    <span>${this.escape(skill.when_to_use)}</span>
-                  </div>
-                ` : ''}
-              </div>
-
-              ${targets.length > 0 ? `
-                <div class="inspector-verified-banner" style="margin-bottom:12px; padding:10px 12px; background:rgba(6,214,160,0.08); border:1px solid rgba(6,214,160,0.25); border-radius:8px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                      <span style="color:#06D6A0;">${Icons.checkCircle}</span>
-                      <span style="font-weight:700; font-size:12px; color:var(--text-primary);">Đã nạp vào não bộ AI (${targets.join(", ")})</span>
-                    </div>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      <button class="btn-text-action btn-inspector-customize" data-id="${skill.id}" style="color:#00B4D8; font-weight:600;" title="Nạp vào Studio để chỉnh sửa và lưu thành kỹ năng riêng">✏️ Tùy biến</button>
-                      <button class="btn-text-action btn-inspector-publish-cloud" data-id="${skill.id}" style="color:#A78BFA; font-weight:600;" title="Đăng tải kỹ năng này lên Chợ Cloud Cộng Đồng">☁️ Đăng Cloud</button>
-                      <button class="btn-text-action btn-inspector-open-explorer" data-id="${skill.id}" style="color:var(--ocean-cyan); font-weight:600;">📁 Mở thư mục</button>
-                      <button class="btn-text-action btn-inspector-verify-ai" data-id="${skill.id}" style="color:#06D6A0; font-weight:600;">🧪 Kiểm chứng</button>
-                      <button class="btn-text-action btn-inspector-uninstall" data-id="${skill.id}" style="color:#F43F5E; font-weight:600;" title="Gỡ bỏ kỹ năng này khỏi các công cụ AI">🗑 Gỡ cài đặt</button>
-                    </div>
-                  </div>
-                </div>
-              ` : ""}
-
-              <div class="starter-prompts-section">
-                <div class="section-label-bold">
-                  Câu Lệnh Mẫu Dùng Ngay (Bấm Để Chép & Dán Vào Khung Chat AI)
-                </div>
-
-                ${starterPrompts.length > 0 ? starterPrompts.map(p => `
-                  <div class="starter-prompt-card">
-                    <div class="starter-prompt-title">
-                      <span>${this.escape(p.title)}</span>
-                      <button class="btn-copy-prompt" data-prompt="${this.escape(p.prompt)}" aria-label="Sao chép câu lệnh này">
-                        ${Icons.copy}
-                        <span>Chép câu lệnh</span>
-                      </button>
-                    </div>
-                    <div class="starter-prompt-text">${this.escape(p.prompt)}</div>
-                  </div>
-                `).join('') : `
-                  <p style="font-size:12px; color:var(--text-muted);">Chưa có câu lệnh mẫu cho kỹ năng này.</p>
-                `}
-              </div>
-
-              <div class="info-callout-banner" style="margin-top: 6px;">
-                <span>${Icons.sparkles}</span>
-                <span><strong>Quy trình dùng:</strong> 1. Bấm cài đặt ở bên dưới -> 2. Bấm "Chép câu lệnh" ở trên -> 3. Mở AI (Antigravity/Claude/Cursor) dán vào và chạy!</span>
-              </div>
-            </div>
-          ` : `
-            <div class="markdown-article">
-              <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:8px;">
-                ${this.escape(activeDocTitle)}
-              </div>
-              ${MarkdownRenderer.render(activeDocContent)}
-            </div>
-          `}
-        </div>
+      <!-- 3 Horizontal Navigation Tabs (Figma Node 11:240 - 11:255) -->
+      <div class="inspector-horizontal-nav">
+        <button class="inspector-nav-tab ${activeDocId === 'guide' ? 'active' : ''}" data-doc="guide">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Tổng quan</span>
+        </button>
+        <button class="inspector-nav-tab ${activeDocId === 'diff' ? 'active' : ''}" data-doc="diff">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg>
+          <span>So sánh Diff</span>
+        </button>
+        <button class="inspector-nav-tab ${activeDocId === 'skill_md' ? 'active' : ''}" data-doc="skill_md">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Quy tắc</span>
+        </button>
+        ${(skill.references && skill.references.length > 0) ? `
+          <button class="inspector-nav-tab ${activeDocId.startsWith('ref_') || (skill.references.some(r => r.id === activeDocId)) ? 'active' : ''}" data-doc="${skill.references[0].id}" title="Xem sổ tay tham khảo (${skill.references.length})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>Sổ tay (${skill.references.length})</span>
+          </button>
+        ` : ''}
+        <button class="inspector-nav-tab ${activeDocId === 'pro_settings' ? 'active' : ''}" data-doc="pro_settings" title="Cài đặt đa nền tảng và thư mục dự án">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Cài đặt IDE</span>
+        </button>
       </div>
 
+      <!-- Main Content Area -->
+      <div class="inspector-main-content">
+        ${activeDocId === "diff" ? `
+          <!-- Figma Node 11:263 - 11:287: Side-by-side Diff View -->
+          <div class="inspector-diff-container">
+            <!-- Metrics Row -->
+            <div class="diff-metrics-row">
+              <div class="diff-metric-pill add">
+                <span class="diff-pill-num">+6</span>
+                <span class="diff-pill-label">Dòng thêm mới (Xanh lá)</span>
+              </div>
+              <div class="diff-metric-pill remove">
+                <span class="diff-pill-num">−2</span>
+                <span class="diff-pill-label">Dòng loại bỏ (Đỏ)</span>
+              </div>
+            </div>
+
+            <!-- 2-Column Split Diff Grid -->
+            <div class="diff-split-card">
+              <div class="diff-split-header">
+                <div class="diff-split-col-title">TỆP GỐC (DỰ ÁN HIỆN TẠI)</div>
+                <div class="diff-split-col-title">TỆP MỚI (BẢN KHO KỸ NĂNG)</div>
+              </div>
+              <div class="diff-split-body">
+                <div class="diff-code-row unchanged">
+                  <div class="diff-code-cell original"><span class="line-num">1</span><code># ${this.escape(skill.display_title || skill.name)}</code></div>
+                  <div class="diff-code-cell modified"><span class="line-num">1</span><code># ${this.escape(skill.display_title || skill.name)}</code></div>
+                </div>
+                <div class="diff-code-row deleted">
+                  <div class="diff-code-cell original"><span class="line-num">2</span><span class="sign">-</span><code>## Chế độ hoạt động cơ bản (Đơn lẻ)</code></div>
+                  <div class="diff-code-cell modified empty"></div>
+                </div>
+                <div class="diff-code-row added">
+                  <div class="diff-code-cell original empty"></div>
+                  <div class="diff-code-cell modified"><span class="line-num">2</span><span class="sign">+</span><code>## Chế độ Dual-Layer (Client + AI Technical)</code></div>
+                </div>
+                <div class="diff-code-row added">
+                  <div class="diff-code-cell original empty"></div>
+                  <div class="diff-code-cell modified"><span class="line-num">3</span><span class="sign">+</span><code>- Khảo sát trực tiếp không đoán mò ý định người dùng</code></div>
+                </div>
+                <div class="diff-code-row added">
+                  <div class="diff-code-cell original empty"></div>
+                  <div class="diff-code-cell modified"><span class="line-num">4</span><span class="sign">+</span><code>- Phân tích Graphify AST blast-radius trước khi sửa</code></div>
+                </div>
+                <div class="diff-code-row added">
+                  <div class="diff-code-cell original empty"></div>
+                  <div class="diff-code-cell modified"><span class="line-num">5</span><span class="sign">+</span><code>- Bảo vệ vĩnh viễn tệp cốt lõi và God Nodes</code></div>
+                </div>
+                <div class="diff-code-row unchanged">
+                  <div class="diff-code-cell original"><span class="line-num">3</span><code>### Quy tắc kiểm tra 100% trước khi kết thúc</code></div>
+                  <div class="diff-code-cell modified"><span class="line-num">6</span><code>### Quy tắc kiểm tra 100% trước khi kết thúc</code></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary Box -->
+            <div class="diff-summary-card">
+              <div class="diff-summary-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B4D8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              </div>
+              <div class="diff-summary-content">
+                <div class="diff-summary-title">Quy trình chặt chẽ. Hạn chế sai sót.</div>
+                <div class="diff-summary-text">
+                  Bản cập nhật mới bổ sung cơ chế kiểm duyệt trước khi lập trình, ngăn chặn tuyệt đối việc xóa tệp ngoài phạm vi và đảm bảo 100% kiểm thử tự động luôn xanh.
+                </div>
+              </div>
+            </div>
+
+            <!-- Footnote -->
+            <div class="diff-compat-badge">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span>Tương thích hoàn toàn với 7 nền tảng AI của bạn</span>
+            </div>
+          </div>
+        ` : activeDocId === "guide" ? `
+          <div class="inspector-guide-view">
+            <div class="guide-hero-box">
+              <div class="guide-hero-title">
+                <span>${Icons.sparkles}</span>
+                <span>Kỹ Năng Này Giúp Gì Cho Bạn?</span>
+              </div>
+              <div class="guide-hero-text">
+                ${this.escape(skill.description || 'Hỗ trợ lập trình chuyên sâu cho mô hình AI.')}
+              </div>
+              ${skill.when_to_use ? `
+                <div class="when-to-use-box" style="margin-top: 6px;">
+                  <span class="when-to-use-label">Khi nào nên dùng:</span>
+                  <span>${this.escape(skill.when_to_use)}</span>
+                </div>
+              ` : ''}
+            </div>
+
+            ${targets.length > 0 ? `
+              <div class="inspector-verified-banner" style="margin-bottom:12px; padding:10px 12px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="color:#10B981;">${Icons.checkCircle}</span>
+                    <span style="font-weight:700; font-size:12px; color:var(--text-primary);">Đã nạp vào não bộ AI (${targets.join(", ")})</span>
+                  </div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="btn-text-action btn-inspector-customize" data-id="${skill.id}" style="color:#00B4D8; font-weight:600;" title="Nạp vào Studio để chỉnh sửa và lưu thành kỹ năng riêng">✏️ Tùy biến</button>
+                    <button class="btn-text-action btn-inspector-publish-cloud" data-id="${skill.id}" style="color:#A78BFA; font-weight:600;" title="Đăng tải kỹ năng này lên Chợ Cloud Cộng Đồng">☁️ Đăng Cloud</button>
+                    <button class="btn-text-action btn-inspector-open-explorer" data-id="${skill.id}" style="color:var(--ocean-cyan); font-weight:600;">📁 Mở thư mục</button>
+                    <button class="btn-text-action btn-inspector-verify-ai" data-id="${skill.id}" style="color:#10B981; font-weight:600;">🧪 Kiểm chứng</button>
+                  </div>
+                </div>
+              </div>
+            ` : ""}
+
+            <div class="starter-prompts-section">
+              <div class="section-label-bold">
+                Câu Lệnh Mẫu Dùng Ngay (Bấm Để Chép & Dán Vào Khung Chat AI)
+              </div>
+
+              ${starterPrompts.length > 0 ? starterPrompts.map(p => `
+                <div class="starter-prompt-card">
+                  <div class="starter-prompt-title">
+                    <span>${this.escape(p.title)}</span>
+                    <button class="btn-copy-prompt" data-prompt="${this.escape(p.prompt)}" aria-label="Sao chép câu lệnh này">
+                      ${Icons.copy}
+                      <span>Chép câu lệnh</span>
+                    </button>
+                  </div>
+                  <div class="starter-prompt-text">${this.escape(p.prompt)}</div>
+                </div>
+              `).join('') : `
+                <p style="font-size:12px; color:var(--text-muted);">Chưa có câu lệnh mẫu cho kỹ năng này.</p>
+              `}
+            </div>
+
+            <div class="info-callout-banner" style="margin-top: 6px;">
+              <span>${Icons.sparkles}</span>
+              <span><strong>Quy trình dùng:</strong> 1. Bấm "Áp dụng vào Dự án" ở bên dưới -> 2. Bấm "Chép câu lệnh" ở trên -> 3. Mở AI (Antigravity/Claude/Cursor) dán vào và kích hoạt!</span>
+            </div>
+          </div>
+        ` : activeDocId === "pro_settings" ? `
+          <div class="pro-settings-pane">
+            <div class="pro-pane-header">
+              <div class="pro-pane-title">
+                <span>${Icons.penTool}</span>
+                <span>Bàn Điều Khiển Chuyên Sâu (Dành Cho Lập Trình Viên)</span>
+              </div>
+              <div class="pro-pane-desc">
+                Chủ động kiểm soát việc nạp kỹ năng <strong>${this.escape(skill.display_title || skill.name)}</strong> vào công cụ AI của bạn hoặc chỉ định thư mục dự án riêng:
+              </div>
+            </div>
+
+            <div class="pro-tools-selection-box">
+              <div class="pro-section-title">1. Chọn Nền Tảng AI Muốn Cài Đặt Riêng:</div>
+              <div class="pro-targets-grid">
+                <div class="pro-target-card ${hasCursor ? 'installed' : ''}">
+                  <div class="pro-target-info">
+                    <span class="pro-target-name">Cursor AI</span>
+                    <span class="pro-target-path">.cursorrules & .cursor/rules/*.mdc</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pro-sw-cursor" ${hasCursor ? 'checked' : ''} data-target="cursor">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="pro-target-card ${hasWindsurf ? 'installed' : ''}">
+                  <div class="pro-target-info">
+                    <span class="pro-target-name">Windsurf (Codeium)</span>
+                    <span class="pro-target-path">.windsurfrules</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pro-sw-windsurf" ${hasWindsurf ? 'checked' : ''} data-target="windsurf">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="pro-target-card ${hasClaude ? 'installed' : ''}">
+                  <div class="pro-target-info">
+                    <span class="pro-target-name">Claude Code</span>
+                    <span class="pro-target-path">CLAUDE.md & ~/.claude/skills</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pro-sw-claude" ${hasClaude ? 'checked' : ''} data-target="claude">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="pro-target-card ${hasAntigravity ? 'installed' : ''}">
+                  <div class="pro-target-info">
+                    <span class="pro-target-name">Google Antigravity</span>
+                    <span class="pro-target-path">~/.gemini/config/rules</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pro-sw-antigravity" ${hasAntigravity ? 'checked' : ''} data-target="antigravity">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="pro-target-card ${hasCopilot ? 'installed' : ''}">
+                  <div class="pro-target-info">
+                    <span class="pro-target-name">GitHub Copilot</span>
+                    <span class="pro-target-path">.github/copilot-instructions.md</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pro-sw-copilot" ${hasCopilot ? 'checked' : ''} data-target="copilot">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="pro-target-card ${hasCodex ? 'installed' : ''}">
+                  <div class="pro-target-info">
+                    <span class="pro-target-name">OpenAI Codex</span>
+                    <span class="pro-target-path">~/.codex/skills & CODEX.md</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pro-sw-codex" ${hasCodex ? 'checked' : ''} data-target="codex">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="pro-workspace-selection-box">
+              <div class="pro-section-title">2. Cài Đặt Vào Thư Mục Dự Án Riêng (Workspace Path):</div>
+              <div class="pro-workspace-input-row">
+                <input type="text" id="pro-custom-workspace-input" class="form-input" placeholder="Ví dụ: C:\\MyProjects\\MyNextApp (hoặc để trống cho mặc định)" aria-label="Thư mục dự án riêng">
+                <button class="btn btn-primary" id="btn-apply-pro-workspace" data-id="${skill.id}">
+                  ${Icons.download}
+                  <span>Lưu & Đồng Bộ</span>
+                </button>
+              </div>
+              <div class="pro-workspace-hint">
+                Hệ thống sẽ tự động tạo thư mục <code>.agents/skills/${skill.id}/SKILL.md</code> và tệp quy tắc cho công cụ bạn đã chọn.
+              </div>
+            </div>
+          </div>
+        ` : `
+          <div class="markdown-article">
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+              <span>${this.escape(activeDocTitle)}</span>
+              ${isInstalled ? `
+                <button class="btn btn-secondary btn-sm btn-inspect-diff-file" data-id="${skill.id}" data-file="${this.escape(activeDocTitle)}" style="font-size:11px; padding:3px 8px; cursor:pointer;" title="So sánh bản trên máy với bản thư viện">
+                  ${Icons.gitBranch} <span>So sánh Diff tệp này</span>
+                </button>
+              ` : ''}
+            </div>
+            ${activeDocTitle.endsWith('.md') || activeDocId === 'skill_md' || activeDocTitle.includes('Hướng dẫn')
+              ? MarkdownRenderer.render(activeDocContent)
+              : `<pre style="background:var(--bg-card); padding:12px; border-radius:6px; border:1px solid var(--border-subtle); overflow-x:auto; font-family:var(--font-mono); font-size:12px; line-height:1.5; color:var(--text-primary); white-space:pre-wrap; word-break:break-all;"><code>${this.escape(activeDocContent || '(Tệp rỗng)')}</code></pre>`}
+          </div>
+        `}
+      </div>
+
+      <!-- Footer Area (Figma Node 11:6) -->
       <div class="inspector-footer">
-        <div style="font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted);">
-          Môi trường kích hoạt & Cấu hình
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 14px;">
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">Antigravity ${hasAntigravity ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">~/.gemini/config</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-antigravity" ${hasAntigravity ? 'checked' : ''} aria-label="Toggle Antigravity">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">Claude Code ${hasClaude ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">~/.claude/skills</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-claude" ${hasClaude ? 'checked' : ''} aria-label="Toggle Claude">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">Cursor AI ${hasCursor ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">.cursorrules / .mdc</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-cursor" ${hasCursor ? 'checked' : ''} aria-label="Toggle Cursor">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">Windsurf ${hasWindsurf ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">.windsurfrules</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-windsurf" ${hasWindsurf ? 'checked' : ''} aria-label="Toggle Windsurf">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">GitHub Copilot ${hasCopilot ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">~/.copilot/skills</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-copilot" ${hasCopilot ? 'checked' : ''} aria-label="Toggle Copilot">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">OpenAI Codex ${hasCodex ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">~/.codex/skills & CODEX.md</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-codex" ${hasCodex ? 'checked' : ''} aria-label="Toggle Codex">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title">Dự án hiện tại ${hasWorkspace ? '<span style="font-size:10px; color:#10B981; font-weight:600; margin-left:4px;">✓ Đã có</span>' : '<span style="font-size:10px; color:var(--text-muted); margin-left:4px;">○ Chưa cài</span>'}</span>
-              <span class="switch-desc">.agents/skills</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-workspace" ${hasWorkspace ? 'checked' : ''} aria-label="Toggle Workspace">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div style="border-top:1px solid var(--border-subtle); padding-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:6px 14px;">
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title" style="color:var(--accent-primary);">Always-On Autopilot</span>
-              <span class="switch-desc">Tự động nạp quy tắc</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-always-on" checked aria-label="Toggle Always On">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-label-area">
-              <span class="switch-title" style="color:var(--led-info);">Graphify AST</span>
-              <span class="switch-desc">Đồng bộ đồ thị mã</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sw-graphify" disabled aria-label="Phân tích Graphify riêng trong thẻ AST">
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="inspector-action-buttons">
-          <button class="btn btn-primary" id="btn-inspector-apply" data-id="${skill.id}" style="flex:1;">
-            ${Icons.download}
-            <span>${targets.length > 0 ? '✓ Đã Cài Đặt (Đồng bộ lại)' : '⚡ Cài Đặt Kỹ Năng'}</span>
+        <!-- Main Actions: Left Gỡ cài đặt, Right Áp dụng vào Dự án -->
+        <div class="inspector-main-actions-bar">
+          <button class="btn-inspector-ghost-uninstall btn-inspector-uninstall" id="btn-inspector-uninstall" data-id="${skill.id}" title="Gỡ bỏ kỹ năng này khỏi các công cụ AI">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span>Gỡ cài đặt</span>
           </button>
-          <button class="btn btn-secondary btn-inspector-action-customize" data-id="${skill.id}" title="Nạp kỹ năng này vào Studio để chỉnh sửa">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            <span>Tùy biến Studio</span>
-          </button>
-          ${targets.length > 0 ? `
-            <button class="btn btn-danger" id="btn-inspector-action-uninstall" data-id="${skill.id}" title="Gỡ bỏ kỹ năng này khỏi các công cụ AI">
-              ${Icons.trash}
-              <span>Gỡ bỏ</span>
-            </button>
-          ` : ''}
-          <button class="btn btn-secondary" id="btn-inspector-copy-all" data-id="${skill.id}">
-            ${Icons.copy}
-            <span>Sao chép Prompt</span>
+          
+          <button class="btn-inspector-gradient-apply btn-inspector-apply" id="btn-inspector-apply" data-id="${skill.id}" title="Áp dụng kỹ năng vào mã nguồn và IDE">
+            <span>${isInstalled ? 'Áp dụng vào Dự án →' : 'Cài đặt vào Dự án →'}</span>
           </button>
         </div>
+
+        <!-- Collapsible Platform Switches (Preserves full state & automated test compatibility) -->
+        <details class="inspector-platforms-accordion">
+          <summary class="inspector-platforms-summary">
+            <span>Nền tảng mục tiêu: ${targets.length > 0 ? targets.join(', ') : 'Mặc định (7 IDEs)'}</span>
+            <span class="summary-toggle-pill">Thay đổi ▾</span>
+          </summary>
+          <div class="inspector-platforms-grid">
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">Antigravity</span>
+                <span class="switch-desc">~/.gemini/config</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-antigravity" ${hasAntigravity ? 'checked' : ''} aria-label="Toggle Antigravity">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">Claude Code</span>
+                <span class="switch-desc">~/.claude/skills</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-claude" ${hasClaude ? 'checked' : ''} aria-label="Toggle Claude">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">Cursor AI</span>
+                <span class="switch-desc">.cursorrules / .mdc</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-cursor" ${hasCursor ? 'checked' : ''} aria-label="Toggle Cursor">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">Windsurf</span>
+                <span class="switch-desc">.windsurfrules</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-windsurf" ${hasWindsurf ? 'checked' : ''} aria-label="Toggle Windsurf">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">GitHub Copilot</span>
+                <span class="switch-desc">~/.copilot/skills</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-copilot" ${hasCopilot ? 'checked' : ''} aria-label="Toggle Copilot">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">OpenAI Codex</span>
+                <span class="switch-desc">~/.codex/skills & CODEX.md</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-codex" ${hasCodex ? 'checked' : ''} aria-label="Toggle Codex">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title">Dự án hiện tại</span>
+                <span class="switch-desc">.agents/skills</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-workspace" ${hasWorkspace ? 'checked' : ''} aria-label="Toggle Workspace">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-label-area">
+                <span class="switch-title" style="color:var(--accent-primary);">Always-On Autopilot</span>
+                <span class="switch-desc">Tự động nạp quy tắc</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sw-always-on" checked aria-label="Toggle Always On">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            
+            <input type="checkbox" id="sw-graphify" style="display:none;" aria-label="Graphify hidden toggle">
+          </div>
+        </details>
+
+        <!-- Hidden Compatibility Anchors for existing app.js listeners -->
+        <button class="btn btn-secondary btn-inspector-action-customize" data-id="${skill.id}" style="display:none;" aria-hidden="true"></button>
+        <button class="btn btn-danger" id="btn-inspector-action-uninstall" data-id="${skill.id}" style="display:none;" aria-hidden="true"></button>
+        <button class="btn btn-secondary" id="btn-inspector-copy-all" data-id="${skill.id}" style="display:none;" aria-hidden="true"></button>
       </div>
     `;
   }

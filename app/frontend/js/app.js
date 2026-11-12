@@ -420,7 +420,9 @@ const App = {
   updateBadges() {
     const totalEl = document.getElementById("badge-total-skills");
     const instEl = document.getElementById("badge-installed-skills");
+    const catalogTotalEl = document.getElementById("badge-catalog-total");
     if (totalEl) totalEl.innerText = this.skills.length;
+    if (catalogTotalEl) catalogTotalEl.innerText = `${this.skills.length} kỹ năng`;
     if (instEl) {
       const installedCount = this.skills.filter(s => s.installed_targets && s.installed_targets.length > 0).length;
       instEl.innerText = installedCount;
@@ -815,6 +817,8 @@ const App = {
     const filterBar = document.getElementById("catalog-filter-bar");
     const unifiedToolbar = document.getElementById("catalog-unified-toolbar");
     const workspaceBar = document.getElementById("workspace-project-bar");
+    const catalogHeaderArea = document.getElementById("catalog-header-area");
+    const catalogPaginationBar = document.getElementById("catalog-pagination-bar");
     const bentoGrid = document.getElementById("skills-bento-grid");
     const linearList = document.getElementById("skills-linear-list");
     const guideContainer = document.getElementById("guide-container");
@@ -830,9 +834,13 @@ const App = {
     communityContainer.style.display = "none";
     if (profileContainer) profileContainer.style.display = "none";
 
+    // Keep workspace project bar always visible in the left sidebar
+    if (workspaceBar) workspaceBar.style.display = "flex";
+
     if (workspace === "library" || workspace === "installed") {
+      if (catalogHeaderArea) catalogHeaderArea.style.display = "flex";
+      if (catalogPaginationBar) catalogPaginationBar.style.display = "flex";
       if (unifiedToolbar) unifiedToolbar.style.display = "flex";
-      if (workspaceBar) workspaceBar.style.display = "flex";
       if (filterBar) filterBar.style.display = "flex";
       breadcrumb.innerText = (workspace === "library") ? "Kho Kỹ Năng (Skill-AI Suite)" : "Kỹ Năng Đã Kích Hoạt";
       
@@ -851,28 +859,31 @@ const App = {
       }
       this.applyFilters();
     } else if (workspace === "guide") {
+      if (catalogHeaderArea) catalogHeaderArea.style.display = "none";
+      if (catalogPaginationBar) catalogPaginationBar.style.display = "none";
       if (orgBanner) orgBanner.style.display = "none";
       if (filterBar) filterBar.style.display = "none";
       if (unifiedToolbar) unifiedToolbar.style.display = "none";
-      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Cẩm Nang Sử Dụng A-Z";
       if (guideContainer) {
         guideContainer.style.display = "block";
         guideContainer.innerHTML = UIComponents.renderGuideView();
       }
     } else if (workspace === "studio") {
+      if (catalogHeaderArea) catalogHeaderArea.style.display = "none";
+      if (catalogPaginationBar) catalogPaginationBar.style.display = "none";
       if (orgBanner) orgBanner.style.display = "none";
       if (filterBar) filterBar.style.display = "none";
       if (unifiedToolbar) unifiedToolbar.style.display = "none";
-      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Xưởng Chế Tác Kỹ Năng";
       studioContainer.style.display = "block";
       this.renderStudioView();
     } else if (workspace === "community") {
+      if (catalogHeaderArea) catalogHeaderArea.style.display = "none";
+      if (catalogPaginationBar) catalogPaginationBar.style.display = "none";
       if (orgBanner) orgBanner.style.display = "none";
       if (filterBar) filterBar.style.display = "none";
       if (unifiedToolbar) unifiedToolbar.style.display = "none";
-      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Trung Tâm Đám Mây Cộng Đồng (Supabase RLS)";
       communityContainer.style.display = "block";
       this.loadCommunitySkills().then(() => this.renderCommunityView());
@@ -880,10 +891,11 @@ const App = {
         this.loadCommunitySchema();
       }
     } else if (workspace === "profile") {
+      if (catalogHeaderArea) catalogHeaderArea.style.display = "none";
+      if (catalogPaginationBar) catalogPaginationBar.style.display = "none";
       if (orgBanner) orgBanner.style.display = "none";
       if (filterBar) filterBar.style.display = "none";
       if (unifiedToolbar) unifiedToolbar.style.display = "none";
-      if (workspaceBar) workspaceBar.style.display = "none";
       breadcrumb.innerText = "Hồ Sơ Lập Trình Viên AI & Portfolio";
       if (profileContainer) {
         profileContainer.style.display = "block";
@@ -1530,7 +1542,7 @@ const App = {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const id = btn.getAttribute("data-id");
-        this.selectSkill(id, "pro_settings");
+        this.selectSkill(id, "guide");
       });
     });
 
@@ -1559,7 +1571,7 @@ const App = {
     });
   },
 
-  selectSkill(skillId, initialDocId = "pro_settings") {
+  selectSkill(skillId, initialDocId = "guide") {
     this.selectedSkillId = skillId;
     this.activeDocId = initialDocId;
 
@@ -1582,12 +1594,34 @@ const App = {
     const drawer = document.getElementById("inspector-drawer");
     if (!drawer) return;
 
-    drawer.querySelectorAll(".outline-item").forEach(item => {
+    drawer.querySelectorAll(".outline-item, .inspector-nav-tab").forEach(item => {
       item.addEventListener("click", () => {
         const docId = item.getAttribute("data-doc");
         this.activeDocId = docId;
         drawer.innerHTML = UIComponents.renderInspector(skill, docId);
         this.bindInspectorEvents(skill);
+      });
+    });
+
+    // Quick File Search in Inspector
+    const searchInput = drawer.querySelector("#filter-inspector-docs");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        drawer.querySelectorAll(".outline-item").forEach(item => {
+          const doc = item.getAttribute("data-doc");
+          if (doc === "pro_settings" || doc === "guide") return;
+          const text = item.textContent.toLowerCase();
+          item.style.display = !q || text.includes(q) ? "flex" : "none";
+        });
+      });
+    }
+
+    // Inspect individual file diff
+    drawer.querySelectorAll(".btn-inspect-diff-file").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const file = btn.getAttribute("data-file");
+        this.openDiffReviewModal(skill.id, file);
       });
     });
 
@@ -1778,7 +1812,7 @@ const App = {
     }
   },
 
-  async handleApplyInstall(skillId, forceReinstall = false) {
+  handleApplyInstall(skillId, forceReinstall = false) {
     if (this._installingSkillIds && this._installingSkillIds.has(skillId)) {
       this.showToast(`Kỹ năng '${skillId}' đang trong quá trình cài đặt, vui lòng chờ...`, "info");
       return;
@@ -1795,18 +1829,99 @@ const App = {
     if (document.getElementById("sw-workspace")?.checked) targets.push("workspace");
     if (targets.length === 0) targets.push("antigravity", "cursor", "codex");
 
-    const enableAlwaysOn = document.getElementById("sw-always-on")?.checked ?? true;
-    const withGraphify = document.getElementById("sw-graphify")?.checked ?? true;
+    // Open User Confirmation Modal (Zero Blind Actions - User sees list and confirms before write)
+    this.openActivationConfirmModal([skill], targets, false);
+  },
 
-    // Kiểm tra nếu đã cài đặt đầy đủ trên các môi trường đã chọn và nội dung không đổi
-    const alreadyInstalledOnAll = targets.every(t => (skill.installed_targets || []).includes(t));
-    if (alreadyInstalledOnAll && !skill.has_update && !forceReinstall) {
-      this.showToast(`✓ Kỹ năng "${skill.display_title || skill.name}" đã được cài đặt đầy đủ và khớp 100% trên các môi trường đã chọn.`, "success");
+  openActivationConfirmModal(skillsList, preselectedTargets = null, isBatch = false) {
+    if (!skillsList || skillsList.length === 0) {
+      this.showToast("Không có kỹ năng nào được chọn để kích hoạt.", "warning");
       return;
     }
 
+    const root = document.getElementById("modal-root");
+    if (!root) return;
+
+    const allAITargets = ["antigravity", "cursor", "windsurf", "claude", "copilot", "codex", "workspace"];
+    const targets = (preselectedTargets && preselectedTargets.length > 0) ? preselectedTargets : allAITargets;
+
+    root.innerHTML = UIComponents.renderActivationConfirmModal(
+      skillsList,
+      targets,
+      this.activeWorkspaceProject || "C:\\Manager Skills",
+      isBatch
+    );
+
+    const proceedBtn = document.getElementById("btn-confirm-activation-proceed");
+    const counterEl = document.getElementById("confirm-selected-count");
+    const skillCheckboxes = Array.from(document.querySelectorAll(".confirm-skill-checkbox"));
+    const targetCheckboxes = Array.from(document.querySelectorAll(".confirm-target-checkbox"));
+
+    const updateProceedState = () => {
+      const selectedSkillCount = skillCheckboxes.filter(cb => cb.checked).length;
+      const selectedTargetCount = targetCheckboxes.filter(cb => cb.checked).length;
+
+      if (counterEl) {
+        counterEl.innerText = selectedSkillCount;
+      }
+
+      if (proceedBtn) {
+        if (selectedSkillCount === 0 || selectedTargetCount === 0) {
+          proceedBtn.disabled = true;
+          proceedBtn.style.opacity = "0.5";
+          proceedBtn.style.cursor = "not-allowed";
+        } else {
+          proceedBtn.disabled = false;
+          proceedBtn.style.opacity = "1";
+          proceedBtn.style.cursor = "pointer";
+        }
+      }
+    };
+
+    skillCheckboxes.forEach(cb => {
+      cb.addEventListener("change", updateProceedState);
+    });
+
+    targetCheckboxes.forEach(cb => {
+      cb.addEventListener("change", updateProceedState);
+    });
+
+    document.getElementById("btn-confirm-select-all")?.addEventListener("click", () => {
+      skillCheckboxes.forEach(cb => cb.checked = true);
+      updateProceedState();
+    });
+
+    document.getElementById("btn-confirm-deselect-all")?.addEventListener("click", () => {
+      skillCheckboxes.forEach(cb => cb.checked = false);
+      updateProceedState();
+    });
+
+    proceedBtn?.addEventListener("click", async () => {
+      const chosenSkillIds = skillCheckboxes.filter(cb => cb.checked).map(cb => cb.getAttribute("data-skill-id"));
+      const chosenTargets = targetCheckboxes.filter(cb => cb.checked).map(cb => cb.value);
+
+      if (chosenSkillIds.length === 0 || chosenTargets.length === 0) {
+        this.showToast("Vui lòng chọn ít nhất 1 kỹ năng và 1 nền tảng AI!", "warning");
+        return;
+      }
+
+      this.closeActiveModal();
+
+      if (chosenSkillIds.length === 1) {
+        await this.executeSingleInstall(chosenSkillIds[0], chosenTargets);
+      } else {
+        await this.executeBatchInstall(chosenSkillIds, chosenTargets);
+      }
+    });
+  },
+
+  async executeSingleInstall(skillId, targets, forceReinstall = false) {
     if (!this._installingSkillIds) this._installingSkillIds = new Set();
     this._installingSkillIds.add(skillId);
+
+    const skill = this.skills.find(s => s.id === skillId) || { id: skillId, name: skillId };
+    const enableAlwaysOn = document.getElementById("sw-always-on")?.checked ?? true;
+    const withGraphify = document.getElementById("sw-graphify")?.checked ?? true;
 
     const applyBtn = document.getElementById("btn-inspector-apply");
     if (applyBtn) {
@@ -1893,7 +2008,7 @@ const App = {
     }
   },
 
-  async handleBatchInstallAll(forceAll = false) {
+  handleBatchInstallAll(forceAll = false) {
     const targetSkills = this.activeSource === "all" 
       ? this.skills 
       : this.skills.filter(s => (s.source_group || "skill_ai") === this.activeSource);
@@ -1919,16 +2034,20 @@ const App = {
     }
 
     const toInstall = forceAll ? targetSkills : newSkills;
+    // Open Confirmation Dialog so user sees and confirms the exact skills list before installing
+    this.openActivationConfirmModal(toInstall, allAITargets, true);
+  },
+
+  async executeBatchInstall(skillIds, targets) {
+    const toInstall = this.skills.filter(s => skillIds.includes(s.id));
     const count = toInstall.length;
 
     const collectiveSkill = {
       id: "batch-all",
-      display_title: `Trọn Bộ ${count} Kỹ Năng`,
-      name: `Trọn Bộ ${count} Kỹ Năng`,
+      display_title: `Trọn Bộ ${count} Kỹ Năng Đã Chọn`,
+      name: `Trọn Bộ ${count} Kỹ Năng Đã Chọn`,
       category: "Suite Chuyên Gia"
     };
-
-    const targets = allAITargets;
 
     // 1. Neural Stream Step 1
     this.openActivationModal(collectiveSkill, targets, {
@@ -1948,11 +2067,11 @@ const App = {
 
     try {
       const payload = {
-        targets: allAITargets,
+        targets: targets,
         enable_always_on: true,
         with_graphify: true,
         workspace_path: this.activeWorkspaceProject || null,
-        skill_ids: toInstall.map(s => s.id),
+        skill_ids: skillIds,
         overwrite: true
       };
       this._operationPending = true;
@@ -1966,7 +2085,7 @@ const App = {
           isComplete: true,
           testPrompt: "Hãy lập kế hoạch thiết kế và lập trình giao diện chuẩn /plan"
         });
-      this._operationPending = false;
+        this._operationPending = false;
 
         await this.loadSkills();
         await this.updateSystemStatus();
@@ -2915,6 +3034,26 @@ phase: build-and-polish
       this.switchWorkspace("studio");
     });
 
+    document.getElementById("btn-sync-all-ais")?.addEventListener("click", () => {
+      this.closeToolsDropdown();
+      this.openActivationConfirmModal(this.skills, ["antigravity", "claude", "cursor", "windsurf", "copilot", "codex", "workspace"], true);
+    });
+
+    document.getElementById("btn-deduplicate-skills")?.addEventListener("click", () => {
+      this.closeToolsDropdown();
+      this.handleDeduplicateSkills();
+    });
+
+    document.getElementById("btn-generate-project-rules")?.addEventListener("click", () => {
+      this.closeToolsDropdown();
+      this.openGenerateRulesModal();
+    });
+
+    document.getElementById("btn-open-diagnostics")?.addEventListener("click", () => {
+      this.closeToolsDropdown();
+      this.openDiagnosticsModal();
+    });
+
     document.getElementById("btn-tool-batch-sync")?.addEventListener("click", () => {
       this.closeToolsDropdown();
       this.handleBatchInstallAll();
@@ -3435,11 +3574,31 @@ phase: build-and-polish
       }
     });
 
+    // Sidebar Help & Shortcuts Button (Figma 11:114)
+    const sidebarHelpBtn = document.getElementById("btn-sidebar-help");
+    if (sidebarHelpBtn) {
+      sidebarHelpBtn.addEventListener("click", () => this.openQuickHelpModal());
+      sidebarHelpBtn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this.openQuickHelpModal();
+        }
+      });
+    }
+
     // Keyboard shortcuts
     window.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         this.openCommandPalette();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && (e.key === "/" || e.key === "?")) {
+        e.preventDefault();
+        this.openQuickHelpModal();
+      } else if (e.key === "?" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName) && !document.activeElement?.isContentEditable) {
+        e.preventDefault();
+        this.openQuickHelpModal();
       }
 
       if (e.key === "Escape") {

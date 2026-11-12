@@ -80,10 +80,56 @@ class DesktopAPI:
         return [s.to_dict() for s in skills]
 
     def get_skill(self, skill_id: str, workspace_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        """Returns complete detail of a specific skill."""
+        """Returns complete detail of a specific skill with an organized file tree for massive skills."""
         ws = workspace_path or getattr(self, "active_workspace", str(Path.cwd()))
         skill = SkillStorage.get_skill(skill_id, ws)
-        return skill.to_dict() if skill else None
+        if not skill:
+            return None
+        res = skill.to_dict()
+        tree = []
+        # Main skill file
+        tree.append({"type": "file", "name": "SKILL.md", "rel_path": "SKILL.md", "id": "skill_md", "category": "main"})
+
+        # References
+        if skill.references:
+            ref_children = [{"type": "file", "name": r.filename, "rel_path": f"references/{r.filename}", "id": r.id, "title": r.title, "category": "reference"} for r in skill.references]
+            tree.append({"type": "folder", "name": "references", "rel_path": "references", "children": ref_children, "count": len(ref_children)})
+
+        # Rules
+        if skill.rules:
+            rule_children = [{"type": "file", "name": rule.filename, "rel_path": f"rules/{rule.filename}", "id": rule.id, "title": rule.name, "category": "rule"} for rule in skill.rules]
+            tree.append({"type": "folder", "name": "rules", "rel_path": "rules", "children": rule_children, "count": len(rule_children)})
+
+        # Extra files for massive skills (scripts, templates, assets, evals, etc.)
+        extra_list = getattr(skill, "extra_files", []) or []
+        if extra_list:
+            folder_groups = {}
+            for f in extra_list:
+                rel = f.rel_path.replace("\\", "/")
+                parts = rel.split("/")
+                top_folder = parts[0] if len(parts) > 1 else ""
+                file_info = {
+                    "type": "file",
+                    "name": f.filename,
+                    "rel_path": rel,
+                    "id": f"extra_{rel}",
+                    "title": f.filename,
+                    "category": f.category
+                }
+                if top_folder:
+                    folder_groups.setdefault(top_folder, []).append(file_info)
+                else:
+                    tree.append(file_info)
+            for folder_name, children in sorted(folder_groups.items()):
+                existing_folder = next((item for item in tree if item.get("name") == folder_name and item.get("type") == "folder"), None)
+                if existing_folder:
+                    existing_folder["children"].extend(children)
+                    existing_folder["count"] = len(existing_folder["children"])
+                else:
+                    tree.append({"type": "folder", "name": folder_name, "rel_path": folder_name, "children": children, "count": len(children)})
+
+        res["file_tree"] = tree
+        return res
 
     def get_skill_diff(self, data: Any) -> Dict[str, Any]:
         """

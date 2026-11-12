@@ -23,7 +23,7 @@
     <header class="topbar">
       <div class="brand-section">
         <div class="brand-mark" id="brand-logo-trigger" data-testid="brand-logo-trigger" role="button" tabindex="0" title="Xem lại màn hình mở đầu AbyssalSkillsD" style="cursor: pointer;">
-          <svg width="20" height="20" viewBox="0 0 512 512" fill="none" class="sf-brand-svg">
+          <svg width="22" height="22" viewBox="0 0 512 512" fill="none" class="sf-brand-svg">
             <defs>
               <linearGradient id="navOcean" x1="10%" y1="90%" x2="90%" y2="30%">
                 <stop offset="0%" stop-color="#0077B6" />
@@ -52,8 +52,9 @@
           </svg>
         </div>
         <span class="brand-title">AbyssalSkillsD</span>
-        <span class="breadcrumb-divider">/</span>
-        <span class="breadcrumb-path" id="breadcrumb-current">Skill-AI-private Suite</span>
+        <span class="brand-version-badge">v1.1.5</span>
+        <span class="breadcrumb-divider" style="display:none;">/</span>
+        <span class="breadcrumb-path" id="breadcrumb-current" style="display:none;">Skill-AI-private Suite</span>
       </div>
 
       <div class="topbar-center">
@@ -125,12 +126,26 @@
     <div class="workbench-split">
       <!-- Left Activity Sidebar -->
       <aside class="activity-sidebar" data-testid="activity-sidebar">
-        <div>
-          <div class="nav-group-title">Không gian làm việc</div>
+        <div class="sidebar-top-section">
+          <div class="nav-group-title">KHÔNG GIAN LÀM VIỆC</div>
+          
+          <!-- Active Workspace Project Box (Figma Node 11:53) -->
+          <div class="sidebar-workspace-box" id="workspace-project-bar" data-testid="workspace-project-bar">
+            <div class="sidebar-workspace-top">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <span class="sidebar-workspace-tag">DỰ ÁN ĐANG MỞ</span>
+            </div>
+            <div class="sidebar-workspace-main">
+              <span class="sidebar-workspace-path" id="workspace-current-badge" title="Thư mục dự án đang lập trình">C:\Manager Skills</span>
+              <button class="sidebar-workspace-btn" id="btn-change-workspace" data-testid="btn-change-workspace" title="Bấm để chọn thư mục dự án bạn đang lập trình">Đổi</button>
+            </div>
+          </div>
+
+          <div class="nav-group-title" style="margin-top: 14px;">THƯ VIỆN</div>
           <div class="nav-link active" data-nav="library" data-testid="nav-library" role="button" tabindex="0">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <span>Kho Kỹ Năng</span>
-            <span class="nav-badge-pill" id="badge-total-skills">7</span>
+            <span class="nav-badge-pill" id="badge-total-skills">36</span>
           </div>
 
           <div class="nav-link" data-nav="installed" data-testid="nav-installed" role="button" tabindex="0">
@@ -161,27 +176,33 @@
           </div>
         </div>
 
-        <!-- Consolidated AI Ecosystem Status Card (Replaces redundant static rows) -->
+        <!-- Consolidated AI Ecosystem Status Card (Figma Node 11:93) -->
         <div class="sidebar-ai-health-card" id="sidebar-autopilot-widget">
           <div class="ai-health-header">
             <div class="ai-health-status">
-              <span class="status-led active"></span>
-              <span class="ai-health-label">7 Nền Tảng AI Sẵn Sàng</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span class="ai-health-label">Trạng Thái AI</span>
             </div>
-            <span class="ai-health-badge">Hoạt động</span>
+            <span class="ai-health-badge">7 AI</span>
           </div>
-          <div class="autopilot-tools-grid ai-health-tags">
-            <span class="autopilot-tool-tag" title="Google Antigravity: .agents"><span class="status-led active"></span>Antigravity</span>
-            <span class="autopilot-tool-tag" title="Claude Code: CLAUDE.md"><span class="status-led active"></span>Claude</span>
-            <span class="autopilot-tool-tag" title="Cursor AI: .cursorrules"><span class="status-led active"></span>Cursor</span>
-            <span class="autopilot-tool-tag" title="Windsurf: .windsurfrules"><span class="status-led active"></span>Windsurf</span>
-            <span class="autopilot-tool-tag" title="GitHub Copilot: copilot-instructions"><span class="status-led active"></span>Copilot</span>
-            <span class="autopilot-tool-tag" title="OpenAI Codex: CODEX.md"><span class="status-led active"></span>Codex</span>
-            <span class="autopilot-tool-tag" title="Aider & Workspace"><span class="status-led active"></span>Workspace</span>
+          <div class="ai-health-subtitle">Đồng bộ 7 Nền tảng AI</div>
+          <div class="ai-health-divider"></div>
+          <div class="ai-health-vertical-list">
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Antigravity</span></div><span class="platform-state">Đã kết nối</span></div>
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Claude</span></div><span class="platform-state">Đã kết nối</span></div>
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Cursor</span></div><span class="platform-state">Đã kết nối</span></div>
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Windsurf</span></div><span class="platform-state">Đã kết nối</span></div>
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Copilot</span></div><span class="platform-state">Đã kết nối</span></div>
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Codex</span></div><span class="platform-state">Đã kết nối</span></div>
+            <div class="ai-platform-row"><div class="platform-info"><span class="status-led active"></span><span class="platform-name">Workspace</span></div><span class="platform-state">Đã kết nối</span></div>
           </div>
-          <div class="ai-health-hint">
-            Đã đồng bộ quy tắc và kỹ năng cho mọi công cụ lập trình.
-          </div>
+        </div>
+
+        <!-- Help & Shortcuts Footer Item (Figma Node 11:114) -->
+        <div class="sidebar-help-item" id="btn-sidebar-help" role="button" tabindex="0" title="Xem trợ giúp và các phím tắt nhanh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Trợ giúp & phím tắt</span>
+          <span class="sidebar-kbd-chip">⌘ ?</span>
         </div>
       </aside>
 
@@ -190,96 +211,65 @@
         <!-- Hero Quick-Start Action Hub & Executive Header Mount -->
         <div id="org-banner-container"></div>
 
+        <!-- Catalog Header Area (Figma Node 11:125 - 11:131) -->
+        <div class="catalog-header-area" id="catalog-header-area">
+          <div class="catalog-breadcrumb">
+            <span>KHÔNG GIAN LÀM VIỆC</span>
+            <span class="catalog-breadcrumb-sep">/</span>
+            <span class="catalog-breadcrumb-sub">Thư viện kỹ năng</span>
+          </div>
+          <div class="catalog-title-row">
+            <div>
+              <h1 class="catalog-main-title">Kho Kỹ Năng</h1>
+              <p class="catalog-subtitle">Nâng cấp cách bạn làm việc cùng AI.</p>
+            </div>
+            <div class="catalog-total-badge">
+              <span id="badge-catalog-total">36 kỹ năng</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Streamlined Single-Row Toolbar (Consolidates Needs & Source in 1 Clean Bar) -->
         <div class="catalog-unified-toolbar" id="catalog-unified-toolbar">
           <!-- Filter chips (shown in library/installed view) -->
           <div class="catalog-filter-bar" id="catalog-filter-bar">
-            <span class="toolbar-section-label">Nhu cầu:</span>
-            <button class="filter-chip active" data-cat="all" data-testid="filter-all">Tất cả nhu cầu</button>
-            <button class="filter-chip" data-cat="plan_debug" data-testid="filter-plan-debug">Lập kế hoạch & Sửa lỗi</button>
-            <button class="filter-chip" data-cat="ui_ux" data-testid="filter-ui-ux">Làm đẹp Giao diện</button>
-            <button class="filter-chip" data-cat="web_db" data-testid="filter-web-db">Làm Web & Dữ liệu</button>
+            <span class="toolbar-section-label" style="display:none;">Nhu cầu:</span>
+            <button class="filter-chip active" data-cat="all" data-testid="filter-all">Tất cả</button>
+            <button class="filter-chip" data-cat="plan_debug" data-testid="filter-plan-debug">Lập kế hoạch & Debug</button>
+            <button class="filter-chip" data-cat="ui_ux" data-testid="filter-ui-ux">Giao diện UI/UX</button>
+            <button class="filter-chip" data-cat="web_db" data-testid="filter-web-db">Web & DB</button>
             <button class="filter-chip" data-cat="testing_qa" data-testid="filter-testing-qa">Kiểm thử tự động</button>
-            <button class="filter-chip" data-cat="design_assets" data-testid="filter-design-assets">Kho Icon & Đồ họa</button>
+            <button class="filter-chip" data-cat="security" data-testid="filter-security">Bảo mật</button>
+            <button class="filter-chip" data-cat="design_assets" data-testid="filter-design-assets" style="display:none;">Kho Icon</button>
           </div>
 
-          <!-- Source Selector Segmented Group -->
-          <div class="catalog-source-bar" id="catalog-source-bar" data-testid="catalog-source-bar">
-            <span class="source-bar-label">Nguồn:</span>
-            <button class="source-chip active" data-source="all" data-testid="source-all" title="Toàn bộ 36 kỹ năng">
-              <span>Tất cả</span>
-              <span class="source-count" id="count-source-all">36</span>
-            </button>
-            <button class="source-chip" data-source="skill_ai" data-testid="source-skill-ai" title="7 kỹ năng lõi kiến trúc & giao diện">
-              <span>Skill-AI (7)</span>
-              <span class="source-count" id="count-source-skill-ai" style="display:none;">7</span>
-            </button>
-            <button class="source-chip" data-source="addy_osmani" data-testid="source-addy-osmani" title="29 kỹ năng chuẩn Google & chuyên gia">
-              <span>Addy Osmani (29)</span>
-              <span class="source-count" id="count-source-addy-osmani" style="display:none;">29</span>
-            </button>
-          </div>
-
-          <!-- Status Filter Bar (All / Installed / Not Installed / Has Update) -->
-          <div class="catalog-status-bar" id="catalog-status-bar" data-testid="catalog-status-bar">
-            <span class="status-bar-label">Trạng thái:</span>
-            <button class="status-chip active" data-status="all" data-testid="status-all" title="Hiển thị tất cả kỹ năng">
-              <span>Tất cả</span>
-              <span class="status-count" id="count-status-all">36</span>
-            </button>
-            <button class="status-chip" data-status="installed" data-testid="status-installed" title="Chỉ hiển thị các kỹ năng đã cài đặt vào máy">
-              <span>✓ Đã cài</span>
-              <span class="status-count" id="count-status-installed">0</span>
-            </button>
-            <button class="status-chip" data-status="not_installed" data-testid="status-not-installed" title="Chỉ hiển thị các kỹ năng chưa cài đặt">
-              <span>○ Chưa cài</span>
-              <span class="status-count" id="count-status-not-installed">0</span>
-            </button>
-            <button class="status-chip" data-status="has_update" data-testid="status-has-update" title="Các kỹ năng có bản cập nhật mới">
-              <span>🔄 Bản mới</span>
-              <span class="status-count" id="count-status-has-update" style="display:none;">0</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Active Workspace Project Bar (Consolidated Action Dropdown List) -->
-        <div class="workspace-project-bar" id="workspace-project-bar" data-testid="workspace-project-bar">
-          <div class="workspace-project-info">
-            <span class="workspace-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            </span>
-            <span class="workspace-label">Dự Án Code:</span>
-            <span class="workspace-current-badge" id="workspace-current-badge" title="Thư mục dự án đang lập trình">Đang nạp...</span>
-          </div>
-          <div class="workspace-project-actions">
-            <div class="project-tools-dropdown-wrapper" style="position:relative;">
-              <button class="btn-workspace-action btn-project-tools-trigger" id="btn-project-tools-dropdown" data-testid="btn-project-tools-dropdown" title="Mở danh sách các thao tác cho dự án">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                <span>⚡ Thao Tác Dự Án ▾</span>
+          <!-- Source Selector Segmented Group with Underline (Figma Node 11:144 - 11:155) -->
+          <div class="catalog-source-row">
+            <div class="catalog-source-bar" id="catalog-source-bar" data-testid="catalog-source-bar">
+              <button class="source-chip active" data-source="all" data-testid="source-all" title="Toàn bộ 36 kỹ năng">
+                <span>Tất cả</span>
+                <span class="source-count" id="count-source-all">36</span>
               </button>
-              <div class="project-tools-dropdown-menu" id="project-tools-dropdown-menu" style="display:none;" onclick="event.stopPropagation()">
-                <div class="dropdown-menu-item" id="btn-change-workspace" data-testid="btn-change-workspace" title="Bấm để chọn thư mục dự án bạn đang lập trình">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                  <span>📁 Đổi Thư Mục Dự Án...</span>
-                </div>
-                <div class="dropdown-menu-item" id="btn-sync-all-ais" data-testid="btn-sync-all-ais" title="Đồng bộ toàn bộ 36 kỹ năng vào tất cả các công cụ AI trên máy">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                  <span>⚡ Đồng Bộ Tất Cả 7 AI</span>
-                </div>
-                <div class="dropdown-menu-item" id="btn-deduplicate-skills" data-testid="btn-deduplicate-skills" title="Quét và dọn sạch các thư mục kỹ năng trùng lặp, lồng nhau trên toàn bộ các công cụ AI">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                  <span>🧹 Dọn Trùng Lặp Skill</span>
-                </div>
-                <div class="dropdown-menu-item" id="btn-generate-project-rules" data-testid="btn-generate-project-rules" title="Tự động tạo các tệp quy tắc .cursorrules, .windsurfrules, CLAUDE.md cho dự án này">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                  <span>📄 Tự Động Sinh Tệp Rules</span>
-                </div>
-                <div class="dropdown-menu-item" id="btn-open-diagnostics" data-testid="btn-open-diagnostics" title="Kiểm tra trạng thái sức khỏe hệ thống và xuất báo cáo chẩn đoán">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
-                  <span>🩺 Chẩn Đoán & Nhật Ký Log</span>
-                </div>
-              </div>
+              <button class="source-chip" data-source="skill_ai" data-testid="source-skill-ai" title="7 kỹ năng lõi kiến trúc & giao diện">
+                <span>Skill-AI</span>
+                <span class="source-count" id="count-source-skill-ai">7</span>
+              </button>
+              <button class="source-chip" data-source="addy_osmani" data-testid="source-addy-osmani" title="29 kỹ năng chuẩn Google & chuyên gia">
+                <span>Addy Osmani</span>
+                <span class="source-count" id="count-source-addy-osmani">29</span>
+              </button>
             </div>
+            <div class="catalog-source-meta" id="catalog-counter-meta">
+              <span id="catalog-visible-count">6 / 36 kỹ năng</span>
+            </div>
+          </div>
+
+          <!-- Status Filter Bar (Hidden / Preserves programmatic state for tests) -->
+          <div class="catalog-status-bar" id="catalog-status-bar" data-testid="catalog-status-bar" style="display:none;">
+            <button class="status-chip active" data-status="all" data-testid="status-all"><span id="count-status-all">36</span></button>
+            <button class="status-chip" data-status="installed" data-testid="status-installed"><span id="count-status-installed">0</span></button>
+            <button class="status-chip" data-status="not_installed" data-testid="status-not-installed"><span id="count-status-not-installed">0</span></button>
+            <button class="status-chip" data-status="has_update" data-testid="status-has-update"><span id="count-status-has-update">0</span></button>
           </div>
         </div>
 
@@ -290,6 +280,20 @@
         <div class="catalog-content-scroll" id="catalog-content-scroll">
           <div class="bento-grid" id="skills-bento-grid" data-testid="skills-bento-grid"></div>
           <div class="linear-list" id="skills-linear-list" style="display:none;" data-testid="skills-linear-list"></div>
+          
+          <!-- Pagination bar (Figma Node 11:303 - 11:308) -->
+          <div class="catalog-pagination-row" id="catalog-pagination-bar">
+            <span class="pagination-info" id="pagination-info-text">Hiển thị 6 trong 36 kỹ năng</span>
+            <div class="pagination-pages">
+              <button class="pagination-btn active">1</button>
+              <button class="pagination-btn">2</button>
+              <button class="pagination-btn">3</button>
+              <button class="pagination-btn" title="Trang tiếp">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
           <div id="guide-container" style="display:none; height:100%;"></div>
           <div id="studio-container" style="display:none; height:100%;"></div>
           <div id="community-container" style="display:none; height:100%;"></div>
@@ -303,13 +307,19 @@
       </aside>
     </div>
 
-    <!-- Bottom Status Bar -->
+    <!-- Bottom Status Bar (Figma Node 11:7) -->
     <footer class="bottom-statusbar">
-      <div style="display:flex; align-items:center; gap:6px;">
+      <div class="statusbar-left">
         <span class="status-led active"></span>
-        <span id="footer-status-text">Đang đọc thư viện và trạng thái tệp cài đặt…</span>
+        <span id="footer-status-text">7 nền tảng AI hoạt động tốt</span>
       </div>
-      <div>v1.1.5</div>
+      <div class="statusbar-center">
+        <span>Đồng bộ lần cuối: vừa xong</span>
+      </div>
+      <div class="statusbar-right">
+        <span class="status-dot-sm"></span>
+        <span>v1.1.5 Bản chính thức</span>
+      </div>
     </footer>
   </div>
 

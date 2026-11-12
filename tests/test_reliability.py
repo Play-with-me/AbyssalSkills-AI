@@ -279,6 +279,61 @@ class ReliabilityTests(unittest.TestCase):
         self.assertEqual(res['error_code'], 'ALREADY_INSTALLING')
         api._install_locks.clear()
 
+    def test_massive_skill_directory_scan_and_install(self):
+        from app.backend.scanner import SkillScanner
+        from app.backend.models import InstallRequest
+        
+        # 1. Create a massive multi-folder skill in temp workspace
+        skill_dir = self.workspace / 'massive-skill'
+        skill_dir.mkdir(parents=True, exist_ok=True)
+        (skill_dir / 'SKILL.md').write_text('---\nname: massive-skill\ndescription: Test massive skill\n---\n# Massive Skill Guide', encoding='utf-8')
+        
+        # Add references/
+        (skill_dir / 'references').mkdir(parents=True, exist_ok=True)
+        (skill_dir / 'references' / 'guide1.md').write_text('# Ref 1', encoding='utf-8')
+        
+        # Add scripts/
+        (skill_dir / 'scripts').mkdir(parents=True, exist_ok=True)
+        (skill_dir / 'scripts' / 'runner.py').write_text('print("Running runner")', encoding='utf-8')
+        
+        # Add templates/
+        (skill_dir / 'templates').mkdir(parents=True, exist_ok=True)
+        (skill_dir / 'templates' / 'config.json').write_text('{"env": "test"}', encoding='utf-8')
+        
+        # 2. Scan skill directory
+        skills = SkillScanner.scan_skill_directory(self.workspace)
+        scanned = next((s for s in skills if s.id == 'massive-skill'), None)
+        self.assertIsNotNone(scanned)
+        self.assertEqual(len(scanned.references), 1)
+        self.assertGreaterEqual(len(scanned.extra_files), 2)
+        
+        rel_paths = {f.rel_path.replace('\\', '/') for f in scanned.extra_files}
+        self.assertIn('scripts/runner.py', rel_paths)
+        self.assertIn('templates/config.json', rel_paths)
+        
+        # 3. Install skill
+        req = InstallRequest(skill_id='massive-skill', targets=['workspace'], workspace_path=str(self.workspace))
+        res = self.installer.install(scanned, req)
+        self.assertTrue(res.success)
+        
+        installed_root = self.workspace / '.agents' / 'skills' / 'massive-skill'
+        self.assertTrue((installed_root / 'SKILL.md').is_file())
+        self.assertTrue((installed_root / 'references' / 'guide1.md').is_file())
+        self.assertTrue((installed_root / 'scripts' / 'runner.py').is_file())
+        self.assertTrue((installed_root / 'templates' / 'config.json').is_file())
+        self.assertEqual((installed_root / 'scripts' / 'runner.py').read_text(encoding='utf-8'), 'print("Running runner")')
+
+    def test_massive_skill_preserves_subdirs_during_dedup(self):
+        # Ensure clean_nested_skills does not wipe scripts or templates
+        ws_skills = self.workspace / '.agents' / 'skills' / 'my-big-skill'
+        ws_skills.mkdir(parents=True, exist_ok=True)
+        (ws_skills / 'SKILL.md').write_text('---\nname: my-big-skill\n---\n# Main', encoding='utf-8')
+        (ws_skills / 'scripts').mkdir(parents=True, exist_ok=True)
+        (ws_skills / 'scripts' / 'tool.py').write_text('# tool', encoding='utf-8')
+        
+        cleaned = self.installer.clean_nested_skills(self.workspace / '.agents' / 'skills')
+        self.assertTrue((ws_skills / 'scripts' / 'tool.py').is_file())
+
 
 if __name__ == '__main__':
     unittest.main()

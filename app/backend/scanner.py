@@ -9,7 +9,7 @@ import json
 import yaml
 from pathlib import Path
 from typing import List, Dict, Optional, Any, Tuple
-from .models import SkillItem, ReferenceDoc, RuleDoc
+from .models import SkillItem, ReferenceDoc, RuleDoc, SkillFileDoc
 
 class SkillScanner:
     # Mapping for Skill-AI-private Official Suite
@@ -737,6 +737,66 @@ class SkillScanner:
                     rule_type="always_on"
                 ))
 
+        # Extra files for massive multi-folder skills (scripts/, templates/, assets/, evals/, etc.)
+        extra_files: List[SkillFileDoc] = []
+        max_depth = 4
+        max_file_size = 1024 * 1024  # 1MB limit per text file
+
+        def _scan_folder_recursive(base_dir: Path, curr_dir: Path, cur_depth: int = 1):
+            if cur_depth > max_depth or not curr_dir.exists() or not curr_dir.is_dir():
+                return
+            try:
+                for item in sorted(curr_dir.iterdir()):
+                    if item.name.startswith('.') and item.name not in {'.cursorrules', '.windsurfrules'}:
+                        continue
+                    if item.name in {'__pycache__', '.git', '.venv', 'venv', 'node_modules', '.abyssal-removed'}:
+                        continue
+                    if item.is_file():
+                        if item == base_dir / "SKILL.md":
+                            continue
+                        rel = item.relative_to(base_dir).as_posix()
+                        # Skip files already in top-level references or rules
+                        if rel.startswith("references/") and item.suffix.lower() == ".md" and "/" not in rel[11:]:
+                            continue
+                        if rel.startswith("rules/") and item.suffix.lower() == ".md" and "/" not in rel[6:]:
+                            continue
+                        ext = item.suffix.lower()
+                        if ext in {'.exe', '.bat', '.cmd', '.dll', '.so', '.dylib', '.vbs', '.msi'}:
+                            continue
+                        try:
+                            if item.stat().st_size > max_file_size:
+                                continue
+                            cat = "other"
+                            if rel.startswith("scripts/"):
+                                cat = "script"
+                            elif rel.startswith("templates/"):
+                                cat = "template"
+                            elif rel.startswith("assets/"):
+                                cat = "asset"
+                            elif rel.startswith("references/"):
+                                cat = "reference"
+                            elif rel.startswith("rules/"):
+                                cat = "rule"
+                            elif rel.startswith("evals/"):
+                                cat = "eval"
+                            
+                            content = item.read_text(encoding="utf-8", errors="replace")
+                            extra_files.append(SkillFileDoc(
+                                rel_path=rel,
+                                filename=item.name,
+                                content=content,
+                                is_binary=False,
+                                category=cat
+                            ))
+                        except Exception:
+                            pass
+                    elif item.is_dir():
+                        _scan_folder_recursive(base_dir, item, cur_depth + 1)
+            except Exception:
+                pass
+
+        _scan_folder_recursive(folder, folder, 1)
+
         has_graphify = (
             "graphify" in body.lower() or 
             any("graphify" in r.content.lower() for r in references) or
@@ -769,6 +829,7 @@ class SkillScanner:
             yaml_frontmatter=fm,
             references=references,
             rules=rules,
+            extra_files=extra_files,
             has_graphify=has_graphify,
             installed_targets=installed_targets,
             always_on_enabled=always_on,

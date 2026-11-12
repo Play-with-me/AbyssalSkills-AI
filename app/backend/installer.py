@@ -54,6 +54,10 @@ class SkillInstaller:
                 # Validation happens before any file is written.
                 safe_child(Path.cwd(), doc.filename)
                 payload[folder + '/' + doc.filename] = doc.content
+        for extra in getattr(skill, 'extra_files', []):
+            rel = extra.rel_path.replace('\\', '/').lstrip('/')
+            safe_child(Path.cwd(), rel)
+            payload[rel] = extra.content
         return payload
 
     @classmethod
@@ -117,7 +121,7 @@ class SkillInstaller:
             if not (skill_dir / 'SKILL.md').is_file():
                 continue
             for sub in list(skill_dir.iterdir()):
-                if not sub.is_dir() or sub.name in {'examples', 'templates', 'scratch', 'references', 'rules', 'scripts', '.abyssal-removed'}:
+                if not sub.is_dir() or sub.name in {'examples', 'templates', 'scratch', 'references', 'rules', 'scripts', 'assets', 'evals', 'docs', 'hooks', '.abyssal-removed'}:
                     continue
                 if (sub / 'SKILL.md').is_file():
                     archive_dir = root_dir / '.abyssal-removed' / f"nested-{skill_dir.name}-{sub.name}-{time.time_ns()}"
